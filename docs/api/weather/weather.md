@@ -24,6 +24,8 @@ try {
 
 ```
 返回信息参考
+<details>
+<summary>展开查看</summary>
 ``` json
 {
     "temperature": {
@@ -206,7 +208,7 @@ try {
 }
 
 ```
-
+</details>
 ### 天气警报
 :::info
 未开放接口
