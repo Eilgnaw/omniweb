@@ -1,14 +1,11 @@
 ---
 sidebar_position: 1
 ---
-# 网络
+# 网络请求
 :::info
 网络模块是 Omni 小组件显示数据的主要来源
 :::
-# 网络
-
-
-## GET请求
+### GET请求
 发起一个```get```请求
 ```js
 try {
@@ -24,7 +21,7 @@ try {
 $done()  //代码结束时请添加此行代码
 ```
 
-## 传入 header
+### 传入 header
 在请求中携带```header```
 ```js
 var token = "abcdef"
@@ -39,7 +36,7 @@ try {
 $done()
 ```
 
-## POST请求
+### POST请求
 发起一个```POST```请求
 ```js
 try {

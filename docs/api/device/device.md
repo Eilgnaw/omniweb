@@ -5,8 +5,6 @@ sidebar_position: 4
 :::info
 设备信息接口可以获取设备的一些基础信息
 :::
-
-# 设备信息
 ### 系统版本号
 ``` js
 this.version = device.systemVersion()
