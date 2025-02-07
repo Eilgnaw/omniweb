@@ -1,0 +1,75 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: registry.cn-hangzhou.aliyuncs.com
+  IMAGE_NAME: your-namespace/your-image-name
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      # 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      # 安装依赖并构建 Docusaurus
+      - name: Install and Build
+        run: |
+          npm ci
+          npm run build
+      
+      # 验证 build 目录
+      - name: Verify build directory
+        run: |
+          ls -la build/
+          echo "Build directory contents:"
+          find build/ -type f | wc -l
+      
+      # 登录到阿里云容器镜像服务
+      - name: Login to Aliyun Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      
+      # 设置 Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      # 构建并推送 Docker 镜像
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          # 确保构建上下文包含 build 目录
+          build-args: |
+            BUILD_PATH=./build
+          # 添加调试信息
+          no-cache: true
+          outputs: type=docker,dest=/tmp/docker-image.tar
+
+      # 显示构建信息
+      - name: Show Docker Build Info
+        run: |
+          echo "Docker build context contents:"
+          ls -la
+          echo "Build directory contents:"
+          ls -la build/
