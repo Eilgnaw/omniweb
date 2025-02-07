@@ -27,7 +27,7 @@ $done()  //代码结束时请添加此行代码
 ## 传入 header
 在请求中携带```header```
 ```js
-var token = "abcdefg"
+var token = "abcdef"
 try {
     let result = await http.get("https://v2.jinrishici.com/sentence",{headers: {'X-User-Token':token}})
     let obj = JSON.parse(result)
