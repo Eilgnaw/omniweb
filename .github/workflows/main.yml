@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: registry.cn-hangzhou.aliyuncs.com
-  IMAGE_NAME: your-namespace/your-image-name
+  REGISTRY: registry.cn-shenzhen.aliyuncs.com
+  IMAGE_NAME: eilgnaw/omnidoc
 
 jobs:
   build-and-push:
