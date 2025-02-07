@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 4
 ---
 # 设备信息
 :::info
