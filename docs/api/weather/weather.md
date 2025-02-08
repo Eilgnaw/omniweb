@@ -211,12 +211,12 @@ try {
 
 ### 今日天气
 ``` js
-    const result = await Weather.getToday()
-    var obj = JSON.parse(result)
-    this.icon = obj.symbolName
-    this.text = obj.condition
-    this.temp =  Math.trunc(obj.apparentTemperature.value)
-    console.log(result)
+const result = await Weather.getToday()
+var obj = JSON.parse(result)
+this.icon = obj.symbolName
+this.text = obj.condition
+this.temp =  Math.trunc(obj.apparentTemperature.value)
+console.log(result)
 ```
 
 返回信息参考

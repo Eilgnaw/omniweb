@@ -25,3 +25,14 @@ console.log(obj.city)
 // {"countryCode":"CN","street":"林士街","name":"林士街2号","city":"香港特别行政区","streetNumber":"2号","country":"中国","district":"中西区"}
 // 香港特别行政区
 ```
+获取指定坐标的地址信息
+```js
+const location = {
+    latitude: 22.284681,
+    longitude: 114.158177
+};
+let mark = await Location.getPlacemark(location)
+console.log(mark)
+
+// {"countryCode":"CN","street":"林士街","name":"林士街2号","city":"香港特别行政区","streetNumber":"2号","country":"中国","district":"中西区"}
+```
