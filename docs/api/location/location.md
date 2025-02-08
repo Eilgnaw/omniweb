@@ -19,8 +19,7 @@ console.log('当前位置:', `${location.latitude},${location.longitude}`);
 ```js
 let mark = await Location.getPlacemark()
 console.log(mark)
-let obj = JSON.parse(mark)
-console.log(obj.city)
+console.log(mark.city)
 
 // {"countryCode":"CN","street":"林士街","name":"林士街2号","city":"香港特别行政区","streetNumber":"2号","country":"中国","district":"中西区"}
 // 香港特别行政区
@@ -33,6 +32,7 @@ const location = {
 };
 let mark = await Location.getPlacemark(location)
 console.log(mark)
-
+console.log(mark.city)
 // {"countryCode":"CN","street":"林士街","name":"林士街2号","city":"香港特别行政区","streetNumber":"2号","country":"中国","district":"中西区"}
+// 香港特别行政区
 ```
