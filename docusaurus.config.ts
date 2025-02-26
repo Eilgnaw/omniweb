@@ -6,11 +6,11 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'OmniWidgets',
-  tagline: 'Dinosaurs are cool',
+  tagline: 'DIY 小组件和灵动岛',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://omnidoc.2f0.cn/',
+  url: 'https://omni.2f0.cn/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -69,6 +69,38 @@ const config: Config = {
       defaultMode: 'light',
       disableSwitch: false,
       respectPrefersColorScheme: true,
+    },
+    algolia: {
+      // Algolia 提供的应用 ID
+      appId: 'Z74G32KRFO',
+
+      //  公开 API 密钥：提交它没有危险
+      apiKey: '5f7e305754ec6cc8c8949997e2c1e338',
+
+      indexName: 'omni-2f0',
+
+      // 可选：见下文
+      contextualSearch: true,
+
+      // 可选：声明哪些域名需要用 window.location 型的导航而不是 history.push。 适用于 Algolia 配置会爬取多个文档站点，而我们想要用 window.location.href 在它们之间跳转时。
+      externalUrlRegex: 'external\\.com|domain\\.com',
+
+      // 可选：替换 Algolia 的部分网址。 在使用相同搜索索引支持多个不同 baseUrl 的部署时非常有用。 你可以在 “from” 中使用正则表达式或字符串。 比方说，localhost:3000 和 myCompany.com/docs
+      replaceSearchResultPathname: {
+        from: '/docs/', // or as RegExp: /\/docs\//
+        to: '/',
+      },
+
+      // 可选：Algolia 搜索参数
+      searchParameters: {},
+
+      // 可选：默认启用的搜索页路径（传递 `false` 以禁用它）
+      searchPagePath: 'search',
+
+      // 可选：Docsearch 的 insights 功能是否启用（默认为 `false`）
+      insights: false,
+
+      //... 其他 Algolia 参数
     },
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
