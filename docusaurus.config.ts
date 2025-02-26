@@ -77,7 +77,7 @@ const config: Config = {
       //  公开 API 密钥：提交它没有危险
       apiKey: '5f7e305754ec6cc8c8949997e2c1e338',
 
-      indexName: 'omni-2f0',
+      indexName: 'omni-api',
 
       // 可选：见下文
       contextualSearch: true,
@@ -86,10 +86,10 @@ const config: Config = {
       externalUrlRegex: 'external\\.com|domain\\.com',
 
       // 可选：替换 Algolia 的部分网址。 在使用相同搜索索引支持多个不同 baseUrl 的部署时非常有用。 你可以在 “from” 中使用正则表达式或字符串。 比方说，localhost:3000 和 myCompany.com/docs
-      replaceSearchResultPathname: {
-        from: '/docs/', // or as RegExp: /\/docs\//
-        to: '/',
-      },
+      // replaceSearchResultPathname: {
+      //   from: '/docs/', // or as RegExp: /\/docs\//
+      //   to: '/',
+      // },
 
       // 可选：Algolia 搜索参数
       searchParameters: {},
