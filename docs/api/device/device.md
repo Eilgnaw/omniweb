@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 7
 ---
 # 设备信息
 :::info
@@ -29,7 +29,10 @@ console.log(language)
 // zh
 ```
 
-### 电池信息
-:::info
-由于小组件刷新时间限制,电量时效不准,故暂不提供读取,如果能接受电池信息延迟,可以联系我们开放此接口
-:::
+### 电量信息
+``` js
+this.battery = device.battery()
+console.log(battery)
+
+// {"state":"unplugged","level":0.75}
+```

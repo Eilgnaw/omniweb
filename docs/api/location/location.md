@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 4
 ---
 # 位置信息
 :::info
@@ -8,15 +8,17 @@ sidebar_position: 1
 
 ## 获取坐标
 获取当前坐标信息
-```js
-let location =  await Location.getLocation()
+``` js
+let location =  await Location.getLocation()//默认缓存 1 小时
 console.log('当前位置:', `${location.latitude},${location.longitude}`);
 // 当前位置: 34.7472,113.625
+
+let location =  await Location.getLocation(5)//缓存5分钟
 ```
 
 ## 获取地址信息
 获取当前地址信息
-```js
+``` js
 let mark = await Location.getPlacemark()
 console.log(mark)
 console.log(mark.city)
@@ -25,7 +27,7 @@ console.log(mark.city)
 // 香港特别行政区
 ```
 获取指定坐标的地址信息
-```js
+``` js
 const location = {
     latitude: 22.284681,
     longitude: 114.158177
