@@ -30,9 +30,11 @@ console.log(language)
 ```
 
 ### 电量信息
+:::info
+电量状态分别为: 未知 "unknown", 充电中 "charging", 已充满 "full", 未充电 "unplugged"
+:::
 ``` js
 this.battery = device.battery()
 console.log(battery)
-
 // {"state":"unplugged","level":0.75}
 ```
