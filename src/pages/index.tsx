@@ -12,6 +12,7 @@ function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
+      <meta name="apple-itunes-app" content="app-id=6468910867"></meta>
       <div className="container">
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
