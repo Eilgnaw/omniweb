@@ -4,7 +4,7 @@
         "details": [{
             "appID": "4Y7X2393Y7.com.eilgnaw.AWidget",
             "paths": [
-                "*"
+                "/app/*"
             ]
         }]
     },
