@@ -20,8 +20,8 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="/docs/intro">
-            使用教程
+            to="https://apps.apple.com/app/id6468910867">
+            立即下载
           </Link>
         </div>
       </div>

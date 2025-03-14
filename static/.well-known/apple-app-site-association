@@ -1,0 +1,16 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [{
+            "appID": "4Y7X2393Y7.com.eilgnaw.AWidget",
+            "paths": [
+                "*"
+            ]
+        }]
+    },
+    "webcredentials": {
+        "apps": [
+            "4Y7X2393Y7.com.eilgnaw.AWidget"
+        ]
+    }
+}

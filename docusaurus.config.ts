@@ -29,8 +29,7 @@ const config: Config = {
   i18n: {
     defaultLocale: 'zh-Hans',
     locales: ['zh-Hans'],
-  },
-
+  },  
   presets: [
     [
       'classic',
