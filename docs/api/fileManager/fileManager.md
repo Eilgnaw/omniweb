@@ -54,7 +54,7 @@ fm.saveImage(imagePath,image)
 ```
 
 - 显示图片
-使用图片组件,类型设置为 文件, 内容使用 {imagePath}
+使用图片组件,类型设置为 文件, 内容使用 `{imagePath}`
 
 #### 字符串读写
 ``` js
