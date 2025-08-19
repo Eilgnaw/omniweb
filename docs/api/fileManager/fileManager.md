@@ -2,6 +2,10 @@
 sidebar_position: 2
 ---
 # 文件管理
+:::note
+文件管理仅在最新测试版可以使用
+:::
+
 
 :::info
 文件管理 (FileManager) 模块提供了在 Omni 小组件中读写文件的能力，支持 iCloud 和本地文件存储。
@@ -99,15 +103,13 @@ console.log(content); // 输出: Hello, Omni!
 适用于保存和加载图片。
 
 ```javascript
-const fm = FileManager.iCloud();
+const fm = FileManager.local();
 const docs = fm.documents();
-const imagePath = docs + "background.png";
-
+this.imagePath = docs + "background.png";
 // 假设 image 是从网络或其它地方获取的图片数据 [Uint8Array]
 const image = await new Request("https://example.com/image.png").fetch();
-
 // 保存图片
-fm.writeImage(imagePath, image);
+fm.saveImage(imagePath, image);
 
 // 在图片组件中显示
 // 将图片组件类型设置为 "文件"，内容填写 imagePath 变量的值即可。
