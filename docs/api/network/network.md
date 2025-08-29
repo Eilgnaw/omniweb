@@ -2,12 +2,8 @@
 sidebar_position: 1
 ---
 # 网络请求
-:::info
+:::tip
 网络 (Network) 模块是 Omni 小组件与互联网通信的桥梁，是动态数据显示的核心。无论是获取天气信息、新闻头条，还是与您自己的服务器 API 交互，都依赖于此模块。它提供了简单而强大的 API 来发起网络请求并处理响应。
-:::
-### 新版 API
-:::note
-新版 API 仅在最新测试版可以使用
 :::
 新版 API 提供了更灵活的链式调用和配置方式。
 
@@ -52,7 +48,7 @@ const response = await req.fetchJSON();
 console.log(response);
 ```
 
-### 旧版本
+### 旧版本(不推荐使用,会在以后版本移除)
 #### GET请求
 发起一个```get```请求
 ```js
@@ -64,7 +60,6 @@ try {
     console.log(error)
 }
 
-$done()  //代码结束时请添加此行代码
 ```
 
 #### 传入 header
@@ -77,8 +72,6 @@ try {
 } catch(error) {
  console.log(error)
 }
-
-$done()
 ```
 
 #### POST请求
@@ -94,6 +87,4 @@ try {
 } catch(error) {
     console.log(error)
 }
-
-$done()
 ```

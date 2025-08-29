@@ -2,50 +2,13 @@
 sidebar_position: 2
 ---
 # 文件管理
-:::note
-文件管理仅在最新测试版可以使用
-:::
-
-
 :::info
 文件管理 (FileManager) 模块提供了在 Omni 小组件中读写文件的能力，支持 iCloud 和本地文件存储。
 :::
 
 ## 初始化
 
-`FileManager` 需要先进行初始化，以指定使用 iCloud 还是本地存储。
-
-### iCloud 云盘
-
-文件将存储在 iCloud Drive 中，可在多个设备间同步。
-
-#### 公共目录
-
-文件存储在 `文件 App -> iCloud Drive -> Omni` 目录下，用户可以方便地查看和管理。
-
-```javascript
-// 初始化 iCloud FileManager
-const fm = FileManager.iCloud();
-
-// 获取公共文档目录路径
-const documentsPath = fm.documents();
-console.log(documentsPath);
-//输出 ID:小组件ID(UUID)/
-// 对应位置为: iCloud/OmniWidgets/Widgets/小组件ID(UUID)
-```
-
-#### 私有目录
-
-文件存储在应用内部的 iCloud 目录中，在 `文件` App 中不可见，适合存放不希望用户直接操作的缓存或配置文件。
-
-```javascript
-// 初始化 iCloud FileManager
-const fm = FileManager.iCloud();
-
-// 获取私有库目录路径
-const libraryPath = fm.library();
-console.log(libraryPath);
-```
+`FileManager` 需要先进行初始化，以指定使用本地存储还是 iCloud 。
 
 ### 本地存储
 
@@ -78,6 +41,7 @@ const fm = FileManager.local();
 const libraryPath = fm.library();
 console.log(libraryPath);
 ```
+
 
 ## 文件操作
 
@@ -144,3 +108,39 @@ if (fm.fileExists(path)) {
 ## 快捷指令
 
 您可以在 `快捷指令 App -> Omni -> 文件管理` 分类下找到更多文件操作的示例和快捷指令。
+
+
+## iCloud 云盘
+:::tip
+由于小组件本身暂不支持 iCloud 同步所以暂不推荐使用 iCloud
+:::
+文件将存储在 iCloud Drive 中，可在多个设备间同步。
+
+#### 公共目录
+
+文件存储在 `文件 App -> iCloud Drive -> Omni` 目录下，用户可以方便地查看和管理。
+
+```javascript
+// 初始化 iCloud FileManager
+const fm = FileManager.iCloud();
+
+// 获取公共文档目录路径
+const documentsPath = fm.documents();
+console.log(documentsPath);
+//输出 ID:小组件ID(UUID)/
+// 对应位置为: iCloud/OmniWidgets/Widgets/小组件ID(UUID)
+```
+
+#### 私有目录
+
+文件存储在应用内部的 iCloud 目录中，在 `文件` App 中不可见，适合存放不希望用户直接操作的缓存或配置文件。
+
+```javascript
+// 初始化 iCloud FileManager
+const fm = FileManager.iCloud();
+
+// 获取私有库目录路径
+const libraryPath = fm.library();
+console.log(libraryPath);
+```
+
