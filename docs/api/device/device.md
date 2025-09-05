@@ -7,7 +7,7 @@ sidebar_position: 7
 :::
 ### 系统版本号
 ``` js
-this.version = device.systemVersion()
+this.version = Device.systemVersion()
 console.log(version)
 
 // 17.0
@@ -15,7 +15,7 @@ console.log(version)
 
 ### 设备名称
 ``` js
-this.name = device.name()
+this.name = Device.name()
 console.log(name)
 
 // iPhone 15 Pro
@@ -23,7 +23,7 @@ console.log(name)
 
 ### 设备语言
 ``` js
-this.language = device.language()
+this.language = Device.language()
 console.log(language)
 
 // zh
@@ -34,7 +34,7 @@ console.log(language)
 电量状态分别为: 未知 "unknown", 充电中 "charging", 已充满 "full", 未充电 "unplugged"
 :::
 ``` js
-this.battery = device.battery()
+this.battery = Device.battery()
 console.log(battery)
 // {"state":"unplugged","level":0.75}
 ```
