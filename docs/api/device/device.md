@@ -38,3 +38,48 @@ this.battery = Device.battery()
 console.log(battery)
 // {"state":"unplugged","level":0.75}
 ```
+
+### 网络状态
+:::info
+获取设备的网络连接状态，包括WiFi、蜂窝网络、VPN等
+:::
+``` js
+const network = Device.network()
+console.log(network)
+
+// {
+//   "wifi": true,           // WiFi连接状态
+//   "cellular": false,      // 蜂窝网络状态  
+//   "online": true,         // 是否联网
+//   "vpn": false           // VPN连接状态
+// }
+```
+
+
+
+### 连接状态
+:::info
+获取设备的连接状态，包括蓝牙、热点等非网络连接
+:::
+:::warning
+热点状态检测基于网络接口分析，iOS系统限制可能导致检测不准确
+:::
+``` js
+const connectivity = Device.connectivity()
+console.log(connectivity)
+
+// {
+//   "bluetooth": "on",     // 蓝牙状态: "on"/"off"/"unauthorized"/"unknown"等
+//   "hotspot": false       // 热点是否开启（true/false）
+// }
+```
+
+#### 状态说明
+- `bluetooth`: 蓝牙详细状态（字符串）
+  - `"on"` - 蓝牙已开启并可用
+  - `"off"` - 蓝牙已关闭
+  - `"unsupported"` - 设备不支持蓝牙
+  - `"unauthorized"` - 应用没有蓝牙权限
+  - `"resetting"` - 蓝牙正在重置
+  - `"unknown"` - 未知状态
+- `hotspot`: 个人热点开启状态（布尔值）
