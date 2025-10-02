@@ -61,9 +61,6 @@ console.log(network)
 :::info
 获取设备的连接状态，包括蓝牙、热点等非网络连接
 :::
-:::warning
-热点状态检测基于网络接口分析，iOS系统限制可能导致检测不准确
-:::
 ``` js
 const connectivity = Device.connectivity()
 console.log(connectivity)
