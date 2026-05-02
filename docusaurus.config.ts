@@ -111,10 +111,21 @@ const config: Config = {
       },
       items: [
         {
+          type: 'doc',
+          docId: 'intro',
+          position: 'left',
+          label: '入门',
+        },
+        {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Docs',
+          label: '组件 & 接口',
+        },
+        {
+          to: '/docs/changelog',
+          label: '更新日志',
+          position: 'left',
         },
         {
           href: 'https://github.com/eilgnaw',
@@ -127,11 +138,23 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: '文档',
           items: [
             {
-              label: 'Tutorial',
+              label: '入门',
               to: '/docs/intro',
+            },
+            {
+              label: '组件',
+              to: '/docs/components/text',
+            },
+            {
+              label: '接口文档',
+              to: '/docs/api/network',
+            },
+            {
+              label: '更新日志',
+              to: '/docs/changelog',
             },
           ],
         },

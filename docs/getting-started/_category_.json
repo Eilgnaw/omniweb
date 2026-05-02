@@ -1,0 +1,8 @@
+{
+    "label": "入门",
+    "position": 1,
+    "link": {
+        "type": "generated-index",
+        "description": "了解 Omni 小组件的基础概念，从 0 到 1 做出第一个小组件"
+    }
+}

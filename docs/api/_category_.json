@@ -1,8 +1,8 @@
 {
     "label": "接口文档",
-    "position": 2,
+    "position": 3,
     "link": {
         "type": "generated-index",
-        "description": "OmniWidgets 可使用接口说明"
+        "description": "在 JS 代码里能调用的所有接口：网络、配置、设备、位置、天气、健康等"
     }
 }
