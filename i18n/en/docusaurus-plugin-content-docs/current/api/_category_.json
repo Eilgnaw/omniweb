@@ -1,0 +1,8 @@
+{
+    "label": "APIs",
+    "position": 3,
+    "link": {
+        "type": "generated-index",
+        "description": "Every API your widget JS code can call: network, config, device, location, weather, health, and more."
+    }
+}

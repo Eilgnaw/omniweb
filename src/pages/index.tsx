@@ -24,6 +24,11 @@ function HomepageHeader() {
             to="https://apps.apple.com/app/id6468910867">
             立即下载
           </Link>
+          <Link
+            className="button button--outline button--secondary button--lg"
+            to="/docs/intro">
+            查看文档
+          </Link>
         </div>
       </div>
     </header>

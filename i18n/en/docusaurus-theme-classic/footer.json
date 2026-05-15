@@ -1,0 +1,42 @@
+{
+  "link.title.文档": {
+    "message": "Docs",
+    "description": "The title of the footer links column with title=文档 in the footer"
+  },
+  "link.title.Community": {
+    "message": "Community",
+    "description": "The title of the footer links column with title=Community in the footer"
+  },
+  "link.title.More": {
+    "message": "More",
+    "description": "The title of the footer links column with title=More in the footer"
+  },
+  "link.item.label.入门": {
+    "message": "Getting Started",
+    "description": "The label of footer link with label=入门 linking to /docs/intro"
+  },
+  "link.item.label.组件": {
+    "message": "Components",
+    "description": "The label of footer link with label=组件 linking to /docs/components/text"
+  },
+  "link.item.label.接口文档": {
+    "message": "APIs",
+    "description": "The label of footer link with label=接口文档 linking to /docs/api/network"
+  },
+  "link.item.label.更新日志": {
+    "message": "Changelog",
+    "description": "The label of footer link with label=更新日志 linking to /docs/changelog"
+  },
+  "link.item.label.微博": {
+    "message": "Weibo",
+    "description": "The label of footer link with label=微博 linking to https://weibo.com/u/1688541820"
+  },
+  "link.item.label.GitHub": {
+    "message": "GitHub",
+    "description": "The label of footer link with label=GitHub linking to https://github.com/eilgnaw"
+  },
+  "copyright": {
+    "message": "Copyright © 2026 OmniWidgets, Inc. Built with Docusaurus.",
+    "description": "The footer copyright"
+  }
+}
