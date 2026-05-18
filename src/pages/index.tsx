@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -9,7 +9,7 @@ import Heading from '@theme/Heading';
 import styles from './index.module.css';
 
 function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <meta name="apple-itunes-app" content="app-id=6468910867" />
@@ -64,10 +64,10 @@ function DownloadCTA() {
       <div className={clsx('container', styles.ctaInner)}>
         <div className={styles.ctaText}>
           <Heading as="h2" className={styles.ctaTitle}>
-            让你的灵动岛长得不一样。
+            让你的小组件、灵动岛长得不一样。
           </Heading>
           <p className={styles.ctaSub}>
-            iPhone / iPad · 无需越狱 · App Store 一键下载
+            iPhone / iPad · App Store 一键下载
           </p>
         </div>
         <div className={styles.ctaActions}>
@@ -84,11 +84,11 @@ function DownloadCTA() {
 }
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="DIY 小组件和灵动岛 · iOS 17+ · 所见即所得编辑、JavaScript 运行时、桌面交互">
+      description="DIY 小组件和灵动岛 · iOS 16+ · 所见即所得编辑、JavaScript 运行时、桌面交互">
       <HomepageHeader />
       <main>
         <HomepageFeatures />
