@@ -42,22 +42,84 @@ For everyday use, prefer `setConfig` / `getConfig`.
 
 ## Settings (Setting)
 
-If you want to **share** your widget with someone else but need them to fill in their own token / city / file — use Settings.
+If you want to **share** your widget with someone else but need them to fill in their own token / city / image — use Settings.
 
 ### Flow
 
-1. **In the editor**: bottom-left ⚙️ → Add Setting, pick a type (string / file / option / toggle), give it a key
-2. **In your JS**: `Setting.string("xxx")` reads the value the user filled in
+1. **In the editor**: top-right ⚙️ → Add Setting, pick a type (text / number / date / toggle / select / icon / color / image / file), give it a key
+2. **In your JS**: `Setting.string("xxx")` / `Setting.number("xxx")` etc. reads what the user filled in
 3. **After import**, others see those settings in the widget's settings panel; once they fill them in, the widget works
+
+> You can also **declare settings from JS** — see [Setting.add](#reverse-declaration-settingadd) below.
 
 ### Reading Settings
 
+Each type has its own read function. If the user hasn't set a value, you get the type's default.
+
 ```js
-this.token   = Setting.string("token")     // string
-this.flag    = Setting.bool("notify")      // toggle
-this.choice  = Setting.string("city")      // option (also a string)
-this.fileTxt = Setting.fileString("rules") // file → file content
+// Text / select / icon / color hex — all strings
+this.token   = Setting.string("token")     // "" if unset
+this.theme   = Setting.string("theme")     // select also reads as string
+this.icon    = Setting.string("iconName")  // SF Symbol name
+this.color   = Setting.string("bgHex")     // e.g. "FF3000FF"
+
+// Toggle
+this.notify  = Setting.bool("notify")      // false if unset
+
+// Number
+this.size    = Setting.number("fontSize")  // Double, 0 if unset
+
+// Date — returns a ms timestamp, plug straight into new Date()
+const birthday = new Date(Setting.date("birthday"))
+const daysOld  = (Date.now() - Setting.date("birthday")) / 86400000
+
+// Image — returns an LL: path token, render via buttonStyle="file"
+this.bgPath  = Setting.image("background") // "LL:{wid}/background.jpg" or ""
+
+// File (picked by user from the system file picker) → file content as string
+this.fileTxt = Setting.fileString("rules")
 ```
+
+#### Rendering the image
+
+`Setting.image()` returns an `LL:` prefixed path — **you can't drop it into `<img>` directly**. To render inside the widget, assign it to an image component's `value` and set `buttonStyle` to `"file"`:
+
+```js
+this.bgPath = Setting.image("background")  // "LL:{wid}/background.jpg"
+```
+Then in the editor's image component: `buttonStyle = "file"`, `value = "${bgPath}"`. The widget will pick up the file. On save, the image is **auto-compressed based on the image component's width**, so you don't need to worry about large photos eating memory.
+
+### Reverse Declaration (Setting.add)
+
+Don't want to manually add each setting in the editor? **Let JS declare them**. On each preview run, `Setting.add({...})` calls write into the settings panel's staging area; the user sees them the next time they open the panel.
+
+```js
+Setting.add({ key: "city",       name: "City",     icon: "location", type: "text" })
+Setting.add({ key: "notify",     name: "Notify",   type: "toggle" })
+Setting.add({ key: "fontSize",   name: "Font size", type: "number" })
+Setting.add({ key: "birthday",   name: "Birthday", type: "date" })
+Setting.add({ key: "background", name: "Background", type: "image" })
+Setting.add({ key: "theme",      name: "Theme",    type: "select",
+              options: ["dark", "light"] })
+```
+
+Fields:
+
+| Field | Required | Notes |
+|---|---|---|
+| `key` | ✓ | Unique identifier; matches `Setting.xxx("key")` |
+| `name` | ✓ | Label shown in the settings panel |
+| `type` | ✓ | `text` / `number` / `date` / `toggle` / `select` / `icon` / `color` / `image` / `file` |
+| `icon` | | SF Symbol name; defaults to `gearshape` |
+| `description` | | Small gray hint shown below the name |
+| `options` | required for `select` | array of strings |
+
+**Merge rules:**
+- key already exists → updates name / icon / description / options, **keeps the user's value and the original type**
+- key doesn't exist → added
+- If you remove a `Setting.add(...)` line in JS, the entry **disappears from staging on next preview**, but anything already merged into the panel isn't auto-deleted (user can delete manually)
+
+**Main app only**: in the widget extension, `Setting.add` is a no-op, so it won't keep rewriting staging on every widget refresh.
 
 ### Writing Settings (Rare)
 
@@ -80,9 +142,15 @@ getConfig(key) → string      // read
 setValue(key, value)         // write
 getValue(key) → string       // read
 
-// User-filled settings
-Setting.string(key) → string
-Setting.bool(key)   → bool
+// User-filled settings — read
+Setting.string(key)     → string  // text/select/icon/color hex
+Setting.bool(key)       → bool
+Setting.number(key)     → Double  // 0 if unset
+Setting.date(key)       → Number  // ms timestamp, 0 if unset
+Setting.image(key)      → string  // "LL:{wid}/file.jpg", "" if unset
 Setting.fileString(key) → string  // file content
+
+// User-filled settings — write
 Setting.set(value, key)           // string only
+Setting.add({ key, name, type, ... })  // JS reverse declaration (App only)
 ```

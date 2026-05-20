@@ -6,6 +6,37 @@ sidebar_position: 99
 
 Only **user-facing** changes are listed here. Bug fixes and internal refactors aren't on this page.
 
+## Settings: 3 new types + JS reverse declaration
+
+Settings now support **number / date / image**:
+
+```js
+Setting.number("fontSize")          // → Double
+new Date(Setting.date("birthday"))  // ms timestamp, plug into Date() directly
+this.bg = Setting.image("bgKey")    // → "LL:{wid}/..." path
+```
+
+When picking an image, it gets **auto-compressed to match the image component's display size** in your widget, so feel free to pick large photos.
+
+You can also **declare settings from JS**, no need to add each one by hand in the panel:
+
+```js
+Setting.add({ key: "city", name: "City", type: "text" })
+Setting.add({ key: "bg",   name: "Background", type: "image" })
+```
+
+See [Config — Setting](./api/config.md#settings-setting).
+
+---
+
+## Settings panel UI polish
+
+- Tap anywhere on a row to edit (no need to aim for the small pencil icon)
+- Unfilled settings show a grey **"Not set"** placeholder, hinting the user to fill them in
+- Long text editing now opens a dedicated **sheet** with a multi-line TextEditor instead of a cramped alert popup
+
+---
+
 ## Placeholders: dot-path now works without a prefix
 
 ```

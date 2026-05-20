@@ -6,6 +6,37 @@ sidebar_position: 99
 
 仅列**用户能感知到**的功能变化。Bug 修复 / 内部重构不在此页。
 
+## 设置项:新增 3 种类型 + JS 可反向声明
+
+设置项支持新增 **数字 / 日期 / 图片** 三种类型:
+
+```js
+Setting.number("fontSize")        // → Double
+new Date(Setting.date("birthday")) // ms 时间戳,直接喂 Date()
+this.bg = Setting.image("bgKey")   // → "LL:{wid}/..." 路径
+```
+
+图片选完后会**根据小组件里 image 组件的显示尺寸自动压缩**,放心选大图。
+
+还能从 **JS 反向声明设置项**,不必再去面板里一个个加:
+
+```js
+Setting.add({ key: "city", name: "城市", type: "text" })
+Setting.add({ key: "bg",   name: "背景", type: "image" })
+```
+
+详见 [配置读写 — Setting](./api/config.md#设置项-setting)。
+
+---
+
+## 设置面板 UI 优化
+
+- 整行可点(不必再凑去戳右边小铅笔)
+- 没填的项显示**未设置**灰色占位,提示用户去设
+- 长文本编辑改成**独立 sheet** + 多行 TextEditor,不再用挤巴巴的弹窗
+
+---
+
 ## 占位符:无前缀也支持点号路径
 
 ```
