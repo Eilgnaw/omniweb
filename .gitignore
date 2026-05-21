@@ -21,3 +21,4 @@ yarn-error.log*
 
 # Design scratch (Figma scripts, mockup exports)
 /design
+.claude/settings.local.json
