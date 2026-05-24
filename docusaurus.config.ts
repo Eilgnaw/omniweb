@@ -34,6 +34,17 @@ const config: Config = {
       en: {label: 'English', htmlLang: 'en'},
     },
   },
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'ho',
+        path: 'docs-ho',
+        routeBasePath: 'ho',
+        sidebarPath: './sidebars-ho.ts',
+      },
+    ],
+  ],
   presets: [
     [
       'classic',
@@ -130,6 +141,13 @@ const config: Config = {
           to: '/docs/changelog',
           label: '更新日志',
           position: 'left',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'hoSidebar',
+          docsPluginId: 'ho',
+          position: 'left',
+          label: 'Ho',
         },
         {
           href: 'https://github.com/eilgnaw',
