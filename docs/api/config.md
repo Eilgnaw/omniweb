@@ -8,13 +8,64 @@ Omni 提供 **3 种存储**,各自的作用域不同:
 
 | 类型 | 跟着谁走 | 用途 |
 |------|---------|------|
-| 小组件配置 (`getConfig` / `setConfig`) | **每个小组件独立** | 这个小组件的 token、城市等 |
+| 小组件配置 (`Config`) | **每个小组件独立**,类型保真 | 这个小组件的 token、城市、状态对象等 |
 | 通用配置 (`getValue` / `setValue`) | **跨小组件共享**(同一种类型 + 同一槽位) | 用户全局信息;按钮代码里改的状态 |
 | 设置项 (`Setting`) | **每个小组件独立** + 用户在设置面板填 | 模板分享后,让别人填自己的信息 |
 
 ## 小组件配置
 
-每个小组件独立的存储空间。
+每个小组件独立的存储空间。**新代码统一用 `Config`** — 类型保真、带默认值,见下方。
+
+老的 `setConfig` / `getConfig` 是字符串版,保留主要是为了:
+- 跟**快捷指令**互通(快捷指令侧只能传字符串)
+- 不破坏老 widget
+
+### `Config`(推荐)
+
+`Config` 对每个小组件自动初始化好了,直接调用就行。number / boolean / array / object 都能存,读出来类型不变。
+
+```js
+Config.set("count", 42)              // number
+Config.set("on", true)               // boolean
+Config.set("items", [1, 2, 3])       // array
+Config.set("user", { name: "x" })    // object
+
+Config.get("count")          // 42 (number,不是 "42")
+Config.get("on")             // true (boolean,不是 1)
+Config.get("missing")        // undefined
+```
+
+#### 默认值省去 `??` 兜底
+
+`get` 的第二个参数是 key 不存在时的回退值,看代码就知道这个字段默认什么:
+
+```js
+const idx  = Config.get("page",   0)              // → 0
+const list = Config.get("recent", [])              // → []
+const user = Config.get("user",   { name: "" })   // → 给个空对象
+```
+
+#### 完整签名
+
+| 方法 | 说明 |
+|---|---|
+| `Config.set(key, value)` | 存任意 JSON 兼容值;传 `null` / `undefined` 等价于 `delete` |
+| `Config.get(key, default?)` | 读;键不存在或值损坏时返回 `default`(不传则为 `undefined`) |
+| `Config.has(key) → boolean` | 检查 key 是否存在 |
+| `Config.delete(key)` | 删除 |
+| `Config.keys() → string[]` | 列出所有 key,按字母排序 |
+
+#### 注意事项
+
+:::tip 类型保真
+内部走 JSON 序列化,所以存什么类型读什么类型 — `true` 不会变成 `1`,`42` 不会变成 `"42"`,嵌套数组/对象里的各成员类型也都对。
+:::
+
+:::warning 跟 `setConfig` 不共用 key
+`Config` 用的是独立的 key 前缀,跟 `setConfig` 物理隔离 — 即使 key 名字相同,两套 API 互不干扰、互相也读不到对方的数据。想迁移得自己手动 `Config.set("token", getConfig("token"))`。
+:::
+
+### `setConfig` / `getConfig`(遗留,仅字符串)
 
 ```js
 setConfig("token", "abcdef")    // 存
@@ -22,7 +73,7 @@ const t = getConfig("token")    // 取
 console.log(t)                  // abcdef
 ```
 
-也支持**快捷指令**读写,适合从快捷指令把数据塞进小组件。
+只能存字符串。**新写代码请直接用 `Config`**;老 widget 改成 `Config` 也需要手动迁移数据(两套 key 不共享)。**唯一仍然需要它的场景**是跟快捷指令交换数据。
 
 ## 通用配置
 
@@ -134,9 +185,16 @@ console.log(id)
 ## 速查
 
 ```js
-// 小组件级
+// 小组件级 —— 简单字符串
 setConfig(key, value)        // 写
 getConfig(key) → string      // 读
+
+// 小组件级 —— 类型保真 KV
+Config.set(key, value)               // 写,任意 JSON 兼容值
+Config.get(key, default?) → any      // 读,缺失返回 default
+Config.has(key) → boolean
+Config.delete(key)
+Config.keys() → string[]
 
 // 通用(按类型 + 槽位)
 setValue(key, value)         // 写

@@ -52,7 +52,21 @@ this.title = obj.omni  // 把结果存进 this.xxx,组件就能用了
 最终小组件就会显示 `obj.omni` 的值。
 
 :::tip 关键规则
-**只有写到 `this.xxx` 或 `let/var/const xxx` 的变量才能被组件使用。** Omni 在运行 JS 后会去抓这些变量,然后填到占位符里。
+**只有写到 `this.xxx` 或顶层 `let/var/const xxx` 的变量才能被组件使用。** Omni 在运行 JS 后会去抓这些变量,然后填到占位符里。
+:::
+
+:::tip 隐藏内部变量
+顶层 `let / var / const` 默认都会被当作输出字段。不想暴露给组件(比如内部常量、模块级临时值),**名字加 `_` 前缀** 就会被跳过。函数体内的局部变量会自动忽略,不用加。
+
+```js
+let title = "你好"             // → 输出字段
+const _PAGE_SIZE = 20          // _ 前缀,不输出
+const _WEEK = ["日", "一", "二", "三", "四", "五", "六"]
+
+function load() {
+  const now = new Date()       // 函数内局部,自动忽略,不用加 _
+}
+```
 :::
 
 ## 三、JS 使用

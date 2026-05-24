@@ -8,13 +8,64 @@ Omni provides **3 kinds of storage**, each with a different scope:
 
 | Type | Scope | Use Case |
 |------|---------|------|
-| Widget config (`getConfig` / `setConfig`) | **Per-widget, isolated** | This widget's token, city, etc. |
+| Widget config (`Config`) | **Per-widget, isolated**, type-preserving | This widget's token, city, state objects, etc. |
 | Common values (`getValue` / `setValue`) | **Shared across widgets** (same type + same slot) | Global user info; state changed inside button code |
 | Settings (`Setting`) | **Per-widget** + filled in by user from the settings panel | After sharing a template, lets others fill in their own info |
 
 ## Widget Config
 
-Each widget has its own isolated storage.
+Each widget has its own isolated storage. **For new code, use `Config`** — it preserves types and supports defaults; see below.
+
+The older `setConfig` / `getConfig` is the string-only flavor, kept around for:
+- Interop with **Shortcuts** (Shortcuts can only pass strings)
+- Not breaking older widgets
+
+### `Config` (recommended)
+
+`Config` is pre-initialized for each widget — just call it. It stores numbers / booleans / arrays / objects and gives them back as the same type.
+
+```js
+Config.set("count", 42)              // number
+Config.set("on", true)               // boolean
+Config.set("items", [1, 2, 3])       // array
+Config.set("user", { name: "x" })    // object
+
+Config.get("count")          // 42 (number, not "42")
+Config.get("on")             // true (boolean, not 1)
+Config.get("missing")        // undefined
+```
+
+#### Defaults — no more `??` fallbacks
+
+`get`'s second argument is the fallback when the key is missing. Reading the call already tells you what the field defaults to:
+
+```js
+const idx  = Config.get("page",   0)              // → 0
+const list = Config.get("recent", [])              // → []
+const user = Config.get("user",   { name: "" })   // → empty object
+```
+
+#### Full signature
+
+| Method | Notes |
+|---|---|
+| `Config.set(key, value)` | Stores any JSON-compatible value; `null` / `undefined` is equivalent to `delete` |
+| `Config.get(key, default?)` | Reads; returns `default` if the key is missing or the value is corrupted (defaults to `undefined`) |
+| `Config.has(key) → boolean` | Whether the key exists |
+| `Config.delete(key)` | Removes |
+| `Config.keys() → string[]` | Lists all keys, alphabetically sorted |
+
+#### Things to know
+
+:::tip Type fidelity
+Internally JSON-serialized, so what you put in is what you get out — `true` stays `true`, `42` stays `42`, never coerced to `1` or `"42"`. Member types inside nested arrays / objects are preserved too.
+:::
+
+:::warning Doesn't share keys with `setConfig`
+`Config` uses an isolated key prefix — even with the same key name, the two APIs are physically separated and won't see each other's data. To migrate, do it manually: `Config.set("token", getConfig("token"))`.
+:::
+
+### `setConfig` / `getConfig` (legacy, strings only)
 
 ```js
 setConfig("token", "abcdef")    // write
@@ -22,7 +73,7 @@ const t = getConfig("token")    // read
 console.log(t)                  // abcdef
 ```
 
-Also readable / writable from **Shortcuts**, which is great for pushing data from Shortcuts into the widget.
+Strings only. **For new code, just use `Config`**; migrating an existing widget over also means moving the data by hand (the two key sets don't overlap). **The one case where you still need this** is exchanging data with Shortcuts.
 
 ## Common Values
 
@@ -134,9 +185,16 @@ Typical use: on first run, generate a unique ID and store it for next time.
 ## Quick Reference
 
 ```js
-// Widget-level
+// Widget-level — simple strings
 setConfig(key, value)        // write
 getConfig(key) → string      // read
+
+// Widget-level — type-preserving KV
+Config.set(key, value)               // write any JSON-compatible value
+Config.get(key, default?) → any      // read; returns default if missing
+Config.has(key) → boolean
+Config.delete(key)
+Config.keys() → string[]
 
 // Common (by type + slot)
 setValue(key, value)         // write

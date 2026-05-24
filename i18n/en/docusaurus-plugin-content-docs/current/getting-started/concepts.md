@@ -52,7 +52,21 @@ In the text component's "content" field, write: {title}
 The widget will then display the value of `obj.omni`.
 
 :::tip Key rule
-**Only variables written to `this.xxx` or declared with `let/var/const xxx` can be consumed by components.** After running the JS, Omni grabs those variables and fills them into the placeholders.
+**Only variables written to `this.xxx` or declared with a top-level `let/var/const xxx` can be consumed by components.** After running the JS, Omni grabs those variables and fills them into the placeholders.
+:::
+
+:::tip Hiding internal variables
+By default, every top-level `let / var / const` becomes a widget output field. If you don't want a variable exposed to components (internal constants, module-level temporaries), **prefix the name with `_`** and the extractor will skip it. Variables declared inside function bodies are automatically ignored — no need to prefix.
+
+```js
+let title = "Hello"            // → output field
+const _PAGE_SIZE = 20          // _ prefix, not output
+const _WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+function load() {
+  const now = new Date()       // function-local, auto-skipped, no _ needed
+}
+```
 :::
 
 ## 3. Using JS
