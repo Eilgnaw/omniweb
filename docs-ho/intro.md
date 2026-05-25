@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # 欢迎使用 Omni Widgets (鸿蒙版)
 
-Omni Widgets 鸿蒙版让你**自己 DIY 鸿蒙桌面 / 锁屏小组件**。
+Omni Widgets 鸿蒙版让你**自己 DIY 鸿蒙桌面 / 锁屏卡片**。
 
 简单需求拖一拖就能拼出一个;复杂一点 —— 想要拉接口、读本地文件、按状态切样式 —— 内置一个 JavaScript 运行时,写一段脚本就行。
 
@@ -22,7 +22,7 @@ Omni Widgets 鸿蒙版让你**自己 DIY 鸿蒙桌面 / 锁屏小组件**。
 第一次接触按顺序看:
 
 1. [基础概念](./getting-started/concepts.md) —— 5 分钟搞懂卡片怎么工作
-2. [做出第一个小组件](./getting-started/first-widget.md) —— 跟着做一个天气卡片
+2. [做出第一个卡片](./getting-started/first-widget.md) —— 跟着做一个天气卡片
 3. [占位符语法](./getting-started/placeholder.md) —— 把 JS 数据塞进组件最关键的一步
 
 熟了直接看左边的 **组件** 和 **接口文档**。

@@ -147,7 +147,7 @@ const config: Config = {
           sidebarId: 'hoSidebar',
           docsPluginId: 'ho',
           position: 'left',
-          label: 'Ho',
+          label: 'HarmonyOS',
         },
         {
           href: 'https://github.com/eilgnaw',

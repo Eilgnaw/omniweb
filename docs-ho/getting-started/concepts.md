@@ -8,7 +8,7 @@ sidebar_position: 1
 
 ## 一、卡片的两种形态
 
-鸿蒙能放小组件的地方目前是 2 类,Omni 都支持:
+鸿蒙能放卡片的地方目前是 2 类,Omni 都支持:
 
 | 形态 (`kind`) | 尺寸 (`dimension`) | 出现在哪里 |
 |---|---|---|
@@ -110,4 +110,4 @@ function load() {
 
 ---
 
-下一步:[做出第一个小组件 →](./first-widget.md)
+下一步:[做出第一个卡片 →](./first-widget.md)
