@@ -98,10 +98,6 @@ function doAction(p) {
 
 ## 注意事项
 
-:::warning 锁屏 / 实时活动卡片不响应触摸
-锁屏 `lock` 形态的卡片**只支持 `openUrl`,不响应任意 JS 片段**;`live` 当前未实现。在 `lock` 卡片里 Button click 写 `Config.set` / `function` 调用都会被剥掉,**只有 `openUrl(...)` 还能用**。
-:::
-
 :::tip click 片段也是 JS
 它会被拼到主 JS 末尾跑,所以**主 JS 顶层定义的变量、函数、Setting / Config 都能访问**。注意别在 click 片段里写 `return`(会污染包裹的 IIFE)。
 :::

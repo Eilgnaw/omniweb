@@ -22,3 +22,7 @@ yarn-error.log*
 # Design scratch (Figma scripts, mockup exports)
 /design
 .claude/settings.local.json
+HO_DOCS_BRIEF.md
+i18n/en/docusaurus-plugin-content-docs-ho/current.json
+i18n/en/docusaurus-plugin-content-docs-ho/current/intro.md
+i18n/en/docusaurus-plugin-content-docs-ho/current/getting-started/quickstart.md

@@ -58,9 +58,3 @@ let size = 24       // 整段占位,保留 number 类型
 :::tip 整段 vs 混排
 `fontSize: ${size}` 是「整段」,拿到的是 number;`fontSize: ${size}px` 是「混排」,会变字符串,**别这么写**。详见 [占位符语法](../getting-started/placeholder.md#一-普通占位符)。
 :::
-
-## 注意事项
-
-:::warning 锁屏卡片字色受限
-锁屏 `lock` 形态强制单色 vibrant 渲染,你写的 `forColor` 渐变会被剥成 plain color,以亮度近似映射到锁屏白色 / 灰阶。**别在锁屏卡片上指望多彩文字**。
-:::
