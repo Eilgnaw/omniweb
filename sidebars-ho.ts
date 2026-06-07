@@ -20,6 +20,8 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'components/text',
+        'components/text-clock',
+        'components/text-timer',
         'components/image',
         'components/icon',
         'components/stack',

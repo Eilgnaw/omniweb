@@ -69,23 +69,6 @@ click: openUrl("https://example.com/x")
 click: openUrl("myapp://detail?id=" + currentId)
 ```
 
-### `$params`
-
-如果你 按钮 有动态的点击参数(同一个 click 处理函数被多个按钮触发,需要区分),可以把参数序列化到 `$params`:
-
-```js
-// 多个 按钮 的 click 字段可以各填:
-//   doAction({ kind: "incr" })
-//   doAction({ kind: "reset" })
-
-function doAction(p) {
-  if (p.kind === "incr") { /* ... */ }
-  if (p.kind === "reset") { /* ... */ }
-}
-```
-
-但更常用是 Omni 主机侧已经把 click 路径下的参数注入到 `$params`(主刷新路径下永远是 `{}`)。详见 [`api/control#params`](../api/control.md#params)。
-
 ## 属性
 
 | 属性 | 类型 | 说明 |

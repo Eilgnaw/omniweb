@@ -10,7 +10,7 @@ sidebar_position: 1
 |------|---------|------|
 | 卡片配置 (`Config`) | **每张卡片独立**(按 widget.id 隔离),类型保真 | 这张卡片的 counter / token / cache / 上次刷新时间 |
 | 共享配置 (`Shared`) | **同 `kind + dimension` 跨实例共享**,类型保真 | 多个同尺寸卡片共用的全局状态 |
-| 设置项 (`Setting`) | **每张卡片独立** + 用户在设置面板填,类型保真 | 模板分享后,让别人填自己的信息 |
+| 设置项 (`Setting`) | **每张卡片独立** + 用户在用户设置里填,类型保真 | 模板分享后,让别人填自己的信息 |
 
 三套接口形态完全对齐(`set` / `get` / `has` / `delete` / `keys`,值都是 JSON 兼容类型,**读出来类型不变**),区别只在作用域。
 
@@ -88,51 +88,151 @@ const ts = Shared.get("lastFetch", 0)
 `kind + dim` 共享的语义意味着:你换其它尺寸的卡片,数据互相看不到。**日常优先用 `Config`**;只在「同尺寸多实例共用一个全局态」(刷新时间戳、全局开关)才用 `Shared`。
 :::
 
-## 设置项 `Setting`
+## Setting —— 用户填的参数
 
-如果你想把卡片**分享**给别人用,但需要别人填自己的 token / 城市 / 颜色 —— 用设置项。
+如果你想把卡片**分享**给别人用,但需要别人填自己的 token / 城市 / 颜色 / 图片 —— 用设置项。
 
-数据落在 `widget.setting`(数据库 `setting` 字段的 JSON 对象),用户在卡片设置面板编辑。**只有主 App 编辑器有权写库**;卡片刷新路径里调 `Setting.set` 只动内存不回写库(防止后台刷新覆盖用户编辑值)。
+数据落在 `widget.setting`(数据库 `setting` 字段的 JSON),用户在编辑器节点树里的**用户设置**页面编辑。**只有主 App 编辑器有权写库**;卡片刷新路径里调 `Setting.set` 只动内存不回写库(防止后台刷新覆盖用户编辑值)。
+
+### 数据格式
+
+新版本 `widget.setting` 使用 envelope,同时兼容旧版 values-only:
+
+```json
+{
+  "schemaVersion": 2,
+  "items": [
+    {
+      "key": "city",
+      "name": "城市",
+      "type": "text",
+      "icon": "location",
+      "description": "天气查询城市"
+    }
+  ],
+  "values": {
+    "city": "北京"
+  }
+}
+```
+
+旧格式仍能读取:
+
+```json
+{ "city": "北京" }
+```
+
+运行 JS 时只会把 `values` 注入给 `Setting`;`items` 只用来渲染用户设置页面。
 
 ### 流程
 
-1. **JS 里**:`Setting.get("city", "北京")` 读用户填的值,带缺省值
-2. **用户在设置面板里**填好 token / 城市等
-3. **下次运行**:JS 读到的就是用户填的值
+1. **JS 里**用 `Setting.add(...)` 声明用户可填写字段
+2. **JS 里**用 `Setting.get("city", "北京")` 或 typed read 读取用户填的值
+3. **用户在用户设置页面**填好 token / 城市 / 图片等
+4. **下次运行**:JS 读到的就是用户填的值
 
-### 读 / 写
+### 声明用户设置项
 
 ```js
-const city  = Setting.get("city",  "北京")         // 字符串,缺省 "北京"
-const size  = Setting.get("fontSize", 14)          // 数字,类型保留
-const theme = Setting.get("theme", { mode: "dark" })  // 对象也行
+Setting.add({
+  key: "city",
+  name: "城市",
+  type: "text",
+  icon: "location",
+  description: "天气查询城市"
+})
 
-// 写(通常在主 App 编辑器路径里;卡片侧只动内存)
+Setting.add({
+  key: "theme",
+  name: "主题",
+  type: "select",
+  icon: "paintpalette",
+  options: ["light", "dark", "auto"]
+})
+```
+
+`Setting.add` 只声明 UI,不会写入用户值。重复声明同一个 `key` 会更新展示文案 / 图标 / 选项,用户已经填过的值会保留。
+
+支持的类型:
+
+| type | 用户设置控件 | 读取方式 |
+|---|---|---|
+| `text` | 文本输入 | `Setting.string(key)` / `Setting.get(key, default)` |
+| `number` | 数字输入 | `Setting.number(key)` |
+| `date` | 日期选择 | `Setting.date(key)` 返回毫秒时间戳 |
+| `toggle` | 开关 | `Setting.bool(key)` |
+| `select` | 选项列表 | `Setting.select(key)` |
+| `icon` | 图标名 | `Setting.icon(key)` |
+| `color` | 颜色值 | `Setting.color(key)` |
+| `image` | 图片选择 | `Setting.image(key)` 返回沙盒相对路径 |
+
+:::tip 声明只在编辑器持久化
+`Setting.add` 只在主 App 编辑器预览时合并到 `widget.setting.items`;桌面卡片刷新时是 no-op,不会污染设置结构。
+:::
+
+### 读取用户填写值
+
+```js
+Setting.add({ key: "eventName", name: "事件名称", type: "text", icon: "calendar" })
+Setting.add({ key: "targetDate", name: "目标日期", type: "date", icon: "calendar" })
+
+const eventName = Setting.string("eventName") || "元旦"
+const targetMs  = Setting.date("targetDate") || new Date("2027-01-01").getTime()
+```
+
+typed read 会做基础类型转换:
+
+```js
+Setting.string("city")      // string,缺失返回 ""
+Setting.number("fontSize")  // number,缺失 / 非数字返回 0
+Setting.bool("notify")      // boolean
+Setting.date("targetDate")  // number(ms)
+Setting.color("color")      // string,例如 "#0A59F7"
+Setting.image("avatar")     // string,例如 "images/xxx.jpg"
+```
+
+### 低层读 / 写
+
+`get` / `set` / `all` 直接操作 values:
+
+```js
+const city  = Setting.get("city", "北京")          // 字符串,缺省 "北京"
+const size  = Setting.get("fontSize", 14)          // 数字,类型保留
+const theme = Setting.get("theme", { mode: "dark" }) // 对象也行
+
+// 写 values(通常只在主 App 编辑器路径里)
 Setting.set("uuid", "abc-123-def")
 Setting.set("notify", true)
 Setting.set("colors", ["#FF0000", "#00FF00"])
 
-// 全量
-const all = Setting.all()      // → 整个 setting 对象
+const all = Setting.all()      // → values 对象,不包含 items
 ```
+
+:::tip `get` 的默认值
+`Setting.get(key, default)` 在 key 不存在 / 值是 `null` 时返回 `default`;不传 default 时返回空字符串 `""`。
+:::
+
+:::warning `set` 不是声明 UI
+`Setting.set` 只改 values,不会让字段自动出现在用户设置页面。要让用户看到可填写项,请用 `Setting.add` 声明。
+:::
 
 ### 跟 `Config` 的区别
 
 | 维度 | `Config` | `Setting` |
 |---|---|---|
 | 落盘到 | `widgets/{id}/kv.json`(沙盒文件) | `widgets` 表的 `setting` 字段(SQLite) |
-| 编辑入口 | 仅代码 | 代码 + **用户在卡片设置面板可编辑** |
+| 编辑入口 | 仅代码 | 代码声明 + **用户在用户设置页面可编辑** |
 | 卡片刷新里 set 是否回写 | **是**(JsRunner 写 `kv.json`) | **否**(只动内存,防覆盖用户编辑值) |
 | 适用场景 | 卡片内部状态、缓存、计数 | 暴露给用户的参数(token / 城市 / 主题色) |
 
 ### 注意事项
 
 :::tip 跨次运行的回写时机(主 App 路径)
-跟 `Config` 一样,**JS 跑完**主机侧检测到 `setting` 有变化才会写库。同次 eval 内 set 完立刻 get 没问题。
+跟 `Config` 一样,**JS 跑完**主机侧检测到 values 或 declarations 有变化才会写库。同次 eval 内 set 完立刻 get 没问题。
 :::
 
 :::warning 卡片刷新路径里 set 不持久
-`FormExtension` 每次刷新拿到的 `widget.setting` 是只读快照;在卡片刷新 JS 里调 `Setting.set(...)` **只影响内存,不会回写库**。这是有意的 —— 防止后台刷新无脑覆盖用户在 App 里编辑的值。**要让设置持久化,只在主 App 编辑器(`isDebug() === true`)路径写**:
+`FormExtension` 每次刷新拿到的 `widget.setting` 是只读快照;在卡片刷新 JS 里调 `Setting.set(...)` **只影响内存,不会回写库**,`Setting.add(...)` 也不会写声明。这是有意的 —— 防止后台刷新无脑覆盖用户在 App 里编辑的值。**要让设置持久化,只在主 App 编辑器(`isDebug() === true`)路径写**:
 
 ```js
 if (isDebug()) {
@@ -162,4 +262,13 @@ Shared.keys()             → string[]
 Setting.get(key, default?) → any
 Setting.set(key, value)
 Setting.all()              → Record<string, any>
+Setting.add({ key, name, type, icon?, description?, options? })
+Setting.string(key)        → string
+Setting.number(key)        → number
+Setting.bool(key)          → boolean
+Setting.date(key)          → number
+Setting.select(key)        → string
+Setting.icon(key)          → string
+Setting.color(key)         → string
+Setting.image(key)         → string
 ```

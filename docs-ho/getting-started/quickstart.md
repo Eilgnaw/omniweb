@@ -18,6 +18,15 @@ ${a.b.0.c}              点号路径 + 数组索引
 
 详见 [占位符语法](./placeholder.md)。
 
+## 卡片形态
+
+| 形态 | 尺寸 | 入口 |
+|---|---|---|
+| 桌面 `desk` | `1*2` / `2*2` / `2*4` / `4*4` | 主屏幕添加卡片 |
+| 锁屏 `lock` | `lock_1*1` / `lock_1*2` | 锁屏编辑态添加卡片位 |
+
+锁屏卡片添加后先选卡再显示,流程见 [锁屏卡片](./lock-screen.md)。
+
 ## 常用 JS
 
 ```js
@@ -63,6 +72,8 @@ if (isDebug()) { /* 编辑器才会进 */ }
 | 类型 | 看哪儿 |
 |---|---|
 | 文本 Text | [Text](../components/text.md) |
+| 时钟 TextClock | [TextClock](../components/text-clock.md) |
+| 计时器 TextTimer | [TextTimer](../components/text-timer.md) |
 | 图片 Image | [Image](../components/image.md) |
 | 图标 Icon | [Icon](../components/icon.md) |
 | 按钮 Button | [Button](../components/button.md) |

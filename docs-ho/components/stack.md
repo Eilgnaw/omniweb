@@ -23,11 +23,23 @@ sidebar_position: 4
 | 属性 | 类型 | 说明 |
 |------|------|------|
 | `dataSource` | string | 循环数据源,见下文「循环」 |
+| `openUrl` | string | 点击容器时打开链接,可写固定 URL 或占位符 |
 | `width` / `height` | length | `auto` / `100` / `100%` / `${w}` |
 | `padding` | padding4 | `8` 或 `8,8,8,8` |
 | `backColor` | color | 背景 |
 | `cornerRadius` | length | 圆角 |
 | `opacity` | number | 0..1 |
+
+## 打开链接 (`openUrl`) \{#openurl\}
+
+横排 / 纵列 / 叠放 都可以直接设置 `openUrl`。用户点这个容器时,Omni 会拉起系统打开对应链接:
+
+```
+openUrl = https://example.com/detail
+openUrl = ${row.url}
+```
+
+这适合让一整块内容变成跳转区域。如果需要点击后执行 JS、写 `Config`、刷新数据或按条件决定跳转,仍然用 [按钮 Button](./button.md) 的 `click` 事件。
 
 ## 循环 (dataSource) \{#循环-datasource\}
 
@@ -91,6 +103,6 @@ let rows = [
 JS 还没出数据 / 路径写错,`dataSource` 解析不到数组就**不展开子节点**(容器渲染成空)。比挂掉好。
 :::
 
-:::warning 容器没有 click 事件
-想要响应点击,**把 横排 / 纵列 套进一个 按钮**(按钮也是容器)。详见 [按钮](./button.md)。
+:::tip 容器只负责链接跳转
+`openUrl` 不会执行 JS 片段。想响应点击改状态,**把 横排 / 纵列 套进一个 按钮**(按钮也是容器)。详见 [按钮](./button.md)。
 :::
