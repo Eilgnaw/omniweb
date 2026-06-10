@@ -1,5 +1,9 @@
 {
   "label": "接口文档",
   "position": 3,
-  "collapsed": false
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "在 JS 代码里能调用的所有接口:配置、网络、日志、文件、设备、位置、刷新控制等"
+  }
 }

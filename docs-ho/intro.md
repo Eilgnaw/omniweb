@@ -19,7 +19,7 @@ Omni Widgets 鸿蒙版让你**自己 DIY 鸿蒙桌面 / 锁屏卡片**。
 - **桌面卡片 4 种尺寸**:`1*2` / `2*2` / `2*4` / `4*4`
 - **锁屏卡片 2 种尺寸**:`lock_1*1` / `lock_1*2`,添加到锁屏后点占位选择卡片
 - **可视化编辑器**:文本 / 时钟 / 计时器 / 图片 / 图标 / 按钮 / 容器 / 网格…… ➕ 一下加进去
-- **JavaScript 接口**:`Request` 联网、`FileManager` 读写沙盒文件、`Config` 持久化、`Setting` 用户填的参数、`Device` 设备信息
+- **JavaScript 接口**:`Request` 联网、`Location` 定位/反向地理编码、`FileManager` 读写沙盒文件、`Config` 持久化、`Setting` 用户填的参数、`Device` 设备信息
 - **占位符语法**:`${变量}` 把 JS 拿到的数据,直接绑到组件上
 - **跨形态共享**:同 `kind + dimension` 的多张卡片可走 `Shared.set` / `Shared.get` 共享数据
 

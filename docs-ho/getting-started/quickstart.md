@@ -76,6 +76,8 @@ if (isDebug()) { /* 编辑器才会进 */ }
 | 计时器 TextTimer | [TextTimer](../components/text-timer.md) |
 | 图片 Image | [Image](../components/image.md) |
 | 图标 Icon | [Icon](../components/icon.md) |
+| 二维码 QRCode | [QRCode](../components/qrcode.md) |
+| 仪表 Gauge | [Gauge](../components/gauge.md) |
 | 按钮 Button | [Button](../components/button.md) |
 | 容器(Row/Column/Stack/...) | [Stack](../components/stack.md) |
 | 网格 Grid | [Grid](../components/grid.md) |

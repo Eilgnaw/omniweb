@@ -2,12 +2,6 @@
 sidebar_position: 1
 ---
 
-:::tip
-本文档目前跟随最新测试版本更新,可能与您当前安装的 APP 行为不一致.
-
-如需体验文档内最新 `API`和 `组件` 可通过 APP 内 `联系我们` 加入测试.
-:::
-
 # 基础概念
 
 5 分钟搞懂 Omni 鸿蒙版怎么工作。
@@ -31,8 +25,9 @@ sidebar_position: 1
 
 视图由**组件**搭出来,目前支持:
 
-- **文本** `Text` / **图片** `Image` / **图标** `Icon`
+- **文本** `Text` / **图片** `Image` / **图标** `Icon` / **二维码** `QRCode`
 - **时钟** `TextClock` / **计时器** `TextTimer`
+- **仪表** `Gauge`
 - **按钮** `Button`(容器,可放子节点)
 - **容器**:`Column` / `Row` / `Stack` / `VStack` / `HStack` / `Grid`
 - **占位** `Blank`(撑剩余空间)
