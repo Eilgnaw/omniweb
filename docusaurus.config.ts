@@ -150,6 +150,11 @@ const config: Config = {
           label: 'HarmonyOS',
         },
         {
+          to: '/download',
+          label: '下载',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/eilgnaw',
           label: 'GitHub',
           position: 'right',

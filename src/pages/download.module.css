@@ -1,0 +1,245 @@
+.page {
+  background: var(--ifm-background-color);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  padding: 4rem 1rem 2rem;
+}
+
+.appIcon {
+  width: 5rem;
+  height: 5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(32, 93, 59, 0.14);
+  overflow: hidden;
+}
+
+.appIcon img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+
+[data-theme='dark'] .appIcon {
+  background: #f7f8f8;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 0.75rem;
+  font-size: 2.75rem;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.description {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.downloadGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  padding: 1rem 1rem 2.5rem;
+}
+
+.downloadPanel {
+  display: flex;
+  min-height: 23rem;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  background: var(--ifm-card-background-color);
+  padding: 1.5rem;
+}
+
+.primaryPanel {
+  border-color: rgba(46, 133, 85, 0.36);
+}
+
+.panelTop {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.panelTop .appIcon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 16px;
+  box-shadow: none;
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: rgba(46, 133, 85, 0.1);
+  color: var(--ifm-color-primary-darkest);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+[data-theme='dark'] .label {
+  color: var(--ifm-color-primary-lightest);
+}
+
+.panelIcon {
+  color: var(--ifm-color-primary);
+  flex: 0 0 auto;
+}
+
+.panelTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.panelText {
+  margin: 0 0 1.5rem;
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.7;
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.storeButton,
+.downloadButton,
+.docsButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  gap: 0.625rem;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.storeButton {
+  margin-top: auto;
+  background: #1c1e21;
+  color: #fff;
+}
+
+.downloadButton {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.storeButton:hover,
+.storeButton:focus,
+.downloadButton:hover,
+.downloadButton:focus {
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+}
+
+.docsButton {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  color: var(--ifm-font-color-base);
+}
+
+.docsButton:hover,
+.docsButton:focus {
+  color: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.buttonIcon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.meta {
+  margin: 0.875rem 0 0;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.875rem;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  margin: auto 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-emphasis-800);
+  font-weight: 650;
+  font-size: 0.875rem;
+}
+
+.requirements {
+  padding: 0 1rem 4rem;
+}
+
+.requirementsTitle {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  letter-spacing: 0;
+}
+
+.requirementsList {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 48rem;
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.7;
+}
+
+@media screen and (max-width: 760px) {
+  .header {
+    grid-template-columns: 1fr;
+    padding-top: 2.5rem;
+  }
+
+  .title {
+    font-size: 2.125rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .downloadGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .downloadPanel {
+    min-height: 0;
+  }
+}

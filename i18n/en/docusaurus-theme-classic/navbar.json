@@ -19,6 +19,10 @@
     "message": "Changelog",
     "description": "Navbar item with label 更新日志"
   },
+  "item.label.下载": {
+    "message": "Download",
+    "description": "Navbar item with label 下载"
+  },
   "item.label.GitHub": {
     "message": "GitHub",
     "description": "Navbar item with label GitHub"
