@@ -8,7 +8,7 @@ import Heading from '@theme/Heading';
 import styles from './download.module.css';
 
 const appStoreUrl = 'https://apps.apple.com/app/id6468910867';
-const pluginVsixUrl = '/img/omni-widgets-0.1.0.vsix';
+const pluginVsixUrl = '/img/omni-widgets-0.1.1.vsix';
 
 type Copy = {
   title: string;
@@ -41,7 +41,7 @@ const copy: Record<string, Copy> = {
     pluginTitle: 'VS Code 插件',
     pluginDescription: '连接 App 中已打开的代码编辑器，在电脑上编写小组件 JavaScript 并同步回手机。',
     pluginButton: '下载 VSIX',
-    pluginMeta: 'VS Code 1.90+ · v0.1.0',
+    pluginMeta: 'VS Code 1.90+ · v0.1.1',
     docsButton: '查看使用文档',
     requirementsTitle: '使用前确认',
     requirements: [
@@ -62,7 +62,7 @@ const copy: Record<string, Copy> = {
     pluginTitle: 'VS Code Extension',
     pluginDescription: 'Connect to the code editor opened in the app, edit widget JavaScript on your desktop, and sync it back to your phone.',
     pluginButton: 'Download VSIX',
-    pluginMeta: 'VS Code 1.90+ · v0.1.0',
+    pluginMeta: 'VS Code 1.90+ · v0.1.1',
     docsButton: 'View Documentation',
     requirementsTitle: 'Before You Start',
     requirements: [
