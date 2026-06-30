@@ -8,23 +8,23 @@ sidebar_position: 10
 
 ## 用法
 
-编辑器底部点 ➕ → 添加 **计时器**(`TextTimer`),再设置「倒计时」「倒计时时长(ms)」「起点时间戳(ms)」和「格式」。
+编辑器底部点 ➕ → 添加 **计时器**(`TextTimer`),再设置「倒计时」「起点时间戳(ms) / 结束时间戳(ms)」和「格式」。
 
 | 目标 | `isCountDown` | `count` | `startTime` | `format` |
 |------|---------------|---------|-------------|----------|
 | 正计时 | `false` | 可留空 | 可留空或 `Date.now()` | `mm:ss` |
 | 从指定时间正计时 | `false` | 可留空 | 起点时间戳 | `HH:mm:ss` |
-| 60 秒倒计时 | `true` | `60000` | 不生效 | `mm:ss` |
-| 5 分钟倒计时 | `true` | `300000` | 不生效 | `mm:ss` |
-| 1 小时倒计时 | `true` | `3600000` | 不生效 | `HH:mm:ss` |
+| 60 秒倒计时 | `true` | 已弃用 | `Date.now() + 60000` | `mm:ss` |
+| 5 分钟倒计时 | `true` | 已弃用 | 结束时间戳 | `mm:ss` |
+| 1 小时倒计时 | `true` | 已弃用 | 结束时间戳 | `HH:mm:ss` |
 
 ## 属性
 
 | 属性 (`attrs` key) | 类型 | 说明 |
 |------|------|------|
-| `isCountDown` | boolean | 是否倒计时。`true` 从 `count` 往 0 走;`false` 正计时 |
-| `count` | number | 倒计时初始时长,单位毫秒;只在 `isCountDown=true` 时生效 |
-| `startTime` | number | 正计时起点时间戳,单位毫秒;只在 `isCountDown=false` 时生效。显示值为当前时间减去该时间戳,超过 24 小时会按天循环 |
+| `isCountDown` | boolean | 是否倒计时。`true` 时 `startTime` 表示结束时间戳;`false` 时 `startTime` 表示起点时间戳 |
+| `count` | number | 已弃用,不再参与显示 |
+| `startTime` | number | 唯一时间字段,单位毫秒。正计时显示当前时间减去它;倒计时显示它减去当前时间 |
 | `format` | string | 显示格式,如 `mm:ss` / `HH:mm:ss` / `ss` |
 | `fontSize` | length | 字号,可写固定数字 `24` 或占位 `${size}` |
 | `fontWeight` | enum | `normal` / `bold` / `medium` / `bolder` / `lighter` / `regular` |
@@ -57,10 +57,18 @@ ss
 
 ## 例:5 分钟倒计时
 
+在 JS 中生成 5 分钟后的结束时间戳:
+
+```js
+const endTime = Date.now() + 5 * 60 * 1000
+
+return { startTime: endTime }
+```
+
 | 字段 | 填什么 |
 |------|--------|
 | `isCountDown` | `true` |
-| `count` | `300000` |
+| `startTime` | `${startTime}` |
 | `format` | `mm:ss` |
 | `fontSize` | `28` |
 
@@ -71,7 +79,7 @@ ss
 | `isCountDown` | `false` |
 | `format` | `mm:ss` |
 
-`count` 在正计时时不生效,可以留空。
+`count` 已弃用,可以留空。
 
 ## 例:秒级时钟
 
@@ -94,12 +102,12 @@ return { startTime }
 
 ## 注意事项
 
-:::warning count 单位是毫秒
-`count = 60000` 表示 60 秒,不是 60000 秒。倒计时时长最长 24 小时(`86399999`)。
+:::warning count 已弃用
+倒计时不再读取 `count`,请用 `startTime` 传入结束时间戳。
 :::
 
-:::warning startTime 只用于正计时
-`isCountDown=true` 时会继续按 `count` 倒计时,不会读取 `startTime`。
+:::warning 倒计时最多显示 24 小时
+倒计时结束时间超过当前时间 24 小时时,显示会截断到 24 小时;结束时间已过时显示 `00:00:00`。
 :::
 
 :::tip 不需要 JS 刷新
