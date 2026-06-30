@@ -23,7 +23,7 @@ sidebar_position: 4
 | 属性 | 类型 | 说明 |
 |------|------|------|
 | `dataSource` | string | 循环数据源,见下文「循环」 |
-| `openUrl` | string | 点击容器时打开链接,可写固定 URL 或占位符 |
+| `openUrl` | string | 点击容器时打开链接或 App,可写固定值或占位符 |
 | `width` / `height` | length | `auto` / `100` / `100%` / `${w}` |
 | `padding` | padding4 | `8` 或 `8,8,8,8` |
 | `backColor` | color | 背景 |
@@ -36,8 +36,13 @@ sidebar_position: 4
 
 ```
 openUrl = https://example.com/detail
+openUrl = app://com.example.targetapp
+openUrl = app://com.example.targetapp?ability=EntryAbility
+openUrl = app://com.example.targetapp?ability=EntryAbility&module=entry
 openUrl = ${row.url}
 ```
+
+`app://包名` 会按包名打开已安装应用。只有目标应用需要指定入口时,再加 `?ability=...`;如果目标应用需要模块名,再加 `&module=...`。目标应用未安装或系统不允许跳转时不会打开。
 
 这适合让一整块内容变成跳转区域。如果需要点击后执行 JS、写 `Config`、刷新数据或按条件决定跳转,仍然用 [按钮 Button](./button.md) 的 `click` 事件。
 

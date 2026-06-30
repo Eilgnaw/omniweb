@@ -26,3 +26,7 @@ HO_DOCS_BRIEF.md
 i18n/en/docusaurus-plugin-content-docs-ho/current.json
 i18n/en/docusaurus-plugin-content-docs-ho/current/intro.md
 i18n/en/docusaurus-plugin-content-docs-ho/current/getting-started/quickstart.md
+
+# Generated knowledge base exports
+/docs-ho-ai-kb/
+/docs-ho-kb-numbered/
