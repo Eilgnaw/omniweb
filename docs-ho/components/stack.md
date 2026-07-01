@@ -35,12 +35,17 @@ sidebar_position: 4
 横排 / 纵列 / 叠放 都可以直接设置 `openUrl`。用户点这个容器时,Omni 会拉起系统打开对应链接:
 
 ```
-openUrl = https://example.com/detail
-openUrl = app://com.example.targetapp
-openUrl = app://com.example.targetapp?ability=EntryAbility
-openUrl = app://com.example.targetapp?ability=EntryAbility&module=entry
-openUrl = ${row.url}
+https://example.com/detail
+app://com.example.targetapp
+app://com.example.targetapp?ability=EntryAbility
+app://com.example.targetapp?ability=EntryAbility&module=entry
+${row.url}
+app://com.huawei.hmos.clock?ability=com.huawei.hmos.clock.phone
+hww://www.huawei.com
+app://com.huawei.hmos.calendar?ability=MainAbility
 ```
+
+把上面这类值填到容器的 `openUrl` 字段即可。
 
 `app://包名` 会按包名打开已安装应用。只有目标应用需要指定入口时,再加 `?ability=...`;如果目标应用需要模块名,再加 `&module=...`。目标应用未安装或系统不允许跳转时不会打开。
 

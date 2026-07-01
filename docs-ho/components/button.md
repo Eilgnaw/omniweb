@@ -16,57 +16,32 @@ sidebar_position: 5
  └─ 文本 (Text, content = "添加")
 ```
 
-然后在 按钮 的「点击」字段(`event.click`)写一段 JS 片段。用户点了之后,这段 JS 会被拼到主 JS 末尾一起跑,实现「响应点击 → 更新状态 → 卡片重渲」。
+然后在 按钮 的「点击」字段(`event.click`)写一个主 JS 里已经定义好的函数调用。用户点了之后,按钮会执行这个调用,再让卡片刷新显示最新结果。
 
 ## 点击事件 (`click`)
 
-最常用的 4 种姿势:
+推荐把逻辑写在主 JS,按钮里只写函数名:
 
-### 1. 刷新
-
-```
-click: refresh
-```
-
-直接重新执行卡片主 JS,通常配合 `Config.set` / `Shared.set` 拿到最新数据。
-
-### 2. 改一个本地变量
-
-```
-click: counter = counter + 1
+```text
+increment()
+await refreshData()
+refresh
 ```
 
-不要忘了配合 `Config.set` 持久化,不然下次刷新会丢:
-
-```
-click: counter = (counter || 0) + 1; Config.set("counter", counter)
-```
-
-### 3. 调一个函数
-
-```
-click: increment()
-```
-
-主 JS 里定义 `increment`:
+主 JS 示例:
 
 ```js
+let counter = Config.get("counter", 0)
+
 function increment() {
-  const n = Config.get("counter", 0) + 1
-  Config.set("counter", n)
+  counter = counter + 1
+  Config.set("counter", counter)
 }
-```
 
-### 4. 跳 URL
-
-```
-click: openUrl("https://example.com/x")
-```
-
-或带状态:
-
-```
-click: openUrl("myapp://detail?id=" + currentId)
+async function refreshData() {
+  const data = await new Request("https://example.com/api").fetchJSON()
+  Config.set("title", data.title)
+}
 ```
 
 ## 属性
@@ -82,9 +57,9 @@ click: openUrl("myapp://detail?id=" + currentId)
 ## 注意事项
 
 :::tip click 片段也是 JS
-它会被拼到主 JS 末尾跑,所以**主 JS 顶层定义的变量、函数、Setting / Config 都能访问**。注意别在 click 片段里写 `return`(会污染包裹的 IIFE)。
+它能访问主 JS 顶层定义的变量、函数、Setting / Config。复杂逻辑放进主 JS 函数,按钮里只写 `increment()` 或 `await refreshData()` 这类调用。
 :::
 
 :::warning click 也走 4.5s 上限
-click 片段里调 `Request` 这种异步逻辑,跟主 JS 共享 4.5s 预算。**点击立即跑接口要做好兜底**,网络慢会被砍。
+不要在 click 里写大段代码或 `return`。异步逻辑可以写成主 JS 的 `async function`,再在按钮里用 `await 函数名()` 调用。
 :::
