@@ -16,9 +16,9 @@ sidebar_position: 6
 |------|------|------|------|
 | `direction` | enum | `horizontal` | `horizontal`(先 → 后 ↓) / `vertical`(先 ↓ 后 →) |
 | `columns` | number | `3` | `horizontal` 时:**列数**;`vertical` 时:**每列条目数** |
-| `spacing` | number | `0` | 行 / 列间距 |
+| `spacing` | number | `0` | 行 / 列间距,最小为 `0` |
 | `dataSource` | string | | 循环数据源,语法同 [Stack](./stack.md#循环-datasource) |
-| `width` / `height` / `padding` / `backColor` / `cornerRadius` / `opacity` | | | 同 Stack |
+| `width` / `height` / `offsetX` / `offsetY` / `offsetZ` / `padding` / `backColor` / `cornerRadius` / `opacity` | | | 同 Stack |
 
 ## 例:横向 3 列网格
 

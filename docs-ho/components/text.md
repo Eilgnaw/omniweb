@@ -24,11 +24,13 @@ sidebar_position: 1
 |------|------|------|
 | `content` | string | 显示的文字 / 占位符(支持 `${...}` 和混排) |
 | `fontSize` | length | 字号,可写固定数字 `14` 或占位 `${size}` |
+| `lineHeight` | length | 行高,如 `16` / `20`;留空时使用系统默认 |
 | `fontWeight` | enum | `normal` / `bold` / `medium` / `bolder` / `lighter` / `regular` |
 | `fontName` | enum | 系统字体名(见编辑器下拉选项) |
 | `forColor` | color | 文字色,`#000` 或 `${c}` |
 | `width` | length | `auto` / `100` / `100%` / `${w}` |
 | `height` | length | 同 width |
+| `offsetX` / `offsetY` / `offsetZ` | length | 视觉偏移,不改变原本布局占位 |
 | `padding` | padding4 | `8` 或 `8,8,8,8` |
 | `backColor` | color | 背景色 |
 | `cornerRadius` | length | 圆角 |
@@ -58,3 +60,14 @@ let size = 24       // 整段占位,保留 number 类型
 :::tip 整段 vs 混排
 `fontSize: ${size}` 是「整段」,拿到的是 number;`fontSize: ${size}px` 是「混排」,会变字符串,**别这么写**。详见 [占位符语法](../getting-started/placeholder.md#一-普通占位符)。
 :::
+
+## 例:压紧大字号上下空间
+
+字号较大时,可以设置固定行高控制文字盒子的上下占用:
+
+| 字段 | 值 |
+|------|----|
+| `fontSize` | `48` |
+| `lineHeight` | `48` |
+
+`lineHeight` 留空时使用系统默认行高;填 `0` 或清空都不会限制行高。

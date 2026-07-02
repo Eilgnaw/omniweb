@@ -27,6 +27,7 @@ sidebar_position: 10
 | `startTime` | number | 唯一时间字段,单位毫秒。正计时显示当前时间减去它;倒计时显示它减去当前时间 |
 | `format` | string | 显示格式,如 `mm:ss` / `HH:mm:ss` / `ss` |
 | `fontSize` | length | 字号,可写固定数字 `24` 或占位 `${size}` |
+| `lineHeight` | length | 行高,如 `24` / `28`;留空时使用系统默认 |
 | `fontWeight` | enum | `normal` / `bold` / `medium` / `bolder` / `lighter` / `regular` |
 | `fontName` | enum | 系统字体名(见编辑器下拉选项) |
 | `forColor` | color | 文字色,`#000` 或 `${c}` |

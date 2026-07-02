@@ -24,7 +24,10 @@ sidebar_position: 4
 |------|------|------|
 | `dataSource` | string | 循环数据源,见下文「循环」 |
 | `openUrl` | string | 点击容器时打开链接或 App,可写固定值或占位符 |
+| `spacing` | number | Row / Column 的子节点间距,最小为 `0`;Stack 无间距字段 |
+| `alignItems` / `justifyContent` / `alignContent` | enum | Row / Column / Stack 的对齐字段,按编辑器下拉选项填写 |
 | `width` / `height` | length | `auto` / `100` / `100%` / `${w}` |
+| `offsetX` / `offsetY` / `offsetZ` | length | 视觉偏移,不改变原本布局占位 |
 | `padding` | padding4 | `8` 或 `8,8,8,8` |
 | `backColor` | color | 背景 |
 | `cornerRadius` | length | 圆角 |
