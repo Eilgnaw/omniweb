@@ -51,7 +51,7 @@ const cur = getValue("liked") || "heart"
 setValue("liked", cur === "heart" ? "heart.fill" : "heart")
 ```
 
-Inside the button, place an icon with content `{state}` — each tap toggles between "♡" and "❤".
+Inside the button, place an icon with content `${state}` — each tap toggles between "♡" and "❤".
 
 ## Want "tap to open a URL"?
 

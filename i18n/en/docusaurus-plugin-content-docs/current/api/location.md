@@ -72,4 +72,4 @@ this.temp = Math.trunc(weather.temperature.value) + "°"
 this.icon = weather.symbolName
 ```
 
-In the text / icon components, just fill in `{city}` `{temp}` `{icon}`.
+In the text / icon components, just fill in `${city}` `${temp}` `${icon}`.

@@ -35,7 +35,7 @@ sidebar_position: 4
 | 层 | 类型 | 宽 | 颜色 |
 |----|------|----|------|
 | 底 | rectangle | 100 | 灰色 |
-| 上 | rectangle | `{percent}` | 主题色 |
+| 上 | rectangle | `${percent}` | 主题色 |
 
 JS 里 `this.percent = 60` → 进度条到 60%。
 

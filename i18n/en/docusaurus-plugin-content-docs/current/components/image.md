@@ -13,7 +13,7 @@ Image has two types, switchable in the property panel. They behave completely di
 | Type | Meaning | What goes in the content field |
 |------|---------|--------------------------------|
 | **Photo** (default) | Pick a photo from the system **Photo Library**; Omni saves a copy inside the app | A UUID (auto-generated when you pick a photo — you don't fill it in) |
-| **File** | Use a local **file path**, typically an image downloaded by JS | A file path like `LD:.../xxx.png`, `LL:.../xxx.png`, or the placeholder `{path}` |
+| **File** | Use a local **file path**, typically an image downloaded by JS | A file path like `LD:.../xxx.png`, `LL:.../xxx.png`, or the placeholder `${path}` |
 
 :::warning You can't pass a URL directly
 The image component **does not fetch from the network on its own**. No matter the type, **putting `https://...` in there shows nothing**.
@@ -66,7 +66,7 @@ this.img = path   // path looks like "LD:widgetId/avatar.png"
 Image component:
 
 - Type: **File**
-- Content: `{img}`
+- Content: `${img}`
 
 After the first run, every refresh skips the download — **rendering is super fast** (local IO, no network).
 

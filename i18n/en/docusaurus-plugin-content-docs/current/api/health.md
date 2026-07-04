@@ -222,7 +222,7 @@ const m = Math.floor((total % 3600) / 60)
 this.sleep = `${h}h ${m}m`
 ```
 
-Put `{sleep}` in a text component → shows `7h 10m`.
+Put `${sleep}` in a text component → shows `7h 10m`.
 
 ## Notes
 

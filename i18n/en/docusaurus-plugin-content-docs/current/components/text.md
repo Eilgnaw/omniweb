@@ -13,8 +13,8 @@ Tap the ➕ in the top-right of the editor and add **text**, then write what you
 | Content field | Result |
 |---------------|--------|
 | `Hello` | Hello |
-| `{name}` | Shows the value of `this.name` from your JS |
-| `Hi {name}, it's {temp}° today` | Hi Alice, it's 26° today |
+| `${name}` | Shows the value of `this.name` from your JS |
+| `Hi ${name}, it's ${temp}° today` | Hi Alice, it's 26° today |
 
 For full placeholder syntax, see [Placeholder syntax](../getting-started/placeholder.md).
 
@@ -35,7 +35,7 @@ For full placeholder syntax, see [Placeholder syntax](../getting-started/placeho
 | Corner radius | Adds rounded corners to the background |
 
 :::tip Font size can be dynamic too
-Writing `{size}` in the font size field works — set `this.size = 18` in JS to control the size dynamically.
+Writing `${size}` in the font size field works — set `this.size = 18` in JS to control the size dynamically.
 :::
 
 ## Example: display one row of JS data
@@ -47,6 +47,6 @@ this.count = 12
 
 | Component | Content |
 |-----------|---------|
-| text | `{title}` |
-| text | `{count}` |
-| text (mixed) | `{title}: {count} messages` |
+| text | `${title}` |
+| text | `${count}` |
+| text (mixed) | `${title}: ${count} messages` |

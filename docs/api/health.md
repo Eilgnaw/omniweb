@@ -222,7 +222,7 @@ const m = Math.floor((total % 3600) / 60)
 this.sleep = `${h}时${m}分`
 ```
 
-text 组件填 `{sleep}` → 显示 `7时10分`。
+text 组件填 `${sleep}` → 显示 `7时10分`。
 
 ## 注意
 

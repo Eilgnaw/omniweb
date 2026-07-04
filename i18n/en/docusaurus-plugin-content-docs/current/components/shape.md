@@ -35,7 +35,7 @@ A **zstack** containing two shapes:
 | Layer | Type | Width | Color |
 |-------|------|-------|-------|
 | Bottom | rectangle | 100 | Gray |
-| Top | rectangle | `{percent}` | Theme color |
+| Top | rectangle | `${percent}` | Theme color |
 
 In JS, set `this.percent = 60` → the bar fills to 60%.
 

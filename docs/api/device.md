@@ -90,4 +90,4 @@ const n = Device.network()
 this.netIcon = n.wifi ? "wifi" : (n.cellular ? "antenna.radiowaves.left.and.right" : "wifi.slash")
 ```
 
-icon 组件填 `{netIcon}`,根据网络自动切换图标。
+icon 组件填 `${netIcon}`,根据网络自动切换图标。

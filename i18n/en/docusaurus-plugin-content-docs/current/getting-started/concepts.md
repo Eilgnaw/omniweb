@@ -46,7 +46,7 @@ this.title = obj.omni  // store the result on this.xxx so the components can use
 The result is bound to components via **placeholders**:
 
 ```
-In the text component's "content" field, write: {title}
+In the text component's "content" field, write: ${title}
 ```
 
 The widget will then display the value of `obj.omni`.

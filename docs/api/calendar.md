@@ -140,12 +140,12 @@ const events = JSON.parse(result)
 this.events = events.slice(0, 3)
 ```
 
-vstack 设循环数据源 `{events[ev]}`,内部:
+vstack 设循环数据源 `${events[ev]}`,内部:
 
 | 子组件 | 内容 |
 |--------|------|
-| text | `{ev.title}` |
-| text(灰色) | `{ev.startDate}` |
+| text | `${ev.title}` |
+| text(灰色) | `${ev.startDate}` |
 
 ## 权限提示
 

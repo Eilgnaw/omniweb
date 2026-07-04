@@ -13,8 +13,8 @@ sidebar_position: 1
 | 内容字段写 | 显示效果 |
 |------------|---------|
 | `Hello` | Hello |
-| `{name}` | 显示 JS 里 `this.name` 的值 |
-| `你好 {name},今天 {temp}°` | 你好 Alice,今天 26° |
+| `${name}` | 显示 JS 里 `this.name` 的值 |
+| `你好 ${name},今天 ${temp}°` | 你好 Alice,今天 26° |
 
 占位符语法详见 [占位符语法](../getting-started/placeholder.md)。
 
@@ -35,7 +35,7 @@ sidebar_position: 1
 | 圆角 | 给背景加圆角 |
 
 :::tip 字号也可以动态化
-字号字段写 `{size}` 也成立 — JS 里给 `this.size = 18` 就能动态控制字号。
+字号字段写 `${size}` 也成立 — JS 里给 `this.size = 18` 就能动态控制字号。
 :::
 
 ## 例:展示一行 JS 数据
@@ -47,6 +47,6 @@ this.count = 12
 
 | 组件 | 内容 |
 |------|------|
-| text | `{title}` |
-| text | `{count}` |
-| text(混) | `{title}: {count} 条` |
+| text | `${title}` |
+| text | `${count}` |
+| text(混) | `${title}: ${count} 条` |

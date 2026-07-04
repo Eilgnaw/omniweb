@@ -6,6 +6,15 @@ sidebar_position: 99
 
 Only **user-facing** changes are listed here. Bug fixes and internal refactors aren't on this page.
 
+## Placeholders: new templates use `${...}`
+
+When creating or editing templates, write placeholders as `${name}` / `${user.name}` / `${rows[row]}`.
+The old `{name}` form is still compatible and is normalized to `${name}` when saved.
+
+See [Placeholder syntax](./getting-started/placeholder.md).
+
+---
+
 ## Settings: 3 new types + JS reverse declaration
 
 Settings now support **number / date / image**:
@@ -40,11 +49,11 @@ See [Config — Setting](./api/config.md#settings-setting).
 ## Placeholders: dot-path now works without a prefix
 
 ```
-{user.name}     ← works directly now
-{$.user.name}   ← the old required form, still supported
+${user.name}     ← works directly now
+${$.user.name}   ← forces global lookup, still supported
 ```
 
-`{var}` is no longer just a flat variable lookup — it can now **drill into** objects and arrays.
+`${var}` is no longer just a flat variable lookup — it can now **drill into** objects and arrays.
 Inside a loop, if a name collides, add the `$.` prefix to force reading from the global scope.
 
 See [Placeholder syntax](./getting-started/placeholder.md).

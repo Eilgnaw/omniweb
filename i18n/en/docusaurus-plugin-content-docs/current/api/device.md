@@ -90,4 +90,4 @@ const n = Device.network()
 this.netIcon = n.wifi ? "wifi" : (n.cellular ? "antenna.radiowaves.left.and.right" : "wifi.slash")
 ```
 
-Put `{netIcon}` in an icon component to auto-switch icons based on network status.
+Put `${netIcon}` in an icon component to auto-switch icons based on network status.

@@ -45,7 +45,7 @@ sidebar_position: 9
 | `mailto:foo@bar.com` | 写邮件 |
 | `awidget://runjs/medium/{Widget.id}` | 重新跑当前小组件的 JS |
 | `awidget://openmini?...` | 打开微信小程序(系统会自动追加 `&from=omni`) |
-| `{link}` | 由 JS 决定 |
+| `${link}` | 由 JS 决定 |
 
 ### 例:做一个"按钮"
 
@@ -127,7 +127,7 @@ tstack:
 ```
 tstack:
   ├─ text  (内容: "您有 ")
-  ├─ text  (内容: "{count}", 字号大、颜色红)
+  ├─ text  (内容: "${count}", 字号大、颜色红)
   └─ text  (内容: " 条新消息")
 ```
 

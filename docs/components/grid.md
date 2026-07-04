@@ -47,9 +47,9 @@ this.icons = [
 
 grid 配置:
 - 列数:`2`
-- 循环数据源:`{icons[ico]}`
+- 循环数据源:`${icons[ico]}`
 - 内部子组件(vstack):
-  - icon  内容 `{ico.sym}`
-  - text  内容 `{ico.label}`
+  - icon  内容 `${ico.sym}`
+  - text  内容 `${ico.label}`
 
 效果:2 列 2 行的天气图标网格。

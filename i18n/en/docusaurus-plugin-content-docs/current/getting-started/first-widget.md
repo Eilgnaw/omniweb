@@ -57,16 +57,16 @@ Back on the canvas, tap each component and fill in its "content" field:
 
 | Component | Content field |
 |------|-----------|
-| icon | `{icon}` |
-| first text | `{text}` |
-| second text | `{temp}°` |
+| icon | `${icon}` |
+| first text | `${text}` |
+| second text | `${temp}°` |
 
-`{xxx}` is a placeholder — Omni automatically replaces it with the value of `this.xxx` from your JS.
+`${xxx}` is a placeholder — Omni automatically replaces it with the value of `this.xxx` from your JS.
 
 :::tip More placeholder forms
-- `{obj.name}` — read a field on an object directly
-- `{$.xxx}` — force read from the global scope
-- `{rows[row]}` — for loops
+- `${obj.name}` — read a field on an object directly
+- `${$.xxx}` — force read from the global scope
+- `${rows[row]}` — for loops
 
 See [Placeholder syntax](./placeholder.md).
 :::

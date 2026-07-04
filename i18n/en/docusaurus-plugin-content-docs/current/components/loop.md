@@ -25,7 +25,7 @@ this.list = [
 Select the container (e.g. vstack), find **Data source** (dataSource) in its properties, and enter:
 
 ```
-{list[item]}
+${list[item]}
 ```
 
 Meaning: iterate `list`, name each entry `item`, and children can then access `item.xxx`.
@@ -36,9 +36,9 @@ Put an hstack inside, containing:
 
 | Child | Content |
 |-------|---------|
-| text | `{item.name}` |
+| text | `${item.name}` |
 | spacer | — |
-| text | `¥{item.price}` |
+| text | `¥${item.price}` |
 
 Result:
 
@@ -60,11 +60,11 @@ this.tables = [
 ```
 
 Outer vstack:
-- Data source `{tables[t]}`
+- Data source `${tables[t]}`
 - Inside:
-  - text  content `{t.title}`
-  - vstack (data source `{t.items[it]}`)
-    - text content `{it.n}`
+  - text  content `${t.title}`
+  - vstack (data source `${t.items[it]}`)
+    - text content `${it.n}`
 
 ## Empty array behavior
 
@@ -79,7 +79,7 @@ Older versions would **hide the entire container** for an empty array, which cou
 Now an empty array just means "loops 0 times" — the container itself still exists.
 :::
 
-## Global escape: `{$.xxx}`
+## Global escape: `${$.xxx}`
 
 Inside a loop, if you want to read an outer global variable but the loop variable has the same name, use the `$.` prefix to force a global lookup:
 
@@ -88,9 +88,9 @@ this.row = "outer"            // global
 this.list = [{ row: "inner" }]
 ```
 
-Container data source `{list[row]}`, then inside a text:
-- `{row}`     → inner (loop variable wins)
-- `{$.row}`   → outer (forced global)
+Container data source `${list[row]}`, then inside a text:
+- `${row}`     → inner (loop variable wins)
+- `${$.row}`   → outer (forced global)
 
 Full rules in [Placeholder syntax](../getting-started/placeholder.md).
 

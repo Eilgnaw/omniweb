@@ -15,7 +15,7 @@ sidebar_position: 3
 | `sun.max` | ☀ |
 | `cloud.rain` | 🌧 |
 | `heart.fill` | ♥ |
-| `{icon}` | 由 JS 决定 |
+| `${icon}` | 由 JS 决定 |
 
 编辑器内置 SF Symbols 选择器(在 icon 组件的属性面板),不用自己背名字。
 
@@ -39,7 +39,7 @@ const obj = JSON.parse(result)
 this.icon = obj.symbolName    // Apple 直接给好了 SF Symbol 名
 ```
 
-icon 组件内容填 `{icon}`,会自动显示对应天气图标。
+icon 组件内容填 `${icon}`,会自动显示对应天气图标。
 
 :::tip 锁屏组件
 锁屏的圆形 / 矩形 / 内联组件**只能显示单色**,SF Symbol 在这里特别合适。

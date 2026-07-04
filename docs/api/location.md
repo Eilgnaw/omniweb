@@ -72,4 +72,4 @@ this.temp = Math.trunc(weather.temperature.value) + "°"
 this.icon = weather.symbolName
 ```
 
-text / icon 组件分别填 `{city}` `{temp}` `{icon}` 即可。
+text / icon 组件分别填 `${city}` `${temp}` `${icon}` 即可。

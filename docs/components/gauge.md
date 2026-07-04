@@ -59,11 +59,11 @@ this.percent = Math.round(b.level * 100) + "%" // "75%"
 画布结构:
 
 ```
-gauge   (内容: {level},  样式: acircular)
+gauge   (内容: ${level},  样式: acircular)
   ├─ zstack
   │    └─ icon  (内容: bolt.fill)            ← 第一个 zstack → 中心图标
   ├─ zstack
-  │    └─ text  (内容: {percent})            ← 最后一个 zstack → 下方数值
+  │    └─ text  (内容: ${percent})            ← 最后一个 zstack → 下方数值
   ├─ text  (内容: 0)                         ← 第一个 text → 左下小字
   └─ text  (内容: 100)                       ← 最后一个 text → 右下小字
 ```
@@ -75,9 +75,9 @@ gauge   (内容: {level},  样式: acircular)
 最少子组件方案:**只放 1 个 zstack**。
 
 ```
-gauge  (内容: {level}, 样式: acircular)
+gauge  (内容: ${level}, 样式: acircular)
   └─ zstack
-       └─ text  (内容: {percent})
+       └─ text  (内容: ${percent})
 ```
 
 因为只有 1 个 zstack,它同时被用作 label 和 currentValueLabel —— 数字会重叠显示在中间(实际看起来就是一个数字,因为两个槽位置很近)。
@@ -85,7 +85,7 @@ gauge  (内容: {level}, 样式: acircular)
 ## 例 3:横线进度条带左右刻度
 
 ```
-gauge  (内容: {progress}, 样式: alinear)
+gauge  (内容: ${progress}, 样式: alinear)
   ├─ zstack
   │    └─ icon  (内容: speaker.wave.2)        ← label,左侧图标
   ├─ zstack                                   ← 占位,避免 currentValueLabel 用到 label 同一个

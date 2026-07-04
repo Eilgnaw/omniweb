@@ -140,12 +140,12 @@ const events = JSON.parse(result)
 this.events = events.slice(0, 3)
 ```
 
-On a vstack, set the loop data source to `{events[ev]}`. Inside:
+On a vstack, set the loop data source to `${events[ev]}`. Inside:
 
 | Child component | Content |
 |--------|------|
-| text | `{ev.title}` |
-| text (gray) | `{ev.startDate}` |
+| text | `${ev.title}` |
+| text (gray) | `${ev.startDate}` |
 
 ## Permission Notes
 

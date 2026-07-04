@@ -52,7 +52,7 @@ const cur = getValue("liked") || "heart"
 setValue("liked", cur === "heart" ? "heart.fill" : "heart")
 ```
 
-按钮里放一个 icon,内容填 `{state}` —— 每次点击图标在"♡"和"❤"之间切换。
+按钮里放一个 icon,内容填 `${state}` —— 每次点击图标在"♡"和"❤"之间切换。
 
 ## 想"点击跳转 URL"怎么办?
 

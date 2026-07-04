@@ -26,7 +26,7 @@ this.list = [
 选中容器(比如 vstack),在属性里找到**循环数据源**(dataSource),填:
 
 ```
-{list[item]}
+${list[item]}
 ```
 
 含义:遍历 `list`,每一项命名为 `item`,然后子组件就能用 `item.xxx`。
@@ -37,9 +37,9 @@ this.list = [
 
 | 子组件 | 内容 |
 |--------|------|
-| text | `{item.name}` |
+| text | `${item.name}` |
 | spacer | — |
-| text | `¥{item.price}` |
+| text | `¥${item.price}` |
 
 效果:
 
@@ -61,11 +61,11 @@ this.tables = [
 ```
 
 外层 vstack:
-- 数据源 `{tables[t]}`
+- 数据源 `${tables[t]}`
 - 内部:
-  - text  内容 `{t.title}`
-  - vstack(数据源 `{t.items[it]}`)
-    - text 内容 `{it.n}`
+  - text  内容 `${t.title}`
+  - vstack(数据源 `${t.items[it]}`)
+    - text 内容 `${it.n}`
 
 ## 空数组的行为
 
@@ -80,7 +80,7 @@ this.list = []   // 安全,不会报错,容器变空
 现在空数组只是"循环出 0 次",容器本身仍在。
 :::
 
-## 全局穿透:`{$.xxx}`
+## 全局穿透:`${$.xxx}`
 
 循环里如果想读外层的全局变量,而循环变量名又恰好同名,用 `$.` 前缀强制读全局:
 
@@ -89,9 +89,9 @@ this.row = "外层"            // 全局
 this.list = [{ row: "内层" }]
 ```
 
-容器数据源 `{list[row]}`,内部 text 写:
-- `{row}`     → 内层(循环变量优先)
-- `{$.row}`   → 外层(强制全局)
+容器数据源 `${list[row]}`,内部 text 写:
+- `${row}`     → 内层(循环变量优先)
+- `${$.row}`   → 外层(强制全局)
 
 详细规则见 [占位符语法](../getting-started/placeholder.md)。
 

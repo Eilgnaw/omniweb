@@ -59,11 +59,11 @@ this.percent = Math.round(b.level * 100) + "%" // "75%"
 Canvas structure:
 
 ```
-gauge   (content: {level},  style: acircular)
+gauge   (content: ${level},  style: acircular)
   ├─ zstack
   │    └─ icon  (content: bolt.fill)            ← first zstack → center icon
   ├─ zstack
-  │    └─ text  (content: {percent})            ← last zstack → value below
+  │    └─ text  (content: ${percent})            ← last zstack → value below
   ├─ text  (content: 0)                         ← first text → small bottom-left
   └─ text  (content: 100)                       ← last text → small bottom-right
 ```
@@ -75,9 +75,9 @@ Result: a ring at 75% with a lightning icon + "75%" in the center, and tiny `0` 
 Minimal-children setup: **just 1 zstack**.
 
 ```
-gauge  (content: {level}, style: acircular)
+gauge  (content: ${level}, style: acircular)
   └─ zstack
-       └─ text  (content: {percent})
+       └─ text  (content: ${percent})
 ```
 
 Because there's only 1 zstack, it serves as both label and currentValueLabel — the number overlaps in the middle (it looks like a single number since the two slots are nearly identical).
@@ -85,7 +85,7 @@ Because there's only 1 zstack, it serves as both label and currentValueLabel —
 ## Example 3: linear progress bar with min/max marks
 
 ```
-gauge  (content: {progress}, style: alinear)
+gauge  (content: ${progress}, style: alinear)
   ├─ zstack
   │    └─ icon  (content: speaker.wave.2)        ← label, left-side icon
   ├─ zstack                                      ← placeholder, so currentValueLabel doesn't reuse the label

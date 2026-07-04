@@ -45,7 +45,7 @@ So "tap to navigate" is always done through stack containers.
 | `mailto:foo@bar.com` | Composes an email |
 | `awidget://runjs/medium/{Widget.id}` | Re-runs the current widget's JS |
 | `awidget://openmini?...` | Opens a WeChat Mini Program (the system appends `&from=omni` automatically) |
-| `{link}` | Decided by your JS |
+| `${link}` | Decided by your JS |
 
 ### Example: make a "button"
 
@@ -127,7 +127,7 @@ Renders: **32**°C (big number, small unit, snug together). With an hstack, the 
 ```
 tstack:
   ├─ text  (content: "You have ")
-  ├─ text  (content: "{count}", large size, red color)
+  ├─ text  (content: "${count}", large size, red color)
   └─ text  (content: " new messages")
 ```
 

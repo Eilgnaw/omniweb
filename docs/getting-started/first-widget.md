@@ -57,16 +57,16 @@ try {
 
 | 组件 | 内容字段填 |
 |------|-----------|
-| icon | `{icon}` |
-| 第一个 text | `{text}` |
-| 第二个 text | `{temp}°` |
+| icon | `${icon}` |
+| 第一个 text | `${text}` |
+| 第二个 text | `${temp}°` |
 
-`{xxx}` 就是占位符 — Omni 会自动把它替换成 JS 里的 `this.xxx` 的值。
+`${xxx}` 就是占位符 — Omni 会自动把它替换成 JS 里的 `this.xxx` 的值。
 
 :::tip 占位符的更多写法
-- `{obj.name}` 直接读对象字段
-- `{$.xxx}` 强制读全局
-- `{rows[row]}` 给循环用
+- `${obj.name}` 直接读对象字段
+- `${$.xxx}` 强制读全局
+- `${rows[row]}` 给循环用
 
 详见 [占位符语法](./placeholder.md)。
 :::

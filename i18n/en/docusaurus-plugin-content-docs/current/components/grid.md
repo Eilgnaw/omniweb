@@ -47,9 +47,9 @@ this.icons = [
 
 Grid setup:
 - Columns: `2`
-- Data source: `{icons[ico]}`
+- Data source: `${icons[ico]}`
 - Children (vstack):
-  - icon  content `{ico.sym}`
-  - text  content `{ico.label}`
+  - icon  content `${ico.sym}`
+  - text  content `${ico.label}`
 
 Result: a 2-column, 2-row grid of weather icons.

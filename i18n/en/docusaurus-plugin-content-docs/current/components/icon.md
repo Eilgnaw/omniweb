@@ -15,7 +15,7 @@ Tap the ➕ in the top-right of the editor and add **icon**, then enter an SF Sy
 | `sun.max` | ☀ |
 | `cloud.rain` | 🌧 |
 | `heart.fill` | ♥ |
-| `{icon}` | Decided by your JS |
+| `${icon}` | Decided by your JS |
 
 The editor has a built-in SF Symbols picker (in the icon component's property panel) so you don't have to memorize names.
 
@@ -39,7 +39,7 @@ const obj = JSON.parse(result)
 this.icon = obj.symbolName    // Apple hands you the SF Symbol name directly
 ```
 
-Set the icon component's content to `{icon}` — it automatically renders the matching weather icon.
+Set the icon component's content to `${icon}` — it automatically renders the matching weather icon.
 
 :::tip Lock screen widgets
 Lock screen circular / rectangular / inline widgets **only render single color**, which makes SF Symbols a perfect fit here.

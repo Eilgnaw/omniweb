@@ -19,7 +19,7 @@ Tap the ➕ in the top-right of the editor and add **date**, then fill the date 
 | `yesterday` | This time yesterday |
 | `startoftoday` | Today at 00:00 |
 | `2024-08-20 10:00:00` | A specific moment (format must be exact) |
-| `{ts}` | Placeholder — JS supplies a time string |
+| `${ts}` | Placeholder — JS supplies a time string |
 
 ## Display styles
 
@@ -40,7 +40,7 @@ this.target = "2026-01-01 00:00:00"
 ```
 
 Date component:
-- Content: `{target}`
+- Content: `${target}`
 - Style: `timer`
 - → Displays the time remaining until New Year's Day 2026, **auto-refreshing**
 
@@ -58,7 +58,7 @@ const fmt = (d) => {
 this.next = fmt(tomorrow)
 ```
 
-Set the date component's content to `{next}` and style to `timer` — it shows a countdown to midnight tomorrow.
+Set the date component's content to `${next}` and style to `timer` — it shows a countdown to midnight tomorrow.
 
 :::tip Why can date refresh every second?
 Widgets can't refresh every second on their own, but `Text(date:)` is system-level — iOS drives this clock under the hood.
