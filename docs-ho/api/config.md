@@ -163,7 +163,7 @@ Setting.add({
 | `toggle` | 开关 | `Setting.bool(key)` |
 | `select` | 选项列表 | `Setting.select(key)` |
 | `icon` | 图标名 | `Setting.icon(key)` |
-| `color` | 颜色值 | `Setting.color(key)` |
+| `color` | 颜色值 | `Setting.color(key)` 返回 `#RRGGBB` 字符串或完整颜色对象 |
 | `image` | 图片选择 | `Setting.image(key)` 返回沙盒相对路径 |
 
 :::tip 声明只在编辑器持久化
@@ -187,8 +187,19 @@ Setting.string("city")      // string,缺失返回 ""
 Setting.number("fontSize")  // number,缺失 / 非数字返回 0
 Setting.bool("notify")      // boolean
 Setting.date("targetDate")  // number(ms)
-Setting.color("color")      // string,例如 "#0A59F7"
+Setting.color("color")      // string 或 ColorItem 对象
 Setting.image("avatar")     // string,例如 "images/xxx.jpg"
+```
+
+颜色设置项可以是旧版单个 Hex 字符串,也可以是颜色编辑器保存的完整颜色对象。完整对象可直接返回给组件颜色属性:
+
+```js
+Setting.add({ key: "accent", name: "主题色", type: "color", icon: "paintpalette" })
+
+const accent = Setting.color("accent") || "#0A59F7"
+
+// 编辑器里把某个组件的 backColor / forColor 设为 ${accent}
+// 如果用户选择了渐变或 Light/Dark 颜色,组件会按完整颜色对象渲染。
 ```
 
 ### 低层读 / 写
@@ -269,6 +280,6 @@ Setting.bool(key)          → boolean
 Setting.date(key)          → number
 Setting.select(key)        → string
 Setting.icon(key)          → string
-Setting.color(key)         → string
+Setting.color(key)         → string | ColorItem
 Setting.image(key)         → string
 ```
