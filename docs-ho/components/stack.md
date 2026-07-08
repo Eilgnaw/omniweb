@@ -2,61 +2,64 @@
 sidebar_position: 4
 ---
 
-# 容器 Stack / Row / Column
+# 容器
 
-容器组件,把子节点按方向排列。一共 5 种类型,布局含义对齐 ArkUI / SwiftUI:
+容器用来组织子组件。编辑器里有三种常用容器:
 
-| 类型 | 方向 | 备注 |
+| 名称 | 排列方式 | 常见用途 |
 |---|---|---|
-| `Column` / `VStack` | 竖排(从上到下) | 互为别名 |
-| `Row` / `HStack` | 横排(从左到右) | 互为别名 |
-| `Stack` | 叠放(后加的盖上面) | 类似 ZStack |
+| 纵列 | 从上到下排列 | 标题 + 内容 + 底部说明 |
+| 横排 | 从左到右排列 | 图标 + 文本、左右两端对齐 |
+| 层叠 | 子组件互相叠放 | 背景图上放文字、角标 |
 
 ## 用法
 
-编辑器加任一容器,树面板里**把子组件拖进去**。子节点的顺序就是渲染顺序。
+在编辑器底部点加号,添加 **纵列**、**横排** 或 **层叠**,再把子组件拖进去。子组件在树面板里的顺序就是显示顺序;层叠里后面的子组件会盖在前面的子组件上。
 
 ## 属性
 
-容器自身没专属字段,共享一组布局 / 视觉属性 + 一个 `dataSource`(循环):
-
-| 属性 | 类型 | 说明 |
+| 字段 | 可填写 | 说明 |
 |------|------|------|
-| `dataSource` | string | 循环数据源,见下文「循环」 |
-| `openUrl` | string | 点击容器时打开链接或 App,可写固定值或占位符 |
-| `spacing` | number | Row / Column 的子节点间距,最小为 `0`;Stack 无间距字段 |
-| `alignItems` / `justifyContent` / `alignContent` | enum | Row / Column / Stack 的对齐字段,按编辑器下拉选项填写 |
-| `width` / `height` | length | `auto` / `100` / `100%` / `${w}` |
-| `offsetX` / `offsetY` / `offsetZ` | length | 视觉偏移,不改变原本布局占位 |
-| `padding` | padding4 | `8` 或 `8,8,8,8` |
-| `backColor` | color | 背景 |
-| `cornerRadius` | length | 圆角 |
-| `opacity` | number | 0..1 |
+| 数据源（循环） | `{rows[row]}` | 按数组重复渲染子组件 |
+| 打开链接 | `https://...` / `OmniWidgets://...` / `${row.url}` | 点击整个容器时打开链接或应用 |
+| 内间距 | `0` / `8` | 纵列、横排的子组件间距;层叠没有这个字段 |
+| 水平对齐 | `start` / `center` / `end` | 纵列中子组件的横向位置 |
+| 垂直分布 | `start` / `center` / `spaceBetween` | 纵列中子组件的纵向分布 |
+| 垂直对齐 | `top` / `center` / `bottom` | 横排中子组件的纵向位置 |
+| 水平分布 | `start` / `center` / `spaceBetween` | 横排中子组件的横向分布 |
+| 对齐 | `topStart` / `center` / `bottomEnd` | 层叠中子组件的对齐位置 |
+| 宽 / 高 | `auto` / `100` / `100%` / `${w}` | 容器尺寸 |
+| 水平偏移 / 垂直偏移 / Z 轴偏移 | `0` / `8` / `${x}` | 只移动显示位置,不改变原本占位 |
+| 内边距 / 外边距 | `8` / `8,8,8,8` | 四周留白 |
+| 显示 | `true` / `false` / `${show}` | 控制是否显示 |
+| 背景色 | `#FFFFFF` / `${color}` | 容器背景 |
+| 圆角 | `0` / `8` / `50%` | 背景圆角 |
+| 旋转角度 | `0` / `15` / `${angle}` | 顺时针旋转角度 |
+| 不透明度 | `0` 到 `1` | `1` 为完全不透明 |
 
-## 打开链接 (`openUrl`) \{#openurl\}
+## 打开链接
 
-横排 / 纵列 / 叠放 都可以直接设置 `openUrl`。用户点这个容器时,Omni 会拉起系统打开对应链接:
+纵列、横排、层叠都可以设置「打开链接」。用户点击容器时,Omni 会打开对应链接:
 
-```
+```text
 https://example.com/detail
-app://com.example.targetapp
-app://com.example.targetapp?ability=EntryAbility
-app://com.example.targetapp?ability=EntryAbility&module=entry
+OmniWidgets://open-app/com.example.targetapp?ability=EntryAbility
+OmniWidgets://open-app/com.example.targetapp?ability=EntryAbility&module=entry
 ${row.url}
-app://com.huawei.hmos.clock?ability=com.huawei.hmos.clock.phone
+OmniWidgets://open-app/com.huawei.hmos.clock?ability=com.huawei.hmos.clock.phone
 hww://www.huawei.com
-app://com.huawei.hmos.calendar?ability=MainAbility
+OmniWidgets://open-app/com.huawei.hmos.calendar?ability=MainAbility
 ```
 
-把上面这类值填到容器的 `openUrl` 字段即可。
+把上面这类值填到「打开链接」字段即可。
 
-`app://包名` 会按包名打开已安装应用。只有目标应用需要指定入口时,再加 `?ability=...`;如果目标应用需要模块名,再加 `&module=...`。目标应用未安装或系统不允许跳转时不会打开。
+`OmniWidgets://open-app/包名?ability=...` 会打开已安装应用的指定入口。如果目标应用需要模块名,再加 `&module=...`。目标应用未安装或系统不允许跳转时不会打开。旧版 `app://包名` 仍可兼容,但新卡片建议使用带 `ability` 的 `OmniWidgets://open-app/`。
 
-这适合让一整块内容变成跳转区域。如果需要点击后执行 JS、写 `Config`、刷新数据或按条件决定跳转,仍然用 [按钮 Button](./button.md) 的 `click` 事件。
+如果需要点击后执行脚本、写入配置、刷新数据或按条件决定跳转,使用 [按钮](./button.md) 的「点击」字段。
 
-## 循环 (dataSource) \{#循环-datasource\}
+## 循环
 
-容器的 `dataSource` 字段写 `{arr[item]}`,容器的**子节点会按数组展开**,每条 item 在一个新的 scope 里渲染:
+在「数据源（循环）」填 `{rows[row]}`,容器的子组件会按数组重复显示。每条数据都会得到一个临时名称,例如这里的 `row`。
 
 JS:
 
@@ -70,29 +73,31 @@ let rows = [
 
 容器配置:
 
-- `dataSource`: `{rows[row]}`
-- 子节点 1(文本 `Text`):`content` = `${row.title}`
-- 子节点 2(文本 `Text`):`content` = `¥${row.price}`
+| 位置 | 字段 | 填写 |
+|---|---|---|
+| 外层纵列 | 数据源（循环） | `{rows[row]}` |
+| 子组件 1 文本 | 内容 | `${row.title}` |
+| 子组件 2 文本 | 内容 | `¥${row.price}` |
 
-渲染结果:
+显示结果:
 
-```
+```text
 苹果   ¥5
 香蕉   ¥3
 橘子   ¥4
 ```
 
-**嵌套循环**也支持(外层叫 `row`,内层用 `row.cells` 展开成 `cell`):
+嵌套循环也支持。外层用 `row`,内层用 `cell`:
 
-```
-外层 纵列 (Column):
-  dataSource = {rows[row]}
-  ↳ 内层 横排 (Row):
-     dataSource = {row.cells[cell]}
-     ↳ 文本 (Text):  ${cell.text}
+```text
+外层纵列
+  数据源（循环）: {rows[row]}
+  里面放一个横排
+    数据源（循环）: {row.cells[cell]}
+    里面放文本: ${cell.text}
 ```
 
-## 例:动态背景色按值高亮
+## 例:按值高亮背景
 
 JS:
 
@@ -104,18 +109,22 @@ let rows = [
 ]
 ```
 
-外层 纵列(`Column`):`dataSource = {rows[row]}`,子节点 横排(`Row`):`backColor = ${row.color}`,文本(`Text`):`content = ${row.title} ${row.score}`。
+| 位置 | 字段 | 填写 |
+|---|---|---|
+| 外层纵列 | 数据源（循环） | `{rows[row]}` |
+| 子组件横排 | 背景色 | `${row.color}` |
+| 横排里的文本 | 内容 | `${row.title} ${row.score}` |
 
 ## 注意事项
 
 :::warning 单次循环上限 50
-渲染端最多展开 50 条,超出截掉。**JS 里自己 `arr.slice(0, 50)` 控制更可靠**(超出的接口数据扔掉省内存)。
+渲染端最多展开 50 条,超出会被截掉。接口数据很多时,建议在 JS 里先 `arr.slice(0, 50)`。
 :::
 
-:::tip 数组没准备好不挂
-JS 还没出数据 / 路径写错,`dataSource` 解析不到数组就**不展开子节点**(容器渲染成空)。比挂掉好。
+:::tip 数组没准备好会显示为空
+JS 还没返回数据,或「数据源（循环）」路径写错时,容器不会展开子组件。
 :::
 
 :::tip 容器只负责链接跳转
-`openUrl` 不会执行 JS 片段。想响应点击改状态,**把 横排 / 纵列 套进一个 按钮**(按钮也是容器)。详见 [按钮](./button.md)。
+「打开链接」不会执行脚本。想点击后改状态,把内容放进按钮里。
 :::

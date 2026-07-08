@@ -100,6 +100,6 @@ setUpdateFreq(30)  // 建议系统 30 分钟后再唤起刷新
 
 - [占位符语法](./placeholder.md) —— 把复杂数据塞进卡片
 - [锁屏卡片](./lock-screen.md) —— 把同一套编辑器用到锁屏位
-- [循环渲染数组](../components/stack.md#循环-datasource) —— 列表 / 网格
+- [循环渲染数组](../components/stack.md#循环) —— 列表 / 网格
 - [网络接口](../api/network.md) —— `Request` 完整用法
 - [本地文件](../api/fileManager.md) —— 下载图片、缓存数据

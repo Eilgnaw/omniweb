@@ -2,15 +2,15 @@
 sidebar_position: 10
 ---
 
-# 计时器 TextTimer
+# 计时器
 
-显示计时信息的文本组件。支持正计时和倒计时,放到卡片上后会自动开始。
+计时器显示正计时或倒计时。放到卡片上后会自动开始。
 
 ## 用法
 
-编辑器底部点 ➕ → 添加 **计时器**(`TextTimer`),再设置「倒计时」「起点时间戳(ms) / 结束时间戳(ms)」和「格式」。
+在编辑器底部点加号,添加 **计时器**,再设置「倒计时」「起点时间戳(ms)」和「格式」。
 
-| 目标 | `isCountDown` | `count` | `startTime` | `format` |
+| 目标 | 倒计时 | 倒计时时长(ms,已弃用) | 起点时间戳(ms) | 格式 |
 |------|---------------|---------|-------------|----------|
 | 正计时 | `false` | 可留空 | 可留空或 `Date.now()` | `mm:ss` |
 | 从指定时间正计时 | `false` | 可留空 | 起点时间戳 | `HH:mm:ss` |
@@ -20,28 +20,31 @@ sidebar_position: 10
 
 ## 属性
 
-| 属性 (`attrs` key) | 类型 | 说明 |
+| 字段 | 可填写 | 说明 |
 |------|------|------|
-| `isCountDown` | boolean | 是否倒计时。`true` 时 `startTime` 表示结束时间戳;`false` 时 `startTime` 表示起点时间戳 |
-| `count` | number | 已弃用,不再参与显示 |
-| `startTime` | number | 唯一时间字段,单位毫秒。正计时显示当前时间减去它;倒计时显示它减去当前时间 |
-| `format` | string | 显示格式,如 `mm:ss` / `HH:mm:ss` / `ss` |
-| `fontSize` | length | 字号,可写固定数字 `24` 或占位 `${size}` |
-| `lineHeight` | length | 行高,如 `24` / `28`;留空时使用系统默认 |
-| `fontWeight` | enum | `normal` / `bold` / `medium` / `bolder` / `lighter` / `regular` |
-| `fontName` | enum | 系统字体名(见编辑器下拉选项) |
-| `forColor` | color | 文字色,`#000` 或 `${c}` |
-| `width` / `height` | length | `auto` / `100` / `100%` / `${w}` |
-| `padding` | padding4 | `8` 或 `8,8,8,8` |
-| `backColor` | color | 背景色 |
-| `cornerRadius` | length | 圆角 |
-| `opacity` | number | 0..1 |
+| 倒计时 | `true` / `false` | 开关打开时,「起点时间戳(ms)」表示结束时间戳 |
+| 倒计时时长(ms,已弃用) | 留空 | 旧字段,不再参与显示 |
+| 起点时间戳(ms) | `Date.now()` / `${startTime}` | 正计时表示起点;倒计时表示结束时间 |
+| 格式 | `mm:ss` / `HH:mm:ss` / `ss` | 计时显示格式 |
+| 字号 | `24` / `${size}` | 文字大小 |
+| 行高 | `24` / `28` / `${lineHeight}` | 留空时使用系统默认行高 |
+| 字重 | `normal` / `bold` / `medium` | 按编辑器下拉选项填写 |
+| 字体 | 编辑器下拉选项 | 使用指定字体 |
+| 文字色 | `#000000` / `${color}` | 文字颜色 |
+| 宽 / 高 | `auto` / `100` / `100%` / `${w}` | 计时器区域尺寸 |
+| 水平偏移 / 垂直偏移 / Z 轴偏移 | `0` / `8` / `${x}` | 只移动显示位置,不改变原本占位 |
+| 内边距 / 外边距 | `8` / `8,8,8,8` | 四周留白 |
+| 显示 | `true` / `false` / `${show}` | 控制是否显示 |
+| 背景色 | `#FFFFFF` / `${color}` | 计时器背景 |
+| 圆角 | `0` / `8` / `50%` | 背景圆角 |
+| 旋转角度 | `0` / `15` / `${angle}` | 顺时针旋转角度 |
+| 不透明度 | `0` 到 `1` | `1` 为完全不透明 |
 
 ## 格式写法
 
-`format` 至少包含下面一个字段:
+「格式」至少包含下面一个字段:
 
-| 字段 | 含义 |
+| 写法 | 含义 |
 |------|------|
 | `HH` | 小时 |
 | `mm` | 分钟 |
@@ -50,7 +53,7 @@ sidebar_position: 10
 
 常用格式:
 
-```
+```text
 mm:ss
 HH:mm:ss
 ss
@@ -61,56 +64,49 @@ ss
 在 JS 中生成 5 分钟后的结束时间戳:
 
 ```js
-const endTime = Date.now() + 5 * 60 * 1000
-
-return { startTime: endTime }
+const startTime = Date.now() + 5 * 60 * 1000
 ```
 
-| 字段 | 填什么 |
+| 字段 | 填写 |
 |------|--------|
-| `isCountDown` | `true` |
-| `startTime` | `${startTime}` |
-| `format` | `mm:ss` |
-| `fontSize` | `28` |
+| 倒计时 | `true` |
+| 起点时间戳(ms) | `${startTime}` |
+| 格式 | `mm:ss` |
+| 字号 | `28` |
 
 ## 例:正计时
 
-| 字段 | 填什么 |
+| 字段 | 填写 |
 |------|--------|
-| `isCountDown` | `false` |
-| `format` | `mm:ss` |
+| 倒计时 | `false` |
+| 格式 | `mm:ss` |
 
-`count` 已弃用,可以留空。
+「倒计时时长(ms,已弃用)」可以留空。
 
 ## 例:秒级时钟
 
-把 `startTime` 设为当天 00:00:00 的时间戳,并使用 `HH:mm:ss`:
+把「起点时间戳(ms)」设为当天 00:00:00 的时间戳,并使用 `HH:mm:ss`:
 
 ```js
 const now = new Date()
 const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
 
-return { startTime }
 ```
 
-| 字段 | 填什么 |
+| 字段 | 填写 |
 |------|--------|
-| `isCountDown` | `false` |
-| `startTime` | `${startTime}` |
-| `format` | `HH:mm:ss` |
+| 倒计时 | `false` |
+| 起点时间戳(ms) | `${startTime}` |
+| 格式 | `HH:mm:ss` |
 
-`startTime` 固定为起点时间戳,组件会用当前时间减去它来显示已过时间。这样即使系统后台暂停绘制,重新可见后也会按当前时间补齐;到 24 小时后回到 `00:00:00`。
+「起点时间戳(ms)」固定为起点,组件会用当前时间减去它来显示已过时间。这样即使系统后台暂停绘制,重新可见后也会按当前时间补齐;到 24 小时后回到 `00:00:00`。
 
 ## 注意事项
-
-:::warning count 已弃用
-倒计时不再读取 `count`,请用 `startTime` 传入结束时间戳。
-:::
 
 :::warning 倒计时最多显示 24 小时
 倒计时结束时间超过当前时间 24 小时时,显示会截断到 24 小时;结束时间已过时显示 `00:00:00`。
 :::
 
 :::tip 不需要 JS 刷新
-`TextTimer` 自己计时,不用在 JS 里写 `setUpdateFreq`。设置 `startTime` 后,组件重新可见时会按当前时间计算显示值。
+计时器自己计时,不用在 JS 里写 `setUpdateFreq`。设置「起点时间戳(ms)」后,组件重新可见时会按当前时间计算显示值。
 :::

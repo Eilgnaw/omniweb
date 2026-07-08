@@ -2,55 +2,62 @@
 sidebar_position: 3
 ---
 
-# 图标 Icon
+# 图标
 
-显示一个内置 glyph 或 emoji。Icon 接受三种来源:
-
-- 内置 glyph 名(见 `render/IconGlyphs.ts`,如 `star` / `heart` / `bell`)
-- **Emoji 字符**(`🌞` / `❤️`),直接用 Unicode 渲染,跨设备一致
-- 占位符 `${name}`
+图标可以显示内置符号、表情字符,也可以通过占位符动态切换。
 
 ## 用法
 
-编辑器加 **图标**(`Icon`),「图标」字段(`glyph`)填:
+在编辑器底部点加号,添加 **图标**,然后在「图标」字段填写名称或字符。
 
-| glyph 字段写 | 渲染 |
+| 图标填写 | 显示 |
 |---|---|
-| `star` | 内置星形 glyph |
-| `heart` | 内置心形 glyph |
-| `🌞` | emoji 太阳 |
+| `star` | 星形符号 |
+| `heart` | 心形符号 |
+| `🌞` | 表情字符 |
 | `${icon}` | JS 顶层变量,值可以是上面任一种 |
 
 ## 属性
 
-| 属性 | 类型 | 说明 |
+| 字段 | 可填写 | 说明 |
 |------|------|------|
-| `glyph` | string | glyph 名 / emoji / `${...}` |
-| `fontSize` | length | 大小,如 `24` 或 `${size}` |
-| `forColor` | color | 前景色,只对内置 glyph 生效;emoji 走系统色彩 |
-| `width` / `height` / `padding` / `backColor` / `cornerRadius` / `opacity` | | 同 Text |
+| 图标 | `star` / `heart` / `🌞` / `${icon}` | 符号名称、表情字符或占位符 |
+| 字号 | `24` / `${size}` | 图标大小 |
+| 字重 | `normal` / `bold` / `medium` | 按编辑器下拉选项填写 |
+| 前景色 | `#000000` / `${color}` | 内置符号颜色;表情字符不受影响 |
+| 宽 / 高 | `auto` / `48` / `${size}` | 图标区域尺寸 |
+| 水平偏移 / 垂直偏移 / Z 轴偏移 | `0` / `8` / `${x}` | 只移动显示位置,不改变原本占位 |
+| 内边距 / 外边距 | `8` / `8,8,8,8` | 四周留白 |
+| 显示 | `true` / `false` / `${show}` | 控制是否显示 |
+| 背景色 | `#FFFFFF` / `${color}` | 图标背景 |
+| 圆角 | `0` / `8` / `50%` | 背景圆角 |
+| 旋转角度 | `0` / `15` / `${angle}` | 顺时针旋转角度 |
+| 不透明度 | `0` 到 `1` | `1` 为完全不透明 |
 
-## 例:按状态切图标
+## 例:按状态切换图标
 
 ```js
 const obj = await new Request("https://api.example.com/health").fetchJSON()
 
-let icon  = obj.ok ? "checkmark" : "exclamationmark"
-let color = obj.ok ? "#34C759"   : "#FF3B30"
+let icon = obj.ok ? "checkmark" : "exclamationmark"
+let color = obj.ok ? "#34C759" : "#FF3B30"
 ```
 
-Icon 组件:`glyph = ${icon}`,`forColor = ${color}`。
+| 字段 | 填写 |
+|---|---|
+| 图标 | `${icon}` |
+| 前景色 | `${color}` |
 
 ## 注意事项
 
-:::tip 找不到 glyph 名怎么办
-不在内置表里的名字会渲染成空白(不报错)。要兜底用 emoji —— emoji 是 Unicode 字符,所有设备都能渲染:
+:::tip 找不到符号名称怎么办
+不在内置表里的名称会显示为空白。可以用表情字符兜底:
 
 ```js
-let icon = (knownGlyph(obj.kind)) ? obj.kind : "❓"
+let icon = knownIcon(obj.kind) ? obj.kind : "?"
 ```
 :::
 
-:::warning emoji 不响应 forColor
-emoji 字符的颜色由系统字体决定,你设 `forColor` 没用。**只有内置 glyph 才能换色**。
+:::warning 表情字符不响应前景色
+表情字符的颜色由系统字体决定。只有内置符号能通过「前景色」换色。
 :::
