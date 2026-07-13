@@ -44,6 +44,7 @@ const sidebars: SidebarsConfig = {
         'api/device',
         'api/location',
         'api/control',
+        'api/url-scheme',
       ],
     },
   ],

@@ -9,6 +9,7 @@ import styles from './download.module.css';
 
 const appStoreUrl = 'https://apps.apple.com/app/id6468910867';
 const pluginVsixUrl = '/img/omni-widgets-0.1.1.vsix';
+const harmonyAppUrl = '<HARMONYOS_APP_DOWNLOAD_URL>';
 
 type Copy = {
   title: string;
@@ -18,6 +19,11 @@ type Copy = {
   appDescription: string;
   appButton: string;
   appMeta: string;
+  harmonyLabel: string;
+  harmonyTitle: string;
+  harmonyDescription: string;
+  harmonyButton: string;
+  harmonyMeta: string;
   pluginLabel: string;
   pluginTitle: string;
   pluginDescription: string;
@@ -37,6 +43,11 @@ const copy: Record<string, Copy> = {
     appDescription: '从 App Store 安装正式版，适用于 iPhone 和 iPad。',
     appButton: 'App Store 下载',
     appMeta: 'iOS 17+ · iPhone / iPad',
+    harmonyLabel: 'HarmonyOS',
+    harmonyTitle: 'Omni Widgets HarmonyOS',
+    harmonyDescription: '安装 HarmonyOS 版本,使用桌面卡片、锁屏卡片和外部调用 AppLink。',
+    harmonyButton: 'HarmonyOS 下载',
+    harmonyMeta: 'HarmonyOS 6+ · 手机',
     pluginLabel: '桌面端',
     pluginTitle: 'VS Code 插件',
     pluginDescription: '连接 App 中已打开的代码编辑器，在电脑上编写小组件 JavaScript 并同步回手机。',
@@ -58,6 +69,11 @@ const copy: Record<string, Copy> = {
     appDescription: 'Install the production build from the App Store for iPhone and iPad.',
     appButton: 'Download on the App Store',
     appMeta: 'iOS 17+ · iPhone / iPad',
+    harmonyLabel: 'HarmonyOS',
+    harmonyTitle: 'Omni Widgets for HarmonyOS',
+    harmonyDescription: 'Install the HarmonyOS build to use widgets, Lock Screen cards, and AppLink actions.',
+    harmonyButton: 'HarmonyOS download',
+    harmonyMeta: 'HarmonyOS 6+ · Phone',
     pluginLabel: 'Desktop',
     pluginTitle: 'VS Code Extension',
     pluginDescription: 'Connect to the code editor opened in the app, edit widget JavaScript on your desktop, and sync it back to your phone.',
@@ -132,6 +148,25 @@ export default function Download(): ReactNode {
               {text.appButton}
             </Link>
             <p className={styles.meta}>{text.appMeta}</p>
+          </article>
+
+          <article className={styles.downloadPanel}>
+            <div className={styles.panelTop}>
+              <span className={styles.label}>{text.harmonyLabel}</span>
+              <AppIcon />
+            </div>
+            <Heading as="h2" className={styles.panelTitle}>
+              {text.harmonyTitle}
+            </Heading>
+            <p className={styles.panelText}>{text.harmonyDescription}</p>
+            {harmonyAppUrl.startsWith('http') ? (
+              <a className={styles.downloadButton} href={harmonyAppUrl}>
+                {text.harmonyButton}
+              </a>
+            ) : (
+              <span className={styles.statusPill}>{harmonyAppUrl}</span>
+            )}
+            <p className={styles.meta}>{text.harmonyMeta}</p>
           </article>
 
           <article className={styles.downloadPanel}>
