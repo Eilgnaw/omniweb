@@ -26,6 +26,14 @@ The default 60-minute cache means repeated calls within the same hour reuse one 
 Only pass a smaller cache value when you genuinely need fresher real-time positioning.
 :::
 
+:::warning Automatic refreshes may use an older coordinate
+When a Home Screen widget refreshes automatically in the background, iOS may not provide a live location in time. If `getLocation()` still hasn't received a new coordinate after 6 seconds, it returns the last successful location from the previous 24 hours so the whole JS run doesn't fail on a location timeout.
+
+The GPS request keeps running on a best-effort basis, but only for up to 20 seconds from the start of the request. A late coordinate is cached for the next refresh; it won't reload the current widget again. If there's no cached location from the previous 24 hours, the call still returns an error.
+
+A manual refresh happens right after you interact with the widget, so it's more likely to receive a live location, but iOS still makes the final decision.
+:::
+
 ## Get Address (Reverse Geocoding)
 
 No arguments = use the current location:

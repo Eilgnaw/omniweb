@@ -23,13 +23,17 @@ console.log(Widget.urlscheme)  // "awidget://runjs/medium/ABCD..."  自动生成
 | `type` | 类型字符串(small / medium / large / circular / rectangular / inline / button / toggle / live) |
 | `urlscheme` | 一个固定 URL,打开它会**重新跑一遍当前小组件的 JS**;常用来做按钮 / 快捷指令回调 |
 
+:::tip URL Scheme 别名
+Omni Widgets 同时接受 `omniwidgets://` 和 `awidget://`,两者的路径、参数与行为完全相同。`Widget.urlscheme` 目前仍生成 `awidget://` 地址,已有快捷指令和小组件不需要修改;新链接也可以直接使用更易识别的 `omniwidgets://`。
+:::
+
 ## ⚠️ 关于运行环境
 
 下面的 `openUrl` / `reload` 两个方法,**只在主 App 上下文里跑得动**;
 也就是只有以下两种场景生效:
 
 1. **编辑器里**:你在编辑小组件、点了"运行" — JS 跑在主 App 里
-2. **通过 `Widget.urlscheme` 进入**:有人打开了 `awidget://runjs/...`(快捷指令、按钮、其它 App 跳转过来),iOS 把 Omni 拉起来,JS 在主 App 里跑
+2. **通过 URL Scheme 进入**:有人打开了 `omniwidgets://runjs/...` 或 `Widget.urlscheme` 返回的 `awidget://runjs/...`(快捷指令、按钮、其它 App 跳转过来),iOS 把 Omni 拉起来,JS 在主 App 里跑
 
 桌面上小组件**自己刷新时**,JS 是在 widget extension(独立沙盒)里跑的 — 这两个方法直接**变成空操作**,不会报错也不会生效。
 
@@ -65,7 +69,7 @@ Widget.reload()
 快捷指令"打开 URL"填:
 
 ```
-awidget://runjs/medium/<widget id>
+omniwidgets://runjs/medium/<widget id>
 ```
 
 这会让 Omni 主 App 启动并跑这个小组件的 JS。在 JS 里你可以做完事再跳走:
@@ -78,7 +82,7 @@ Widget.openUrl("weixin://")    // 同步完接着打开微信
 
 `runjs` URL 还能**带查询参数**透传到 JS,如:
 ```
-awidget://runjs/medium/<widget id>?city=Shanghai&count=10
+omniwidgets://runjs/medium/<widget id>?city=Shanghai&count=10
 ```
 然后 JS 里通过 `$params` 取到(`$params.city`)。
 

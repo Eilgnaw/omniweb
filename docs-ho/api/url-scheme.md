@@ -106,21 +106,6 @@ Widget.openUrl("OmniWidgets://open-app/com.huawei.hmos.calendar?ability=MainAbil
 https://omni.2f0.cn/ho/app/open-app/com.huawei.hmos.calendar?ability=MainAbility
 ```
 
-## 使用 AGC App Linking
-
-如果要使用 AppGallery Connect 创建短链接、统计链接或支持安装后的延迟跳转,需要在 AppGallery Connect 中启用 App Linking,并将 URL 前缀配置为文档站域名。
-
-项目维护者需要配置以下信息,卡片作者不需要填写:
-
-```text
-AGC App ID: <AGC_APP_ID>
-URL 前缀: https://omni.2f0.cn
-未安装回退地址: https://omni.2f0.cn/download
-签名证书 SHA-256: <APP_SIGNING_CERTIFICATE_SHA256>
-```
-
-AppLink 的实际 deep link 仍使用本页的 `/ho/app/` 路径规则。
-
 ## 速查
 
 ```text

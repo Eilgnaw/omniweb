@@ -43,9 +43,11 @@ sidebar_position: 9
 | `https://2f0.cn` | 打开网页 |
 | `weixin://` | 打开微信 |
 | `mailto:foo@bar.com` | 写邮件 |
-| `awidget://runjs/medium/{Widget.id}` | 重新跑当前小组件的 JS |
-| `awidget://openmini?...` | 打开微信小程序(系统会自动追加 `&from=omni`) |
+| `omniwidgets://runjs/medium/{Widget.id}` | 重新跑当前小组件的 JS |
+| `omniwidgets://openmini?...` | 打开微信小程序(系统会自动追加 `&from=omni`) |
 | `${link}` | 由 JS 决定 |
+
+> `omniwidgets://` 和旧的 `awidget://` 完全等价,已有链接不需要修改。
 
 ### 例:做一个"按钮"
 

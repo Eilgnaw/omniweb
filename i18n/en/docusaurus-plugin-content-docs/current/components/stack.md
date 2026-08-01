@@ -43,9 +43,11 @@ So "tap to navigate" is always done through stack containers.
 | `https://2f0.cn` | Opens a web page |
 | `weixin://` | Opens WeChat |
 | `mailto:foo@bar.com` | Composes an email |
-| `awidget://runjs/medium/{Widget.id}` | Re-runs the current widget's JS |
-| `awidget://openmini?...` | Opens a WeChat Mini Program (the system appends `&from=omni` automatically) |
+| `omniwidgets://runjs/medium/{Widget.id}` | Re-runs the current widget's JS |
+| `omniwidgets://openmini?...` | Opens a WeChat Mini Program (the system appends `&from=omni` automatically) |
 | `${link}` | Decided by your JS |
+
+> `omniwidgets://` and the legacy `awidget://` are fully equivalent, so existing links don't need any changes.
 
 ### Example: make a "button"
 

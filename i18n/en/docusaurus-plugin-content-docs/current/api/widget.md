@@ -22,13 +22,17 @@ console.log(Widget.urlscheme)  // "awidget://runjs/medium/ABCD..."  auto-generat
 | `type` | The widget's type string (small / medium / large / circular / rectangular / inline / button / toggle / live) |
 | `urlscheme` | A fixed URL — opening it **re-runs the widget's JS**; useful for button / shortcut callbacks |
 
+:::tip URL Scheme aliases
+Omni Widgets accepts both `omniwidgets://` and `awidget://`. Their paths, parameters, and behavior are identical. `Widget.urlscheme` currently keeps generating an `awidget://` URL, so existing shortcuts and widgets don't need any changes; new links can use the more recognizable `omniwidgets://` directly.
+:::
+
 ## ⚠️ About the Runtime Environment
 
 The `openUrl` / `reload` methods below **only work in the main app context**.
 That means they only take effect in two scenarios:
 
 1. **In the editor**: when you're editing a widget and hit "Run" — the JS runs in the main app
-2. **Via `Widget.urlscheme`**: someone opens `awidget://runjs/...` (from a shortcut, button, or another app), iOS launches Omni, and the JS runs in the main app
+2. **Via a URL Scheme**: someone opens `omniwidgets://runjs/...` or the `awidget://runjs/...` URL returned by `Widget.urlscheme` (from a shortcut, button, or another app), iOS launches Omni, and the JS runs in the main app
 
 When the widget refreshes **on its own on the home screen**, the JS runs inside the widget extension (a separate sandbox) — these two methods become **no-ops**. They don't throw and don't do anything.
 
@@ -64,7 +68,7 @@ Typical use: the user changed config or data in the main app, and you want the h
 In the Shortcuts "Open URL" action, fill in:
 
 ```
-awidget://runjs/medium/<widget id>
+omniwidgets://runjs/medium/<widget id>
 ```
 
 This launches the Omni main app and runs the widget's JS. In the JS, you can finish your work and then jump elsewhere:
@@ -77,7 +81,7 @@ Widget.openUrl("weixin://")    // after syncing, open WeChat
 
 The `runjs` URL can also **carry query parameters** through to the JS, e.g.:
 ```
-awidget://runjs/medium/<widget id>?city=Shanghai&count=10
+omniwidgets://runjs/medium/<widget id>?city=Shanghai&count=10
 ```
 Then in JS, read them via `$params` (e.g. `$params.city`).
 
