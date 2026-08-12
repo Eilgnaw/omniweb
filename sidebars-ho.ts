@@ -29,6 +29,7 @@ const sidebars: SidebarsConfig = {
         'components/button',
         'components/grid',
         'components/gauge',
+        'components/canvas',
         'components/blank',
       ],
     },
