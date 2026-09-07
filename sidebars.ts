@@ -20,6 +20,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       link: {type: 'generated-index', slug: '/category/components'},
       items: [
+        'components/markup',
         'components/text',
         'components/image',
         'components/icon',
