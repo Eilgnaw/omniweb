@@ -8,7 +8,7 @@ AWidget Markup (AWML) describes widgets using XML-style native component tags. L
 
 ## Getting started
 
-Choose the source tab at the top of the full editor. Existing layouts are converted to tags. Valid source changes update the preview; switching to the components tab lets you edit components. Visual changes update the corresponding source while retaining unchanged nodes, formatting and comments.
+In the full editor, open the code editor menu and choose Layout source. It opens a large sheet like the JavaScript editor. Existing layouts are converted to tags. Valid source changes update the preview; close the source sheet to return to the component list. Visual changes update the corresponding source while retaining unchanged nodes, formatting and comments.
 
 ```xml
 <widget version="1" type="medium">
@@ -28,7 +28,7 @@ this.temperature = 26;
 
 Dimensions follow existing component behavior: omitted width and height default to 24; `0` means automatic sizing. For full-bleed backgrounds, use a root `zstack`, a background shape and a separate content container; see the existing component documentation.
 
-Invalid input keeps the draft and last valid preview, and pauses visual writes and saving. Select a diagnostic to jump to its line. Fixing the error resumes synchronization. Source mode reuses the existing code editor, including its themes, line numbers, wrapping, and keyboard accessory. The top-right more menu opens editor settings and inserts tags or attributes; the checkmark saves the layout. Layout undo/redo restores source and visual edits. Drafts remain on the current device; valid source is saved and exported with the widget.
+Invalid input keeps the draft and last valid preview, and pauses visual writes and saving. Select a diagnostic to jump to its line. Fixing the error resumes synchronization. Source mode reuses the existing code editor, including its themes, line numbers, wrapping, and keyboard accessory. The top-right more menu opens editor settings and inserts tags or attributes; the checkmark saves the layout. Layout undo/redo in the code editor menu and the source more menu restores source and visual edits. Drafts remain on the current device; valid source is saved and exported with the widget.
 
 ## Tags and attributes
 
