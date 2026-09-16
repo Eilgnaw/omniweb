@@ -4,6 +4,10 @@ sidebar_position: 13
 
 # Tag layouts (AWidget Markup)
 
+:::info Temporarily unavailable
+Tag layout authoring and its MCP interfaces are disabled in the current store build. This reference is retained for a future release. Existing widgets continue using their saved native layouts.
+:::
+
 AWidget Markup (AWML) describes widgets using XML-style native component tags. Layout source is saved separately from JavaScript, which continues to supply variables. Tags compile to existing native layouts. Home Screen, Lock Screen, control widgets and Live Activities are supported.
 
 ## Getting started

@@ -20,7 +20,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       link: {type: 'generated-index', slug: '/category/components'},
       items: [
-        'components/markup',
+        // 'components/markup', // Temporarily disabled for the iOS store release.
         'components/text',
         'components/image',
         'components/icon',

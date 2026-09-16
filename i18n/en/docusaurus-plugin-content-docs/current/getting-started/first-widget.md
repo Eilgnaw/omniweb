@@ -31,7 +31,7 @@ The layout looks roughly like:
 
 ## 3. Write the JS
 
-Tap the **`<>` (code)** button at the bottom of the editor and paste:
+Tap the editor’s code button to open the JavaScript editor, then paste:
 
 ```js
 try {
@@ -50,6 +50,10 @@ try {
 ```
 
 Tap **Run**. If the console shows no errors, `this.icon` / `this.text` / `this.temp` are all set.
+
+### Desktop sync (optional)
+
+Tap the computer button in the JS editor only when you want to use VS Code. Opening the editor alone does not start sync. You can stop sync from its panel; closing the code editor also disconnects immediately, and reopening it does not automatically reconnect. Remote writes are temporarily rejected while an input method is composing text; save again after composition finishes.
 
 ## 4. Bind JS data to components
 
