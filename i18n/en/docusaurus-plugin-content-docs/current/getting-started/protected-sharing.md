@@ -106,4 +106,3 @@ Protected sharing encrypts the widget content inside `.omni` and lets the backen
 After import, AWidget keeps the content in its existing format inside the iOS app sandbox. This feature can't guarantee protection against jailbroken devices, runtime analysis, or plaintext extraction by a recipient who already received authorization.
 
 Revoking a share package blocks new imports and unlocks. It can't remotely take back widgets that were already authorized for offline use.
-

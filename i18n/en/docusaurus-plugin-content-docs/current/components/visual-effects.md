@@ -81,4 +81,3 @@ hstack (spacing -60)
 ```
 
 The right image overlaps the left by `60` points, three times the blur radius. The transparent blur edge stays over the sharp image and reaches a stable blur by the original image boundary.
-
