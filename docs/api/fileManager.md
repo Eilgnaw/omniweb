@@ -1,146 +1,132 @@
 ---
 sidebar_position: 11
 ---
+
 # 文件管理
-:::info
-文件管理 (FileManager) 模块提供了在 Omni 小组件中读写文件的能力，支持 iCloud 和本地文件存储。
+
+用 `FileManager` 保存文本、JSON 和图片。每个小组件都有自己的目录。
+
+## 先选本地还是 iCloud
+
+| 初始化 | 位置 | 建议用途 |
+| --- | --- | --- |
+| `FileManager.local()` | 当前设备 | 默认选择；缓存、图片、普通数据 |
+| `FileManager.iCloud()` | iCloud Drive | 需要跨设备访问的文件 |
+
+:::warning 小组件中优先使用本地文件
+iCloud 文件可能尚未下载，后台小组件也不适合等待同步。除非确实需要跨设备文件，否则使用 `FileManager.local()`。
 :::
 
-## 初始化
+## 选择公开或私有目录
 
-`FileManager` 需要先进行初始化，以指定使用本地存储还是 iCloud 。
-
-### 本地存储
-
-文件将仅存储在当前设备上。
-
-#### 公共目录
-
-文件存储在 `文件 App -> 我的 iPhone -> Omni` 目录下。
-
-```javascript
-// 初始化本地 FileManager
-const fm = FileManager.local();
-
-// 获取公共文档目录路径
-const documentsPath = fm.documents();
-console.log(documentsPath);
-// 输出 LD:小组件ID(UUID)/
-// 对应位置为: iPhone/OmniWidgets/Widgets/小组件ID(UUID)
+```js
+const fm = FileManager.local()
+const publicDirectory = fm.documents()
+const privateDirectory = fm.library()
 ```
 
-#### 私有目录
+| 方法 | 路径前缀 | 用户能否在“文件”App 中看到 |
+| --- | --- | --- |
+| `documents()` | 本地 `LD:` / iCloud `ID:` | 能 |
+| `library()` | 本地 `LL:` / iCloud `IL:` | 不能 |
 
-文件存储在应用内部的本地目录中，在 `文件` App 中不可见。
+返回值已经包含当前小组件目录和末尾 `/`，可以直接拼接文件名。
 
-```javascript
-// 初始化本地 FileManager
-const fm = FileManager.local();
+## 读写文字
 
-// 获取私有库目录路径
-const libraryPath = fm.library();
-console.log(libraryPath);
+```js
+const fm = FileManager.local()
+const path = fm.documents() + "greeting.txt"
+
+const saved = fm.writeString(path, "Hello, Omni!")
+const content = fm.readString(path)
+
+console.log(saved, content)
 ```
 
+`writeString()` 返回是否写入成功。文件不存在或读取失败时，`readString()` 返回空值。
 
-## 文件操作
+## 保存网络图片
 
-### 读写字符串
+```js
+const fm = FileManager.local()
+const path = fm.documents() + "background.png"
 
-适用于读写文本文件，如 `txt`, `json` 等。
+if (!fm.fileExists(path)) {
+  const bytes = await new Request("https://example.com/image.png").fetch()
+  fm.saveImage(path, bytes)
+}
 
-```javascript
-const fm = FileManager.local();
-const docs = fm.documents();
-const filePath = docs + "greeting.txt";
-
-// 写入字符串
-fm.writeString(filePath, "Hello, Omni!");
-
-// 读取字符串
-const content = fm.readString(filePath);
-console.log(content); // 输出: Hello, Omni!
+this.imagePath = path
 ```
 
-### 读写图片
+把 Image 组件的类型设为“文件”，内容设为 `${imagePath}`。
 
-适用于保存和加载图片。
+## 检查与删除
 
-```javascript
-const fm = FileManager.local();
-const docs = fm.documents();
-this.imagePath = docs + "background.png";
-// 假设 image 是从网络或其它地方获取的图片数据 [Uint8Array]
-const image = await new Request("https://example.com/image.png").fetch();
-// 保存图片
-fm.saveImage(imagePath, image);
-
-// 在图片组件中显示
-// 将图片组件类型设置为 "文件"，内容填写 imagePath 变量的值即可。
-```
-
-### 检查文件是否存在
-
-```javascript
-const fm = FileManager.local();
-const path = fm.documents() + "config.json";
+```js
+const fm = FileManager.local()
+const path = fm.documents() + "temp.txt"
 
 if (fm.fileExists(path)) {
-  console.log("文件存在");
-} else {
-  console.log("文件不存在");
+  const removed = fm.remove(path)
+  console.log("删除结果：", removed)
 }
 ```
 
-### 删除文件
+## 列出和清空目录
 
-```javascript
-const fm = FileManager.local();
-const path = fm.documents() + "temp.txt";
+```js
+const fm = FileManager.local()
+const cacheDirectory = fm.join([fm.documents(), "cache"])
 
-// 确保文件存在再删除
-if (fm.fileExists(path)) {
-  fm.remove(path);
-  console.log("文件已删除");
-}
+fm.writeString(fm.join([cacheDirectory, "a.txt"]), "A")
+fm.writeString(fm.join([cacheDirectory, "b.txt"]), "B")
+
+const names = fm.listContents(cacheDirectory)
+console.log(names) // ["a.txt", "b.txt"]
+
+const cleared = fm.clear(cacheDirectory)
+console.log(cleared, fm.listContents(cacheDirectory)) // true, []
 ```
 
-## 快捷指令
+`listContents()` 返回目录下的直接子项名称，包括文件和文件夹，结果按名称排序。`clear()` 会删除目录内的全部文件和子文件夹，但保留目录本身。
 
-您可以在 `快捷指令 App -> Omni -> 文件管理` 分类下找到更多文件操作的示例和快捷指令。
-
-
-## iCloud 云盘
-:::tip
-由于小组件本身暂不支持 iCloud 同步所以暂不推荐使用 iCloud
+:::warning 清空操作无法撤销
+把 `fm.documents()` 或 `fm.library()` 直接传给 `clear()` 会清空当前小组件对应目录中的全部内容。调用前请确认路径。
 :::
-文件将存储在 iCloud Drive 中，可在多个设备间同步。
 
-#### 公共目录
+## 安全拼接路径
 
-文件存储在 `文件 App -> iCloud Drive -> Omni` 目录下，用户可以方便地查看和管理。
-
-```javascript
-// 初始化 iCloud FileManager
-const fm = FileManager.iCloud();
-
-// 获取公共文档目录路径
-const documentsPath = fm.documents();
-console.log(documentsPath);
-//输出 ID:小组件ID(UUID)/
-// 对应位置为: iCloud/OmniWidgets/Widgets/小组件ID(UUID)
+```js
+const path = fm.join([fm.documents(), "cache", "data.json"])
 ```
 
-#### 私有目录
+`join()` 会把多段路径组合起来，适合有子目录的文件。路径中的 `./` 和重复 `/` 会被规范化；绝对路径、任何 `..` 路径段，以及属于其他小组件的路径前缀都会被拒绝。所有文件 API 都使用同一套路径检查。
 
-文件存储在应用内部的 iCloud 目录中，在 `文件` App 中不可见，适合存放不希望用户直接操作的缓存或配置文件。
+## iCloud 目录
 
-```javascript
-// 初始化 iCloud FileManager
-const fm = FileManager.iCloud();
-
-// 获取私有库目录路径
-const libraryPath = fm.library();
-console.log(libraryPath);
+```js
+const fm = FileManager.iCloud()
+const publicDirectory = fm.documents() // ID:...
+const privateDirectory = fm.library()  // IL:...
 ```
 
+公开目录会显示在“文件”App 的 iCloud Drive 中；私有目录只供 App 使用。
+
+## 速查
+
+```js
+FileManager.local() → FileManager
+FileManager.iCloud() → FileManager
+fm.documents() → string
+fm.library() → string
+fm.join(paths) → string
+fm.fileExists(path) → boolean
+fm.writeString(path, content) → boolean
+fm.readString(path) → string | null
+fm.saveImage(path, bytes) → void
+fm.listContents(path) → string[]
+fm.clear(path) → boolean
+fm.remove(path) → boolean
+```

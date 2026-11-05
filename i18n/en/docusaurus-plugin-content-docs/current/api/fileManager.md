@@ -1,145 +1,132 @@
 ---
 sidebar_position: 11
 ---
+
 # File Manager
-:::info
-The FileManager module gives Omni widgets the ability to read and write files, with support for both iCloud and local storage.
+
+Use `FileManager` to store text, JSON, and images. Each widget has its own directory.
+
+## Choose local or iCloud storage
+
+| Initialization | Location | Recommended use |
+| --- | --- | --- |
+| `FileManager.local()` | Current device | Default choice; caches, images, ordinary data |
+| `FileManager.iCloud()` | iCloud Drive | Files that need to be available across devices |
+
+:::warning Prefer local files in widgets
+An iCloud file may not be downloaded yet, and a background widget shouldn't wait for sync. Use `FileManager.local()` unless you specifically need a cross-device file.
 :::
 
-## Initialization
+## Choose a public or private directory
 
-`FileManager` needs to be initialized first to specify whether to use local or iCloud storage.
-
-### Local Storage
-
-Files are stored only on the current device.
-
-#### Public Directory
-
-Files are stored under `Files App -> On My iPhone -> Omni`.
-
-```javascript
-// Initialize a local FileManager
-const fm = FileManager.local();
-
-// Get the public documents directory path
-const documentsPath = fm.documents();
-console.log(documentsPath);
-// Outputs LD:widgetID(UUID)/
-// Corresponds to: iPhone/OmniWidgets/Widgets/widgetID(UUID)
+```js
+const fm = FileManager.local()
+const publicDirectory = fm.documents()
+const privateDirectory = fm.library()
 ```
 
-#### Private Directory
+| Method | Path prefix | Visible in the Files app |
+| --- | --- | --- |
+| `documents()` | Local `LD:` / iCloud `ID:` | Yes |
+| `library()` | Local `LL:` / iCloud `IL:` | No |
 
-Files are stored in the app's internal local directory, not visible in the Files app.
+The returned path already includes the current widget directory and a trailing `/`, so you can append a filename directly.
 
-```javascript
-// Initialize a local FileManager
-const fm = FileManager.local();
+## Read and write text
 
-// Get the private library directory path
-const libraryPath = fm.library();
-console.log(libraryPath);
+```js
+const fm = FileManager.local()
+const path = fm.documents() + "greeting.txt"
+
+const saved = fm.writeString(path, "Hello, Omni!")
+const content = fm.readString(path)
+
+console.log(saved, content)
 ```
 
+`writeString()` returns whether the write succeeded. `readString()` returns an empty value when the file doesn't exist or can't be read.
 
-## File Operations
+## Save a remote image
 
-### Read / Write Strings
+```js
+const fm = FileManager.local()
+const path = fm.documents() + "background.png"
 
-For text files like `txt`, `json`, etc.
+if (!fm.fileExists(path)) {
+  const bytes = await new Request("https://example.com/image.png").fetch()
+  fm.saveImage(path, bytes)
+}
 
-```javascript
-const fm = FileManager.local();
-const docs = fm.documents();
-const filePath = docs + "greeting.txt";
-
-// Write a string
-fm.writeString(filePath, "Hello, Omni!");
-
-// Read a string
-const content = fm.readString(filePath);
-console.log(content); // Outputs: Hello, Omni!
+this.imagePath = path
 ```
 
-### Read / Write Images
+Set the Image component's Type to File and Content to `${imagePath}`.
 
-For saving and loading images.
+## Check and remove a file
 
-```javascript
-const fm = FileManager.local();
-const docs = fm.documents();
-this.imagePath = docs + "background.png";
-// Assume `image` is image data fetched from the network or elsewhere [Uint8Array]
-const image = await new Request("https://example.com/image.png").fetch();
-// Save the image
-fm.saveImage(imagePath, image);
-
-// Display in an image component
-// Set the image component type to "File" and fill in the imagePath variable as the content.
-```
-
-### Check If a File Exists
-
-```javascript
-const fm = FileManager.local();
-const path = fm.documents() + "config.json";
+```js
+const fm = FileManager.local()
+const path = fm.documents() + "temp.txt"
 
 if (fm.fileExists(path)) {
-  console.log("File exists");
-} else {
-  console.log("File does not exist");
+  const removed = fm.remove(path)
+  console.log("removed:", removed)
 }
 ```
 
-### Delete a File
+## List and clear a directory
 
-```javascript
-const fm = FileManager.local();
-const path = fm.documents() + "temp.txt";
+```js
+const fm = FileManager.local()
+const cacheDirectory = fm.join([fm.documents(), "cache"])
 
-// Make sure the file exists before deleting
-if (fm.fileExists(path)) {
-  fm.remove(path);
-  console.log("File deleted");
-}
+fm.writeString(fm.join([cacheDirectory, "a.txt"]), "A")
+fm.writeString(fm.join([cacheDirectory, "b.txt"]), "B")
+
+const names = fm.listContents(cacheDirectory)
+console.log(names) // ["a.txt", "b.txt"]
+
+const cleared = fm.clear(cacheDirectory)
+console.log(cleared, fm.listContents(cacheDirectory)) // true, []
 ```
 
-## Shortcuts
+`listContents()` returns the names of the directory's immediate children, including files and folders, sorted by name. `clear()` removes every file and subfolder inside the directory but keeps the directory itself.
 
-You can find more file operation examples and shortcuts under `Shortcuts App -> Omni -> File Management`.
-
-
-## iCloud Drive
-:::tip
-Since widgets themselves don't currently support iCloud sync, iCloud is not recommended for now.
+:::warning Clearing can't be undone
+Passing `fm.documents()` or `fm.library()` directly to `clear()` removes everything in that directory for the current widget. Check the path before you call it.
 :::
-Files are stored in iCloud Drive and sync across multiple devices.
 
-#### Public Directory
+## Join path components safely
 
-Files are stored under `Files App -> iCloud Drive -> Omni`, where users can easily browse and manage them.
-
-```javascript
-// Initialize an iCloud FileManager
-const fm = FileManager.iCloud();
-
-// Get the public documents directory path
-const documentsPath = fm.documents();
-console.log(documentsPath);
-// Outputs ID:widgetID(UUID)/
-// Corresponds to: iCloud/OmniWidgets/Widgets/widgetID(UUID)
+```js
+const path = fm.join([fm.documents(), "cache", "data.json"])
 ```
 
-#### Private Directory
+`join()` combines several path components and is useful when you have subdirectories. `./` segments and repeated `/` separators are normalized. Absolute paths, any `..` segment, and path prefixes belonging to another widget are rejected. Every file API uses the same path checks.
 
-Files are stored in the app's internal iCloud directory, not visible in the Files app. Good for cache or config files you don't want users touching directly.
+## iCloud directories
 
-```javascript
-// Initialize an iCloud FileManager
-const fm = FileManager.iCloud();
+```js
+const fm = FileManager.iCloud()
+const publicDirectory = fm.documents() // ID:...
+const privateDirectory = fm.library()  // IL:...
+```
 
-// Get the private library directory path
-const libraryPath = fm.library();
-console.log(libraryPath);
+The public directory appears in iCloud Drive in the Files app. The private directory is for app use only.
+
+## Quick reference
+
+```js
+FileManager.local() → FileManager
+FileManager.iCloud() → FileManager
+fm.documents() → string
+fm.library() → string
+fm.join(paths) → string
+fm.fileExists(path) → boolean
+fm.writeString(path, content) → boolean
+fm.readString(path) → string | null
+fm.saveImage(path, bytes) → void
+fm.listContents(path) → string[]
+fm.clear(path) → boolean
+fm.remove(path) → boolean
 ```

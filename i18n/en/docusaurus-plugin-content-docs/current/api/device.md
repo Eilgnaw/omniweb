@@ -2,92 +2,120 @@
 sidebar_position: 5
 ---
 
-# Device Info
+# Device information
 
-Get device model, system, screen, battery, network, and other basic info. **All synchronous** — no `await` needed.
+`Device` returns device, screen, battery, and connection information synchronously. You don't need `await`.
 
-## Basic Info
+## Device and system
 
 ```js
-this.version  = Device.systemVersion()  // "17.5"
-this.name     = Device.name()           // "iPhone 15 Pro"
-this.model    = Device.model()          // "iPhone"
-this.language = Device.language()       // "zh"
-this.darkMode = Device.isdarkmode()     // true / false
+this.system = Device.systemVersion() // e.g. "17.5"
+this.name = Device.name()            // device name
+this.model = Device.model()          // e.g. "iPhone"
+this.language = Device.language()    // e.g. "en"
+this.darkMode = Device.isdarkmode()  // true / false
 ```
 
 ## Screen
 
 ```js
-const s = Device.screen()
-console.log(s)
+const screen = Device.screen()
+console.log(screen)
 // { scale: 3, width: 393, height: 852 }
 ```
 
-| Field | Description |
-|------|------|
-| `scale` | Pixel density multiplier (2x / 3x) |
-| `width` / `height` | Logical screen width / height in points |
+| Field | Meaning |
+| --- | --- |
+| `scale` | Screen pixel density, such as `2` or `3` |
+| `width` / `height` | Logical screen size in points |
 
 ## Battery
 
 ```js
-const b = Device.battery()
-console.log(b)
-// { "state": "unplugged", "level": 0.75 }
+const battery = Device.battery()
+this.level = Math.round(battery.level * 100)
+this.charging = battery.state === "charging"
 ```
 
-| state | Meaning |
-|-------|------|
-| `unknown`   | Unknown |
-| `charging`  | Charging |
-| `full`      | Fully charged |
+| `state` | Meaning |
+| --- | --- |
+| `unknown` | Can't determine the state |
+| `charging` | Charging |
+| `full` | Fully charged |
 | `unplugged` | Not charging |
 
-`level` is a 0–1 decimal. Multiply by 100 for the percentage.
+`level` is a decimal from `0` to `1`.
 
-## Network Status
-
-```js
-const n = Device.network()
-console.log(n)
-// {
-//   "wifi":     true,
-//   "cellular": false,
-//   "online":   true,
-//   "vpn":      false
-// }
-```
-
-| Field | Description |
-|------|------|
-| `wifi` | Connected to Wi-Fi |
-| `cellular` | Using cellular |
-| `online` | Online (either of the above) |
-| `vpn` | On VPN |
-
-## Connectivity (Bluetooth / Hotspot)
+## Device storage
 
 ```js
-const c = Device.connectivity()
-console.log(c)
-// { "bluetooth": "on", "hotspot": false }
+const total = Device.totalDiskSpace()
+const free = Device.freeDiskSpace()
+const gigabyte = 1024 * 1024 * 1024
+
+this.storage = `${(free / gigabyte).toFixed(1)} GB free / ${(total / gigabyte).toFixed(1)} GB`
 ```
 
-| Field | Value / Type |
-|------|------------|
-| `bluetooth` | `"on"` / `"off"` / `"unsupported"` / `"unauthorized"` / `"resetting"` / `"unknown"` |
-| `hotspot` | true / false |
+Both methods return a byte count. They return `0` if the value can't be read.
 
-:::warning Bluetooth permission
-Reading Bluetooth status requires the app to have the **Bluetooth permission** configured. iOS prompts on first use. If denied, returns `"unauthorized"`.
+:::warning Storage information is only for display to the user
+These methods are covered by Apple's disk-space Required Reason API, declared with reason `85F4.1`. You can't send the values or derived information over the internet or use them for tracking or device fingerprinting.
 :::
 
-## Example: A "Network Status" Icon
+## Network
 
 ```js
-const n = Device.network()
-this.netIcon = n.wifi ? "wifi" : (n.cellular ? "antenna.radiowaves.left.and.right" : "wifi.slash")
+const network = Device.network()
+console.log(network)
+// { wifi: true, cellular: false, online: true, vpn: false }
 ```
 
-Put `${netIcon}` in an icon component to auto-switch icons based on network status.
+| Field | Meaning |
+| --- | --- |
+| `wifi` | Currently connected through Wi-Fi |
+| `cellular` | Currently connected through cellular data |
+| `online` | The network is reachable |
+| `vpn` | A VPN connection was detected |
+
+## Bluetooth and Personal Hotspot
+
+```js
+const connectivity = Device.connectivity()
+console.log(connectivity)
+// { bluetooth: "on", hotspot: false }
+```
+
+`bluetooth` may be `on`, `off`, `unsupported`, `unauthorized`, `resetting`, or `unknown`. `hotspot` is a boolean.
+
+:::warning Connection values reflect the current detection
+Reading Bluetooth may trigger a system permission prompt; after denial, it returns `unauthorized`. iOS has no public Personal Hotspot status API, so `hotspot` is an indirect result and shouldn't control critical behavior.
+:::
+
+## Example: switch icons for the network
+
+```js
+const network = Device.network()
+this.networkIcon = network.wifi
+  ? "wifi"
+  : network.cellular
+    ? "antenna.radiowaves.left.and.right"
+    : "wifi.slash"
+```
+
+Set an Icon's Content to `${networkIcon}`.
+
+## Quick reference
+
+```js
+Device.systemVersion() → string
+Device.name() → string
+Device.model() → string
+Device.language() → string
+Device.isdarkmode() → boolean
+Device.screen() → { scale, width, height }
+Device.battery() → { state, level }
+Device.totalDiskSpace() → number  // total capacity in bytes
+Device.freeDiskSpace() → number   // available capacity in bytes
+Device.network() → { wifi, cellular, online, vpn }
+Device.connectivity() → { bluetooth, hotspot }
+```
