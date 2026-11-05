@@ -2,58 +2,67 @@
 sidebar_position: 10
 ---
 
-# 日期 / 时间
+# 日期与时间
 
-JS 里取当前时间用标准 `Date` 对象就行,这里只列**特殊场景**。
+普通日期计算使用标准 JavaScript `Date`。需要时区格式化时使用 `Intl.DateTimeFormat`；需要持续走动的时钟或倒计时时，使用 [Date 组件](../components/date.md)。
 
-## 当前时间
+## 读取当前时间
 
 ```js
 const now = new Date()
-this.year    = now.getFullYear()    // 2026
-this.month   = now.getMonth() + 1   // 5  注意:月份从 0 开始
-this.day     = now.getDate()        // 23
-this.hours   = now.getHours()       // 14
-this.minutes = now.getMinutes()     // 30
-this.seconds = now.getSeconds()     // 5
+this.year = now.getFullYear()
+this.month = now.getMonth() + 1 // 月份从 0 开始
+this.day = now.getDate()
+this.hour = now.getHours()
+this.minute = now.getMinutes()
 ```
 
-:::warning 不要拿来当时钟
-小组件**最快 15 分钟刷一次**(且系统说了算),`new Date()` 取到的"秒"几乎肯定是错的。
-要"实时秒针"显示,使用 [date 组件](../components/date.md) 的 `time` / `timer` 样式。
+:::warning `new Date()` 不是实时钟表
+它只表示这一次 JavaScript 运行时的时间。小组件不会为了秒针或分钟变化持续运行 JS。
 :::
+
+## 按时区格式化
+
+```js
+const formatter = new Intl.DateTimeFormat("zh-CN", {
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+  timeZone: "Asia/Shanghai"
+})
+
+this.time = formatter.format(new Date())
+```
+
+## 自己拼接时间
+
+```js
+const now = new Date()
+const pad = (value) => String(value).padStart(2, "0")
+this.time = `${pad(now.getHours())}:${pad(now.getMinutes())}`
+```
 
 ## 农历
 
 ```js
 this.lunar = Calendar.lunarDate()
-console.log(this.lunar)
-// 2026丙午年三月十六
 ```
 
-详见 [日历 API](./calendar.md)。
+更多农历和日期差计算见[日历](./calendar.md)。
 
-## 时区与格式化
+## 需要持续更新时
 
-JS 标准库 `Intl.DateTimeFormat` 全部可用:
+- 当前时钟：Date 组件的 `time` 样式。
+- 倒计时或正计时：Date 组件的 `timer` 样式。
+- 持续状态：实时活动。
+
+## 速查
 
 ```js
-const fmt = new Intl.DateTimeFormat("zh-CN", {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-  timeZone: "Asia/Shanghai",
-})
-this.now = fmt.format(new Date())  // "14:30"
+new Date()                         // 当前运行时刻
+Date.now() → number               // 毫秒时间戳
+new Intl.DateTimeFormat(...)      // 按语言和时区格式化
+Calendar.lunarDate() → string     // 当前农历日期
 ```
-
-或简单的:
-
-```js
-const pad = (n) => String(n).padStart(2, "0")
-this.now = `${pad(d.getHours())}:${pad(d.getMinutes())}`
-```
-
-## 倒计时(系统级)
-
-让组件**自己跑秒**,不需要 JS 介入。配置 [date 组件](../components/date.md) 即可。

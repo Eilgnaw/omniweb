@@ -4,6 +4,6 @@
   "collapsed": false,
   "link": {
     "type": "generated-index",
-    "description": "在 JS 代码里能调用的所有接口:配置、网络、日志、文件、设备、位置、刷新控制等"
+    "description": "在 JavaScript 中联网、保存配置，并读取文件、位置、设备和外部调用参数。"
   }
 }

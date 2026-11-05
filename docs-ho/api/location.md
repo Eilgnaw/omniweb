@@ -4,23 +4,16 @@ sidebar_position: 6
 
 # 位置信息
 
-获取当前**坐标**和**地址**。需要位置权限。
+`Location` 可以读取当前坐标，也可以把坐标转换成地址。首次使用需要位置权限。
 
 ## 获取坐标
 
 ```js
-const loc = await Location.getLocation()
-console.log(loc.latitude, loc.longitude)
-// 34.75936567 113.69243507
+const location = await Location.getLocation()
+console.log(location.latitude, location.longitude)
 ```
 
-也可以传一个分钟数,表示你希望位置足够新:
-
-```js
-const loc = await Location.getLocation(5)
-```
-
-返回:
+返回：
 
 ```js
 {
@@ -30,74 +23,71 @@ const loc = await Location.getLocation(5)
 }
 ```
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `latitude` | number | 纬度 |
-| `longitude` | number | 经度 |
-| `altitude` | number | 海拔,单位米 |
+默认接受 60 分钟内的位置缓存。需要更短缓存时传入分钟数：
+
+```js
+const location = await Location.getLocation(5)
+```
+
+| 字段 | 内容 |
+| --- | --- |
+| `latitude` | 纬度 |
+| `longitude` | 经度 |
+| `altitude` | 海拔，单位 m |
 
 ## 获取地址
 
-不传参数时,使用当前位置:
+不传参数时使用当前位置：
 
 ```js
-const mark = await Location.getPlacemark()
-console.log(mark.city)         // 某某市
-console.log(mark.street)       // 大河路
-console.log(mark.country)      // 中国
+const place = await Location.getPlacemark()
+let city = place.city || place.district || place.name || "未知位置"
 ```
 
-也可以传指定坐标:
+也可以传入指定坐标：
 
 ```js
-const mark = await Location.getPlacemark({
+const place = await Location.getPlacemark({
   latitude: 34.75936567,
   longitude: 113.69243507
 })
-
-console.log(mark.city)         // 某某市
 ```
 
-返回字段:
+## 地址字段
 
-| 字段 | 说明 |
-|------|------|
+| 字段 | 内容 |
+| --- | --- |
 | `name` | 地点名 |
-| `street` | 街道 |
-| `streetNumber` | 门牌号 |
+| `street` / `streetNumber` | 街道 / 门牌号 |
 | `district` | 区 |
 | `city` | 市 |
 | `state` | 省 |
-| `country` | 国 |
-| `countryCode` | 国家码,如 `CN` |
+| `country` / `countryCode` | 国家或地区 / 国家码 |
 | `postalCode` | 邮编 |
 
-## 例:显示当前城市
+不同地区的地址结构不同，字段可能为空，请准备回退值。
+
+## 示例：显示城市与坐标
 
 ```js
-const loc = await Location.getLocation()
-const mark = await Location.getPlacemark(loc)
+let city = "无法获取位置"
+let position = ""
 
-const city = mark.city || mark.name || "未知城市"
-const position = `${loc.latitude}, ${loc.longitude}`
+try {
+  const location = await Location.getLocation()
+  const place = await Location.getPlacemark(location)
 
-console.log("city", city)
-console.log("position", position)
+  city = place.city || place.name || "未知城市"
+  position = `${location.latitude}, ${location.longitude}`
+} catch (error) {
+  console.error("位置获取失败：", error)
+}
 ```
-
-组件字段里可以绑定:
-
-| 组件 | 字段 | 填什么 |
-|------|------|--------|
-| Text | content | `${city}` |
-| Text | content | `${position}` |
 
 ## 速查
 
 ```js
-await Location.getLocation()
-await Location.getLocation(5)
-
-await Location.getPlacemark()
-await Location.getPlacemark({ latitude, longitude })
+Location.getLocation(cacheMinutes?) → Promise<object>
+Location.getPlacemark() → Promise<object>
+Location.getPlacemark({ latitude, longitude }) → Promise<object>
 ```

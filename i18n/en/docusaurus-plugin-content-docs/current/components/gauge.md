@@ -4,105 +4,83 @@ sidebar_position: 7
 
 # Gauge
 
-Ring / linear progress indicators — perfect for percentages, activity rings, and battery levels. Maps to iOS's system `Gauge`, **designed primarily for lock screen accessories** (circular / rectangular widgets).
+Gauge displays progress with system styling. Use it for percentages, battery levels, and health data, especially in circular or rectangular Lock Screen widgets.
 
-:::warning This isn't a normal component — children are required
-A bare empty gauge renders just a plain ring, with no icon or number.
-To make a meaningful gauge, **you must add `zstack` or `text` children**, and Omni places them into the gauge's various slots by rule.
-:::
+## Remember two things first
 
-## Own properties
+1. Content must be a decimal from `0` to `1`, not a number from `0` to `100`.
+2. Child components supply the center icon, current value, and endpoint labels.
 
-| Property | Description |
-|----------|-------------|
-| Content (value) | Current value — **a decimal between 0~1** (or a placeholder) |
-| Style | One of 5 — see below |
-| Color | Progress color, supports gradient |
-| Scale | Overall size scaling |
-
-### Style values
-
-| Style | Maps to SwiftUI | What it looks like |
-|-------|-----------------|--------------------|
-| `auto` (default) | `.automatic` | System picks based on context |
-| `acircular` | `.accessoryCircular` | Ring ⌬ |
-| `acircularc` | `.accessoryCircularCapacity` | Ring as a capacity gauge (solid fill) |
-| `alinear` | `.accessoryLinear` | Horizontal bar ▭ |
-| `aLinearc` | `.accessoryLinearCapacity` | Linear capacity bar |
-
-## The 4 child slots
-
-When you add children to a gauge, Omni decides their position by "**type + order**":
-
-| Slot | Source | Where it shows |
-|------|--------|----------------|
-| **label** (center / primary label) | First `zstack` child | Dead center of the ring |
-| **currentValueLabel** (current value) | Last `zstack` child | Below the label (center value slot) |
-| **minimumValueLabel** (minimum) | First `text` child | **Bottom-left** of the ring / line |
-| **maximumValueLabel** (maximum) | Last `text` child | **Bottom-right** of the ring / line |
-
-:::tip What if "first" and "last" are the same?
-If you only add **1 zstack**, it serves as both label and currentValueLabel (both slots use it).
-To show different content in the two slots, **add 2 zstacks** (order decides which is which).
-Same for text: 1 → both left and right show it; 2 → first on the left, last on the right.
-:::
-
-## Example 1: Lock screen ring + center percentage
-
-JS:
 ```js
-const b = Device.battery()
-this.level = b.level                          // 0.75
-this.percent = Math.round(b.level * 100) + "%" // "75%"
+this.level = 0.75
+this.percent = "75%"
 ```
 
-Canvas structure:
+## Styles
 
-```
-gauge   (content: ${level},  style: acircular)
-  ├─ zstack
-  │    └─ icon  (content: bolt.fill)            ← first zstack → center icon
-  ├─ zstack
-  │    └─ text  (content: ${percent})            ← last zstack → value below
-  ├─ text  (content: 0)                         ← first text → small bottom-left
-  └─ text  (content: 100)                       ← last text → small bottom-right
-```
+| Style | System style | Result |
+| --- | --- | --- |
+| `auto` | `.automatic` | Chosen by the system |
+| `acircular` | `.accessoryCircular` | Ring outline |
+| `acircularc` | `.accessoryCircularCapacity` | Filled circular capacity |
+| `alinear` | `.accessoryLinear` | Linear progress |
+| `aLinearc` | `.accessoryLinearCapacity` | Filled linear capacity |
 
-Result: a ring at 75% with a lightning icon + "75%" in the center, and tiny `0` / `100` in the corners.
+## Where do children go?
 
-## Example 2: just a ring + one number in the center
+Omni maps children to system Gauge slots by type and order:
 
-Minimal-children setup: **just 1 zstack**.
+| Slot | Child used | Position |
+| --- | --- | --- |
+| Primary `label` | First `zstack` | Center or primary label area |
+| `currentValueLabel` | Last `zstack` | Current-value area |
+| `minimumValueLabel` | First `text` | Left edge or bottom-left |
+| `maximumValueLabel` | Last `text` | Right edge or bottom-right |
 
-```
-gauge  (content: ${level}, style: acircular)
-  └─ zstack
-       └─ text  (content: ${percent})
-```
+With only one ZStack, it fills both the primary and current-value slots. One Text fills both endpoint slots. Add two when the slots need different content.
 
-Because there's only 1 zstack, it serves as both label and currentValueLabel — the number overlaps in the middle (it looks like a single number since the two slots are nearly identical).
+## Example: battery ring
 
-## Example 3: linear progress bar with min/max marks
+JavaScript:
 
-```
-gauge  (content: ${progress}, style: alinear)
-  ├─ zstack
-  │    └─ icon  (content: speaker.wave.2)        ← label, left-side icon
-  ├─ zstack                                      ← placeholder, so currentValueLabel doesn't reuse the label
-  ├─ text  (content: 0)
-  └─ text  (content: 100)
+```js
+const battery = Device.battery()
+this.level = battery.level
+this.percent = Math.round(battery.level * 100) + "%"
 ```
 
-## FAQ
+Component tree:
 
-**Q: Why does my gauge show only an empty ring, no number?**
-A: Because there are no children. Go back to the canvas and tap the "+" on the gauge to add a `zstack` or `text`.
+```text
+gauge (Content: ${level}; Style: acircular)
+├─ zstack
+│  └─ icon (bolt.fill)
+├─ zstack
+│  └─ text (${percent})
+├─ text (0)
+└─ text (100)
+```
 
-**Q: What's the difference between `acircularc` and `acircular`?**
-A: `acircular` draws a ring line; `acircularc` fills the entire ring (like a cup of gradient water). The `c` suffix means "capacity/filled style"; without `c` it's "line style".
+## Example: ring and number only
 
-**Q: My progress is always full / empty.**
-A: A gauge's "content" must be a decimal **between 0~1**, not a 0~100 percentage. If your JS computes `75`, use `this.level = 75 / 100`.
+```text
+gauge (Content: ${level}; Style: acircular)
+└─ zstack
+   └─ text (${percent})
+```
 
-**Q: The color doesn't change?**
-A: Color only affects the **progress portion** (bar / ring). Icon / text colors in the center zstack need to be set on those children individually.
+One ZStack fills both center slots. The system layout may place the duplicate content very close together. For exact control, add two ZStacks and configure them separately.
+
+## Troubleshooting
+
+### Why is it always full or empty?
+
+Make sure Content is in the `0...1` range. Write `0.75` for 75%.
+
+### Why is there no number or icon?
+
+Gauge doesn't generate labels automatically. Add ZStack or Text children.
+
+### Why didn't the center content change color?
+
+The Gauge color only affects the progress indicator. Set colors on the center Icon and Text themselves.

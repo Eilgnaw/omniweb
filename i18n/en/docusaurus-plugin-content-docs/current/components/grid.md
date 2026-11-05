@@ -4,52 +4,48 @@ sidebar_position: 10
 
 # Grid
 
-Arranges children in **a fixed number of columns**, wrapping automatically. Great for evenly-sized items.
+Grid arranges content in a fixed number of columns and wraps when a row is full. Use it for icon panels, photo walls, and multi-day forecasts.
 
-## Usage
+## Quick start
 
-Tap the ➕ in the top-right of the editor and add **grid**, then add children inside. Set **columns** in its properties.
+1. Add **grid**.
+2. Set Columns.
+3. Add the children you want to arrange.
 
-```
-columns = 3
-7 children:
+With `columns = 3` and 7 items:
 
-┌─┬─┬─┐
-│1│2│3│
-├─┼─┼─┤
-│4│5│6│
-├─┼─┼─┤
-│7│ │ │
-└─┴─┴─┘
+```text
+1  2  3
+4  5  6
+7
 ```
 
 ## Common properties
 
-| Property | Description |
-|----------|-------------|
-| Columns | Items per row |
-| Spacing | Spacing between children |
-| Padding / Background / Corner radius | Same as other containers |
-| Alignment | How children align when a row isn't full |
+| Property | What it does |
+| --- | --- |
+| Columns | Number of items in each row |
+| Spacing | Distance between grid items |
+| Alignment | Placement of an incomplete final row |
+| Padding / Background / Corner radius | Styles the whole grid container |
 
-## Pair with loop
+## Example: a two-column weather grid
 
-Grid is usually combined with [Loop](./loop.md) — define one child template, and the array's length decides how many cells get drawn.
+JavaScript:
 
 ```js
-this.icons = [
-  { sym: "sun.max",   label: "Sunny" },
-  { sym: "cloud",     label: "Cloudy" },
-  { sym: "cloud.rain",label: "Rain" },
-  { sym: "snow",      label: "Snow" }
+this.items = [
+  { icon: "sun.max", label: "Sunny" },
+  { icon: "cloud", label: "Cloudy" },
+  { icon: "cloud.rain", label: "Rain" },
+  { icon: "snow", label: "Snow" }
 ]
 ```
 
 Grid setup:
-- Columns: `2`
-- Data source: `${icons[ico]}`
-- Children (vstack):
-  - icon  content `${ico.sym}`
-  - text  content `${ico.label}`
 
-Result: a 2-column, 2-row grid of weather icons.
+- Columns: `2`
+- Data Source: `${items[item]}`
+- Child: one `vstack` containing `${item.icon}` and `${item.label}`
+
+You only design one grid item. Omni repeats it to match the array. See [Loop](./loop.md) for the full rules.

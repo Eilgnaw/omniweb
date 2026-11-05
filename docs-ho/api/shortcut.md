@@ -4,82 +4,51 @@ sidebar_position: 8
 
 # 捷径参数
 
-闪控球文字识别后,应用会依次检查所有已启用的捷径;条件命中的捷径会刷新目标卡片,卡片会收到 `$params.shortcut` 和 `$params.ocr`。卡片 JS 可以读取识别文本,再用正则提取取件码、账单金额等信息。
+闪控球识别文字后，会检查已启用的捷径。条件命中时，目标卡片收到 `$params.shortcut` 和 `$params.ocr`，可以提取取件码、金额或验证码。
 
-## 基本用法
-
-```js
-const text = $params.ocr?.editedText || ""
-const code = text.match(/取件码[:：\s]*([A-Z0-9-]{4,})/)?.[1] || ""
-
-if (code) {
-  Config.set("pickupCode", code)
-}
-
-const pickupCode = Config.get("pickupCode", "")
-```
-
-把文本组件内容绑定到 `${pickupCode}` 后,闪控球识别到取件码就会刷新显示;没有新命中时仍显示上次保存的值。一次识别可以同时命中多个捷径,每条捷径会按自己的目标和条件执行。
-
-## 参数结构
-
-```js
-{
-  shortcut: {
-    commandId: "cmd_xxx",
-    commandName: "短信取件码",
-    trigger: "floatingBallOcr",
-    matched: true,
-    capturedAt: 1720000000000
-  },
-  ocr: {
-    rawText: "文字识别原始文本",
-    editedText: "文字识别原始文本",
-    lines: ["第一行", "第二行"]
-  }
-}
-```
-
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `$params.shortcut.commandId` | string | 捷径 ID |
-| `$params.shortcut.commandName` | string | 捷径名称 |
-| `$params.shortcut.trigger` | string | 触发来源,闪控球为 `"floatingBallOcr"` |
-| `$params.shortcut.matched` | boolean | 本次条件是否命中 |
-| `$params.shortcut.capturedAt` | number | 截屏文字识别时间戳(ms) |
-| `$params.ocr.rawText` | string | 文字识别原始文本 |
-| `$params.ocr.editedText` | string | 捷径执行时使用的文本;自动流程没有编辑时等于 `rawText` |
-| `$params.ocr.lines` | string[] | 按行拆分后的识别文本 |
-
-## 常见提取示例
-
-### 取件码
+## 最短示例
 
 ```js
 const text = $params.ocr?.editedText || ""
-const code = text.match(/取件码[:：\s]*([A-Z0-9-]{4,})/)?.[1] || ""
+const match = text.match(/取件码[:：\s]*([A-Z0-9-]{4,})/)
+const code = match?.[1] || ""
 
 if (code) Config.set("pickupCode", code)
 
-const pickupCode = Config.get("pickupCode", "")
+let pickupCode = Config.get("pickupCode", "")
 ```
 
-### 账单金额
+把文字“内容”设为 `${pickupCode}`。
+
+## 参数
+
+| 字段 | 内容 |
+| --- | --- |
+| `$params.shortcut.commandId` | 捷径 ID |
+| `$params.shortcut.commandName` | 捷径名称 |
+| `$params.shortcut.trigger` | 触发来源；闪控球为 `floatingBallOcr` |
+| `$params.shortcut.matched` | 本次条件是否命中 |
+| `$params.shortcut.capturedAt` | 识别时间戳，单位 ms |
+| `$params.ocr.rawText` | 原始识别文字 |
+| `$params.ocr.editedText` | 本次捷径使用的文字 |
+| `$params.ocr.lines` | 按行拆分的字符串数组 |
+
+## 示例：账单金额
 
 ```js
 const text = $params.ocr?.editedText || ""
-const amount = text.match(/(?:合计|应付|支付)[:：\s]*¥?\s*([0-9]+(?:\.[0-9]{1,2})?)/)?.[1] || ""
+const match = text.match(/(?:合计|应付|支付)[:：\s]*¥?\s*([0-9]+(?:\.[0-9]{1,2})?)/)
+const amount = match?.[1] || ""
 
 if (amount) Config.set("billAmount", amount)
-
-const billAmount = Config.get("billAmount", "")
+let billAmount = Config.get("billAmount", "")
 ```
 
-### 逐行匹配
+## 示例：逐行找验证码
 
 ```js
 const lines = $params.ocr?.lines || []
-const target = lines.find(line => line.includes("验证码")) || ""
+const target = lines.find((line) => line.includes("验证码")) || ""
 const code = target.match(/([0-9]{4,8})/)?.[1] || ""
 
 if (code) Config.set("smsCode", code)
@@ -87,7 +56,7 @@ if (code) Config.set("smsCode", code)
 
 ## 注意事项
 
-- 未启用的捷径不会自动执行;已启用但条件不命中的捷径也不会刷新注入目标卡片。
-- 闪控球会检查所有已启用的捷径,不再要求设置某一条“默认捷径”。
-- `$params` 只在本次刷新里有效;需要跨刷新保留结果时,用 `Config.set` 保存。
-- 捷径可以把同一段识别文本注入多张卡片,每张卡片的 JS 各自用正则处理。
+- 只有已启用且条件命中的捷径会执行。
+- 一次识别可以命中多条捷径，并刷新多张目标卡片。
+- `$params` 只对本次运行有效；需要长期保留时使用 `Config.set()`。
+- 自动流程没有手动编辑时，`editedText` 与 `rawText` 相同。

@@ -4,52 +4,42 @@ sidebar_position: 2
 
 # 图片 Image
 
-显示一张图。**关键属性是"类型"** — 它决定图从哪里来。
+Image 可以显示相册里的固定图片，也可以显示 JavaScript 下载到本地的图片。先选对“类型”，再填写内容。
 
-## 类型(必看)
+## 先选图片类型
 
-image 有两种类型,在属性面板里切换,行为完全不一样:
+| 类型 | 适合场景 | 内容是什么 |
+| --- | --- | --- |
+| **照片** | 固定壁纸、头像、装饰图 | 选图后自动生成的 UUID，不需要手填 |
+| **文件** | 网络图片、动态封面、本地缓存 | `LD:`、`LL:`、`ID:`、`IL:` 路径或路径占位符 |
 
-| 类型 | 含义 | 内容字段填什么 |
-|------|------|---------------|
-| **照片** (默认) | 从系统**相册**里选一张图,Omni 帮你存到 App 里 | 一个 UUID(由相册选图时自动生成,不用手填) |
-| **文件** | 用本地**文件路径**指定一张图,通常是 JS 从网络下载下来的 | 文件路径,如 `LD:.../xxx.png`、`LL:.../xxx.png`、或 `${path}` 占位符 |
-
-:::warning 不能直接填 URL
-image 组件**不会自己发起网络请求**。不管选哪种类型,**写 `https://...` 都不会显示**。
-要展示网络图,**必须先用 JS 把图下载下来保存到本地,然后走"文件"类型 + 路径**。看下面例子。
+:::warning 不能直接填写网络 URL
+Image 不会自动下载 `https://...` 图片。请先用 JavaScript 下载并保存，再把组件类型设为“文件”。
 :::
 
-## "照片"类型用法
+## 显示相册图片
 
-1. 添加 image 组件
-2. 类型保持默认("照片")
-3. 在属性面板找到 **➕ 加图**,弹出系统相册选一张
-4. 选中后会自动进入裁剪界面,裁完保存
-5. 内容字段会被自动填成一个 UUID,你不用管它
+1. 添加 **image**。
+2. 保持类型为“照片”。
+3. 点属性面板中的“加图”，选择并裁剪图片。
+4. 保存。内容里的 UUID 由 Omni 管理，不要修改。
 
-适合**固定壁纸 / 装饰**类需求,选完就完事。
+## 显示本地文件
 
-## "文件"类型用法
+1. 添加 **image**。
+2. 把类型改为“文件”。
+3. 在内容里填写文件路径或占位符。
 
-1. 添加 image 组件
-2. 类型切到"文件"
-3. 在内容字段填**文件路径**(下面有示例)
-
-路径前缀:
-
-| 前缀 | 含义 | 来自 |
-|------|------|------|
-| `LD:` | 本地公共目录(在"文件 App"里能看到) | `FileManager.local().documents()` |
+| 前缀 | 位置 | 获取方式 |
+| --- | --- | --- |
+| `LD:` | 本地公共目录，可在“文件”App 中查看 | `FileManager.local().documents()` |
 | `LL:` | 本地私有目录 | `FileManager.local().library()` |
 | `ID:` | iCloud 公共目录 | `FileManager.iCloud().documents()` |
 | `IL:` | iCloud 私有目录 | `FileManager.iCloud().library()` |
 
-详细路径规则见 [文件管理](../api/fileManager.md)。
+完整规则见[文件管理](../api/fileManager.md)。
 
-## 例:从网络拉图显示(带本地缓存)
-
-第一次拉,之后直接用本地缓存,不再重复下载:
+## 示例：下载并缓存网络图片
 
 ```js
 const fm = FileManager.local()
@@ -60,43 +50,44 @@ if (!fm.fileExists(path)) {
   fm.saveImage(path, data)
 }
 
-this.img = path   // path 形如 "LD:小组件id/avatar.png"
+this.imagePath = path
 ```
 
-image 组件:
+Image 设置：
 
-- 类型:**文件**
-- 内容:`${img}`
+- 类型：**文件**
+- 内容：`${imagePath}`
 
-后续每次刷新都跳过下载,**渲染极快**(本地 IO,不走网络)。
+首次运行会下载图片，之后直接读取本地文件。
 
-:::tip 什么时候要重新下载?
-头像、Logo 这类基本不变的图,上面这种"存了就不再拉"的写法最佳。
+### 缓存会变化的图片
 
-如果是会变的图(每天更新的封面、动态海报),让缓存**按时效失效**:把文件名加上日期。
-旧的文件 iOS 会在系统清理时自动回收,不用你手动删。
+如果图片每天更新，可以把日期放进文件名：
 
 ```js
-const today = new Date().toISOString().slice(0, 10)  // "2026-05-02"
-const path = fm.documents() + `cover-${today}.png`
+const fm = FileManager.local()
+const day = new Date().toISOString().slice(0, 10)
+const path = fm.documents() + `cover-${day}.png`
+
 if (!fm.fileExists(path)) {
   const data = await new Request("https://example.com/cover.png").fetch()
   fm.saveImage(path, data)
 }
-this.img = path
+
+this.imagePath = path
 ```
-:::
 
-
+这种写法会产生多个缓存文件。需要严格控制空间时，请用 `fm.remove(path)` 删除不再使用的旧文件。
 
 ## 常用属性
 
-| 属性 | 说明 |
-|------|------|
-| 类型 | 照片 / 文件,详见上文 |
-| 内容 | UUID(照片类型自动填) 或 文件路径(文件类型) |
-| 宽 / 高 | 显示尺寸 |
-| 缩放模式 | `fit` 等比完整显示 / `fill` 填满裁剪 / `stretch` 拉伸 |
-| 裁剪形状 | Rectangle / RoundedRectangle / Circle / Capsule / Ellipse |
-| 圆角 | 仅 RoundedRectangle 形状有效 |
-| 旋转 / 偏移 / 透明度 | 视觉调整 |
+| 属性 | 作用 |
+| --- | --- |
+| 类型 | 照片或文件 |
+| 内容 | 照片 UUID 或文件路径 |
+| 宽 / 高 | 图片显示尺寸 |
+| 缩放模式 | `fit` 完整显示；`fill` 填满并裁剪；`stretch` 拉伸 |
+| 裁剪形状 | 矩形、圆角矩形、圆形、胶囊或椭圆 |
+| 圆角 | 仅对圆角矩形生效 |
+| 旋转 / 偏移 / 不透明度 | 调整视觉效果 |
+| Blur / Scale Effect | 模糊、缩放或镜像图片；详见[视觉效果](./visual-effects.md) |

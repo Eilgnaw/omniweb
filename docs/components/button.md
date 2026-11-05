@@ -4,71 +4,61 @@ sidebar_position: 5
 
 # 按钮 Button
 
-可点击的组件,点击后**执行一段 JS 代码**。
+Button 在用户点击后运行一小段 JavaScript。适合切换状态、记录操作或触发 App Intent。
 
-:::warning 不支持打开 URL
-**button 只能跑 JS,不能直接打开 URL**(底层是 AppIntent,系统限制)。
-要做"点击跳转"的效果,把 [stack 容器](./stack.md) 当作按钮用 — vstack / hstack / zstack / tstack / grid 都有"打开 URL"属性,容器整体就是可点区域。
+## 先判断该用哪一种点击
+
+| 目标 | 使用 |
+| --- | --- |
+| 点击后运行 JavaScript | **Button** |
+| 点击后打开网页或 App | 带“打开 URL”属性的 [Stack](./stack.md#让容器可点击) |
+
+:::warning Button 不能直接打开 URL
+Button 基于 App Intent，只负责运行代码。要跳转 URL，请让 `vstack`、`hstack`、`zstack`、`tstack` 或 `grid` 变成可点击容器。
 :::
 
-:::warning 平台限制
-桌面小组件按钮要 **iOS 17+** 才能用。锁屏组件、灵动岛组件目前不能放可点按钮(系统限制)。
+:::warning 系统限制
+主屏幕小组件的 Button 需要 iOS 17 或更高版本。锁屏组件和实时活动不能放这种可点击 Button。
 :::
 
-## 用法
+## 最快用法
 
-从编辑器右上角 ➕ 添加 **button**,在它内部可以放任意子组件(text / icon / image),作为按钮的"长相"。
-然后在按钮的属性里写要执行的 JS 代码。
+1. 添加 **button**。
+2. 在 Button 里面放 `text`、`icon` 或 `image`，决定它的外观。
+3. 在 Button 的“内容”里填写点击后运行的 JavaScript。
+
+Button 代码运行完成后，Omni 会请求刷新小组件，让新状态显示出来。
+
+## 主 JS 与 Button 代码
+
+| | 主 JS | Button 代码 |
+| --- | --- | --- |
+| 运行时机 | 小组件刷新时 | 用户点击时 |
+| 主要用途 | 获取数据并设置 `this.xxx` | 修改状态或触发操作 |
+| 建议长度 | 可以包含完整的数据流程 | 保持简短，通常几行 |
+
+## 示例：切换收藏状态
+
+主 JS 读取状态：
+
+```js
+this.icon = getValue("favorite") || "heart"
+```
+
+Button 内容切换状态：
+
+```js
+const current = getValue("favorite") || "heart"
+setValue("favorite", current === "heart" ? "heart.fill" : "heart")
+```
+
+在 Button 里添加一个 Icon，把内容设为 `${icon}`。每次点击会在空心和实心爱心之间切换。
 
 ## 常用属性
 
-| 属性 | 说明 |
-|------|------|
-| 内部子组件 | 按钮的视觉(文字、图标等) |
-| 内容(JS 代码) | 点击时执行的 JS 片段 |
-| 样式 | plain(无边框) / noflash(不闪) / normal(系统按钮) |
-| 背景 / 圆角 | 视觉调整 |
-
-## 按钮代码 vs 主 JS
-
-| | 主 JS | 按钮代码 |
-|---|------|---------|
-| 何时跑 | 小组件**刷新**时 | 用户**点击**按钮时 |
-| 用来 | 读数据 / 拉接口,把结果赋给 `this.xxx` | 改本地状态 / 触发动作 |
-| 长度 | 通常较长 | 一般几行 |
-
-按钮代码跑完,Omni 会自动刷一下小组件让新状态生效。
-
-## 例:点击切换"已点赞"状态
-
-主 JS:
-```js
-this.state = getValue("liked") || "heart"
-```
-
-按钮代码:
-```js
-const cur = getValue("liked") || "heart"
-setValue("liked", cur === "heart" ? "heart.fill" : "heart")
-```
-
-按钮里放一个 icon,内容填 `${state}` —— 每次点击图标在"♡"和"❤"之间切换。
-
-## 想"点击跳转 URL"怎么办?
-
-不要用 button — 用一个 stack 容器代替:
-
-```
-zstack (打开 URL: https://2f0.cn)
-  └─ text  ("打开网页")
-```
-
-或者跳第三方 App:
-
-```
-hstack (打开 URL: weixin://)
-  ├─ icon  (message.fill)
-  └─ text  ("打开微信")
-```
-
-详见 [stack.md → 打开 URL](./stack.md#openurl)。
+| 属性 | 作用 |
+| --- | --- |
+| 子组件 | Button 显示的文字、图标或图片 |
+| 内容 | 点击后执行的 JavaScript |
+| 样式 | `plain` 无边框；`noflash` 不闪烁；`normal` 使用系统样式 |
+| 背景 / 圆角 | 调整 Button 外观 |

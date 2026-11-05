@@ -4,55 +4,56 @@ sidebar_position: 3
 
 # 控制台日志
 
-调试用。`console.*` 调用累积到一个内存队列,主 App 编辑器的「日志」面板会展示。
+用日志确认代码运行到了哪里、接口返回了什么，以及错误发生在哪一步。编辑器底部的“日志”面板会显示输出。
 
-## 接口
-
-```js
-console.log("hello")
-console.info("step 1")
-console.warn("fallback used")
-console.error("fetch failed:", err.message)
-console.debug("intermediate:", obj)
-```
-
-5 个 level 都支持:`log` / `info` / `warn` / `error` / `debug`。
-
-## 多参数 / 对象
-
-任意个参数,**对象自动 `JSON.stringify`**(失败回退到 `String(...)`),参数之间空格拼接:
+## 输出值
 
 ```js
-const user = { name: "Alice", age: 30 }
-console.log("user =", user, "tags:", ["vip", "new"])
-// → user = {"name":"Alice","age":30} tags: ["vip","new"]
+console.log("开始加载")
+console.info("步骤 1")
+console.warn("使用缓存")
+console.error("请求失败：", error)
+console.debug("中间结果：", data)
 ```
 
-`null` / `undefined` 显式打印成 `"null"` / `"undefined"`。
+所有方法都支持多个参数。对象和数组会自动转换为 JSON 文本。
 
-## 注意事项
+## 配合错误处理
 
-:::warning 单次 eval 上限 200 条
-为防卡片侧 JS 误打日志撑爆内存,**单次运行最多保留 200 条**,超出部分静默丢弃。压力测试 / 性能问题排查请别 `console.log` in tight loop。
+```js
+let value = "--"
+
+try {
+  const data = await new Request(url).fetchJSON()
+  value = data.value
+} catch (error) {
+  console.error("数据加载失败：", error)
+}
+```
+
+只有希望脚本继续运行并显示回退内容时，才需要 `try...catch`。未捕获异常也会出现在日志面板中。
+
+## 占位符为空时
+
+```js
+console.log("title：", title)
+console.log("完整结果：", JSON.stringify(data, null, 2))
+```
+
+值是 `undefined` 时，检查 JavaScript 或数据路径；值正确时，再检查组件中的占位符。
+
+:::warning 每次运行最多保留 200 条
+超出部分会丢弃。不要在大循环中连续输出日志。
 :::
 
-:::tip 卡片侧也能打,但看不到
-`FormExtensionAbility` 跑的 JS 也会累积 `console.*`,但卡片侧没有 UI 展示日志,只是写到 host 内存里。要看的话只能在主 App 编辑器里运行同一段代码复现。
-:::
-
-:::tip 异常会被自动捕获
-JS 顶层 `throw new Error(...)` / `await req.fetchJSON()` 失败之类,Omni 主机侧会捕获并标记成 `error` 状态,异常信息也能在日志面板看到 —— 不必自己写 `try { ... } catch (e) { console.error(e) }` 就为了打个日志,**只在你想兜底继续跑时才 try/catch**。
-:::
+桌面和锁屏卡片没有可见日志面板。请在编辑器中复现和调试。
 
 ## 速查
 
 ```js
-console.log(...args)    // 普通
-console.info(...args)
-console.warn(...args)
-console.error(...args)
-console.debug(...args)
-
-// 输出格式:对象 → JSON.stringify;null/undefined → 字面量;其它 → String()
-// 上限:每次 eval 最多 200 条
+console.log(...values)
+console.info(...values)
+console.warn(...values)
+console.error(...values)
+console.debug(...values)
 ```

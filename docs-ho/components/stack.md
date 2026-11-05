@@ -4,127 +4,76 @@ sidebar_position: 4
 
 # 容器
 
-容器用来组织子组件。编辑器里有三种常用容器:
+容器把多个子组件组织成一套布局。先根据排列方向选择：
 
-| 名称 | 排列方式 | 常见用途 |
-|---|---|---|
-| 纵列 | 从上到下排列 | 标题 + 内容 + 底部说明 |
-| 横排 | 从左到右排列 | 图标 + 文本、左右两端对齐 |
-| 层叠 | 子组件互相叠放 | 背景图上放文字、角标 |
+| 容器 | 排列方式 | 常见用途 |
+| --- | --- | --- |
+| 纵列 | 从上到下 | 标题、内容、说明 |
+| 横排 | 从左到右 | 图标加文字、两端对齐 |
+| 层叠 | 前后重叠 | 背景图、角标、遮罩 |
 
-## 用法
+## 最快用法
 
-在编辑器底部点加号,添加 **纵列**、**横排** 或 **层叠**,再把子组件拖进去。子组件在树面板里的顺序就是显示顺序;层叠里后面的子组件会盖在前面的子组件上。
+添加纵列、横排或层叠，再把子组件拖进去。树中的顺序就是显示顺序；层叠中后面的组件盖在前面。
 
-## 属性
+## 布局属性
 
-| 字段 | 可填写 | 说明 |
-|------|------|------|
-| 数据源（循环） | `{rows[row]}` | 按数组重复渲染子组件 |
-| 打开链接 | `https://...` / `OmniWidgets://...` / `${row.url}` | 点击整个容器时打开链接或应用 |
-| 内间距 | `0` / `8` | 纵列、横排的子组件间距;层叠没有这个字段 |
-| 水平对齐 | `start` / `center` / `end` | 纵列中子组件的横向位置 |
-| 垂直分布 | `start` / `center` / `spaceBetween` | 纵列中子组件的纵向分布 |
-| 垂直对齐 | `top` / `center` / `bottom` | 横排中子组件的纵向位置 |
-| 水平分布 | `start` / `center` / `spaceBetween` | 横排中子组件的横向分布 |
-| 对齐 | `topStart` / `center` / `bottomEnd` | 层叠中子组件的对齐位置 |
-| 宽 / 高 | `auto` / `100` / `100%` / `${w}` | 容器尺寸 |
-| 水平偏移 / 垂直偏移 / Z 轴偏移 | `0` / `8` / `${x}` | 只移动显示位置,不改变原本占位 |
-| 内边距 / 外边距 | `8` / `8,8,8,8` | 四周留白 |
-| 显示 | `true` / `false` / `${show}` | 控制是否显示 |
-| 背景色 | `#FFFFFF` / `${color}` | 容器背景 |
-| 圆角 | `0` / `8` / `50%` | 背景圆角 |
-| 旋转角度 | `0` / `15` / `${angle}` | 顺时针旋转角度 |
-| 不透明度 | `0` 到 `1` | `1` 为完全不透明 |
+| 字段 | 适用 | 作用 |
+| --- | --- | --- |
+| 内间距 | 纵列、横排 | 子组件之间的距离 |
+| 水平对齐 | 纵列 | `start` / `center` / `end` |
+| 垂直分布 | 纵列 | `start`、`center`、`spaceBetween` 等 |
+| 垂直对齐 | 横排 | `top` / `center` / `bottom` |
+| 水平分布 | 横排 | `start`、`center`、`spaceBetween` 等 |
+| 对齐 | 层叠 | `topStart`、`center`、`bottomEnd` 等 |
+| 数据源（循环） | 全部 | 按数组重复内部模板 |
+| 打开链接 | 全部 | 点击整个容器后跳转 |
+| 宽 / 高、偏移、内外边距 | 全部 | 通用布局字段 |
+| 显示、背景色、圆角、旋转、不透明度 | 全部 | 通用视觉字段 |
 
-## 打开链接
+## 让整个容器可点击
 
-纵列、横排、层叠都可以设置「打开链接」。用户点击容器时,Omni 会打开对应链接:
+在“打开链接”中填写：
 
 ```text
-https://example.com/detail
-OmniWidgets://open-app/com.example.targetapp?ability=EntryAbility
-OmniWidgets://open-app/com.example.targetapp?ability=EntryAbility&module=entry
+https://example.com
+OmniWidgets://open-app/com.example.app?ability=EntryAbility
+OmniWidgets://open-app/com.example.app?ability=EntryAbility&module=entry
 ${row.url}
-OmniWidgets://open-app/com.huawei.hmos.clock?ability=com.huawei.hmos.clock.phone
-hww://www.huawei.com
-OmniWidgets://open-app/com.huawei.hmos.calendar?ability=MainAbility
 ```
 
-把上面这类值填到「打开链接」字段即可。
+打开指定应用需要包名和 `ability`；只有目标应用要求模块名时才添加 `module`。目标不存在或系统不允许跳转时，不会打开。
 
-`OmniWidgets://open-app/包名?ability=...` 会打开已安装应用的指定入口。如果目标应用需要模块名,再加 `&module=...`。目标应用未安装或系统不允许跳转时不会打开。旧版 `app://包名` 仍可兼容,但新卡片建议使用带 `ability` 的 `OmniWidgets://open-app/`。
+要点击后运行代码、修改配置或按条件处理，请使用[按钮](./button.md)。
 
-如果需要点击后执行脚本、写入配置、刷新数据或按条件决定跳转,使用 [按钮](./button.md) 的「点击」字段。
+## 按数组重复布局
 
-## 循环
-
-在「数据源（循环）」填 `{rows[row]}`,容器的子组件会按数组重复显示。每条数据都会得到一个临时名称,例如这里的 `row`。
-
-JS:
+JavaScript：
 
 ```js
 let rows = [
   { title: "苹果", price: 5 },
   { title: "香蕉", price: 3 },
-  { title: "橘子", price: 4 },
+  { title: "橘子", price: 4 }
 ]
 ```
 
-容器配置:
+纵列设置：
 
 | 位置 | 字段 | 填写 |
-|---|---|---|
+| --- | --- | --- |
 | 外层纵列 | 数据源（循环） | `{rows[row]}` |
-| 子组件 1 文本 | 内容 | `${row.title}` |
-| 子组件 2 文本 | 内容 | `¥${row.price}` |
+| 子文字 1 | 内容 | `${row.title}` |
+| 子文字 2 | 内容 | `¥${row.price}` |
 
-显示结果:
+嵌套循环可以让内层继续读取外层项：
 
 ```text
-苹果   ¥5
-香蕉   ¥3
-橘子   ¥4
+外层纵列：{rows[row]}
+└─ 内层横排：{row.cells[cell]}
+   └─ 文字：${cell.text}
 ```
 
-嵌套循环也支持。外层用 `row`,内层用 `cell`:
-
-```text
-外层纵列
-  数据源（循环）: {rows[row]}
-  里面放一个横排
-    数据源（循环）: {row.cells[cell]}
-    里面放文本: ${cell.text}
-```
-
-## 例:按值高亮背景
-
-JS:
-
-```js
-let rows = [
-  { title: "A", score: 95, color: "#34C759" },
-  { title: "B", score: 60, color: "#FF9500" },
-  { title: "C", score: 30, color: "#FF3B30" },
-]
-```
-
-| 位置 | 字段 | 填写 |
-|---|---|---|
-| 外层纵列 | 数据源（循环） | `{rows[row]}` |
-| 子组件横排 | 背景色 | `${row.color}` |
-| 横排里的文本 | 内容 | `${row.title} ${row.score}` |
-
-## 注意事项
-
-:::warning 单次循环上限 50
-渲染端最多展开 50 条,超出会被截掉。接口数据很多时,建议在 JS 里先 `arr.slice(0, 50)`。
-:::
-
-:::tip 数组没准备好会显示为空
-JS 还没返回数据,或「数据源（循环）」路径写错时,容器不会展开子组件。
-:::
-
-:::tip 容器只负责链接跳转
-「打开链接」不会执行脚本。想点击后改状态,把内容放进按钮里。
+:::warning 每次最多展开 50 条
+超出部分会截断。数组不存在或路径错误时，容器保留，但不会生成循环子组件。
 :::

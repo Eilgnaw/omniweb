@@ -31,6 +31,7 @@ const sidebars: SidebarsConfig = {
         'components/spacer',
         'components/stack',
         'components/grid',
+        'components/visual-effects',
         'components/loop',
       ],
     },

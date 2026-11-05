@@ -2,167 +2,131 @@
 sidebar_position: 9
 ---
 
-# Stack (Container)
+# Stack containers
 
-A container **groups multiple children together**. There are four layout modes:
+Stack groups several children into one layout. Choose the container by direction:
 
-| Type | Layout | Use case |
-|------|--------|----------|
-| **vstack** | Vertical ↕ | Title + subtitle, list rows |
-| **hstack** | Horizontal ↔ | Icon + text, left/right alignment |
-| **zstack** | Layered ⊕ | Background image + foreground content |
-| **tstack** | Rich text concatenation ✏️ | Mixed fonts / colors within a single text run |
+| Type | Layout | Common uses |
+| --- | --- | --- |
+| `vstack` | Top to bottom | Titles and captions, vertical lists |
+| `hstack` | Left to right | Icons with text, edge alignment |
+| `zstack` | Layers front to back | Background images, overlays, layered effects |
+| `tstack` | One continuous text run | Mixed sizes, fonts, or colors on one line |
 
 ## Common properties
 
-| Property | Description |
-|----------|-------------|
-| Children | Any components inside, nestable |
+| Property | What it does |
+| --- | --- |
+| Children | Holds any components, including nested containers |
 | Spacing | Distance between children |
-| Padding (padding/pacings) | Inner padding on 4 sides, e.g. `10,10,10,10` |
-| Alignment | `center` / `leading` / `trailing` etc. |
-| Background / Corner radius | Container background |
-| Material (blur) | Frosted glass background (`thick` / `thin` / `regular`) |
-| Rotation / Offset / Opacity | Visual tweaks |
-| Open URL (openUrl) | Makes the whole container tappable — opens a URL when tapped. See [the dedicated section below](#openurl) |
+| Padding | Space on four edges, such as `10,10,10,10` |
+| Alignment | `center`, `leading`, `trailing`, and more |
+| Background / Corner radius | Styles the entire container |
+| Material | `thick`, `thin`, or `regular` blur material |
+| Rotation / Offset / Opacity | Changes the whole container |
+| Blur / Scale Effect | Blurs, scales, or flips the container and all of its children; see [Visual effects](./visual-effects.md) |
+| Open URL | Makes the entire container tappable |
 
-## openurl
+## Choose a layout
 
-All stack containers (vstack / hstack / zstack / tstack / grid) support the **Open URL property**.
-Once set, **the entire container becomes a tappable region**; when the user taps it, iOS opens the URL.
+### VStack: vertical
 
-:::info Why on the container and not on a button?
-The [button component](./button.md) **can only run JS — it can't open URLs** (it's built on AppIntent, a system limitation).
-So "tap to navigate" is always done through stack containers.
+```text
+vstack
+├─ text (title)
+├─ text (caption)
+└─ icon
+```
+
+### HStack: horizontal
+
+```text
+hstack
+├─ icon
+├─ text
+├─ spacer
+└─ text
+```
+
+Pair it with [Spacer](./spacer.md) to push content to opposite sides.
+
+### ZStack: layered
+
+Children are layered in order, with later children in front:
+
+```text
+zstack
+├─ image (background)
+└─ text (foreground)
+```
+
+Use it for backgrounds, translucent overlays, and progress bars made from two shapes.
+
+### TStack: rich text
+
+TStack accepts only Text children. It joins them into one continuous text run instead of laying them out as separate views.
+
+```text
+tstack
+├─ text ("32", size 36)
+└─ text ("°C", size 14)
+```
+
+The result is a tightly joined `32°C`, with separate styling for each segment.
+
+When using TStack:
+
+- It doesn't insert spaces. Include them in Content yourself.
+- It only accepts Text. Icon, Image, and containers are ignored.
+- Use VStack or HStack when you need separate lines or alignment.
+
+## Make a container tappable
+
+Set Open URL on a `vstack`, `hstack`, `zstack`, `tstack`, or `grid` to turn the whole container into a tap target.
+
+| URL | Result after a tap |
+| --- | --- |
+| `https://2f0.cn` | Opens a website |
+| `weixin://` | Opens WeChat |
+| `mailto:foo@bar.com` | Starts an email |
+| `omniwidgets://runjs/medium/{Widget.id}` | Runs the current medium widget's JS again |
+| `omniwidgets://openmini?...` | Opens a WeChat Mini Program |
+| `${link}` | Uses a URL supplied by JavaScript |
+
+`omniwidgets://` and the older `awidget://` behave the same. Existing links don't need to change.
+
+### Example: a button-like link
+
+```text
+hstack (background: blue; corner radius: 10; padding: 10; Open URL: weixin://)
+├─ icon (message.fill, white)
+└─ text (Open WeChat, white)
+```
+
+:::info Navigation and code are different actions
+Open URL on a Stack handles navigation. [Button](./button.md) runs JavaScript. Choose based on what should happen after the tap.
 :::
 
-### Common URLs
+## Repeat a container over an array
 
-| URL | Behavior |
-|-----|----------|
-| `https://2f0.cn` | Opens a web page |
-| `weixin://` | Opens WeChat |
-| `mailto:foo@bar.com` | Composes an email |
-| `omniwidgets://runjs/medium/{Widget.id}` | Re-runs the current widget's JS |
-| `omniwidgets://openmini?...` | Opens a WeChat Mini Program (the system appends `&from=omni` automatically) |
-| `${link}` | Decided by your JS |
+VStack, HStack, ZStack, and Grid can use a Data Source to repeat their children for an array. See [Loop](./loop.md).
 
-> `omniwidgets://` and the legacy `awidget://` are fully equivalent, so existing links don't need any changes.
+## Example: icon, title, and caption
 
-### Example: make a "button"
-
-The simplest "button": a zstack + text + openUrl.
-
-```
-zstack (Open URL: https://2f0.cn)
-  └─ text  ("Visit the site")
+```text
+hstack
+├─ icon
+└─ vstack
+   ├─ text (title)
+   └─ text (caption, small and gray)
 ```
 
-A bit fancier: icon + text + rounded background + navigation.
+## Example: title over a cover image
 
+```text
+zstack
+├─ image (fills the container)
+└─ vstack
+   ├─ spacer
+   └─ text (title, white)
 ```
-hstack (Background: blue, Corner radius: 10, Padding: 10,10,15,15, Open URL: weixin://)
-  ├─ icon  (message.fill, white)
-  └─ text  ("Open WeChat", white)
-```
-
-## vstack — Vertical
-
-The most common. Children stack **top to bottom**.
-
-```
-┌─────────┐
-│  text 1  │
-│  text 2  │  ← vstack
-│  icon    │
-└─────────┘
-```
-
-## hstack — Horizontal
-
-Children stack **left to right**. Combine with [spacer](./spacer.md) for "edge alignment".
-
-```
-[ icon | text | spacer | button ]   ← hstack
-```
-
-## zstack — Layered
-
-Children are **stacked on top of each other** — later ones on top. Common uses:
-
-- Background image + text
-- Translucent overlay
-- Progress bar (base color + progress color)
-
-```
-   ┌───────┐
-   │  bg   │ ← first layer (background)
-   │  txt  │ ← second layer (on top)
-   └───────┘
-```
-
-## tstack — Rich text concatenation
-
-Totally different from the other three — tstack **is not a layout container**. It glues multiple `text` children
-**into a single continuous text run** (built on SwiftUI's `Text + Text`).
-**Each segment can have its own font size / font / color, but everything is laid out and wrapped as a single piece of text.**
-
-Three text components in a vstack / hstack are **3 independent Text views** — they wrap and align independently.
-Three text components in a tstack are **1 single text run** — they won't wrap between segments, and the whole thing only wraps when the entire run is too long.
-
-### Children
-
-Only `text` is accepted (other types are ignored). **There's no separator between children** — if you want a space, add it inside the value.
-
-### Example: big number + small unit
-
-```
-tstack:
-  ├─ text  (content: "32",  size 36, color primary)
-  └─ text  (content: "°C",  size 14, color gray)
-```
-
-Renders: **32**°C (big number, small unit, snug together). With an hstack, the small unit would be centered separately and float far from the number — not natural.
-
-### Example: bold one word
-
-```
-tstack:
-  ├─ text  (content: "You have ")
-  ├─ text  (content: "${count}", large size, red color)
-  └─ text  (content: " new messages")
-```
-
-Renders: `You have 5 new messages`, with the number standing out.
-
-### Notes
-
-- Want a **space between segments**? Add it to the start or end of the value — tstack won't add one for you.
-- Want them to **wrap onto separate lines**? Use vstack, not tstack.
-- tstack ignores icon / image / containers — only text is recognized.
-
-## Containers can also loop
-
-Any container (vstack / hstack / zstack / grid) can be given a **loop data source** to repeat its children **N times** over an array. See [Loop](./loop.md).
-
-## Example: classic "icon + title + subtitle" card
-
-```
-hstack:
-  ├─ icon (large)
-  └─ vstack:
-       ├─ text  ("Title")
-       └─ text  ("Subtitle", small size, gray)
-```
-
-## Example: cover image + title (zstack)
-
-```
-zstack:
-  ├─ image (cover, fill)
-  └─ vstack:
-       ├─ spacer
-       └─ text ("Title", white)
-```
-
-Result: text floats at the bottom of the cover image.

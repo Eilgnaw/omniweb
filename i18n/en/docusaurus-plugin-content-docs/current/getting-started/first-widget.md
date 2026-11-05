@@ -4,99 +4,107 @@ sidebar_position: 2
 
 # Build your first widget
 
-Follow this section and you'll end up with a **medium-sized widget that shows the current weather**.
+This tutorial builds a medium widget that shows the current weather. It takes about 10 minutes.
 
-## 1. Create a new widget
+When you're done, it will show:
 
-Open Omni → tap `+` in the top-right of the home screen → pick **Medium** → give it a name → enter the editor.
+- The current weather icon
+- The current condition
+- The current temperature
 
-## 2. Build a simple layout
+## 1. Create a medium widget
 
-From the editor's top-right `+`, add these in order:
+Open Omni, tap `+` in the top-right of the home screen, choose **Medium**, name the widget, and open the editor.
 
-- A **vstack** (vertical container) as the root
-- Inside the vstack, add an **icon** (SF Symbol)
-- Then add a **text** (condition)
-- Then another **text** (temperature)
+:::tip The editor adapts to the window
+Omni requires iOS 17 or later. In a wide window, the preview stays on the left and components and properties appear on the right; drag the divider to resize the columns, or double-tap it to restore the system ratio. In a narrow window, the editor panel sits below the preview; drag its top handle, or reopen it with the edit button after hiding it. Resizing the panel doesn't move the preview. Drag the preview with one finger, pinch to zoom, or double-tap to reset it. Code appears in the right column on wide screens and in a large sheet on narrow screens. Rotating the device or resizing Split View preserves your current page, source, and undo history.
+:::
 
-The layout looks roughly like:
+## 2. Add three components
 
+Tap `+` in the editor and add, in order:
+
+1. A `vstack` as the vertical container.
+2. An `icon` inside the `vstack` for the weather symbol.
+3. Two `text` components for the condition and temperature.
+
+Your component tree should look like this:
+
+```text
+vstack
+├─ icon
+├─ text
+└─ text
 ```
-┌─────────────┐
-│   ☀ icon    │
-│ Sunny (text)│
-│  26° (text) │
-└─────────────┘
-```
 
-## 3. Write the JS
+Don't style it yet. Once the structure matches, continue.
 
-Tap the editor’s code button to open the JavaScript editor, then paste:
+## 3. Fetch the weather
+
+Tap the code button, open the JavaScript editor, and paste:
 
 ```js
 try {
-    const result = await Weather.getCurrent()
-    const obj = JSON.parse(result)
+  const result = await Weather.getCurrent()
+  const weather = JSON.parse(result)
 
-    this.icon = obj.symbolName                       // SF Symbol name, e.g. "sun.max"
-    this.text = obj.condition                        // condition, e.g. "mostlyCloudy"
-    this.temp = Math.trunc(obj.temperature.value)    // temperature, truncated
+  this.icon = weather.symbolName
+  this.condition = weather.condition
+  this.temperature = Math.trunc(weather.temperature.value)
 } catch (error) {
-    this.icon = "exclamationmark.triangle.fill"
-    this.text = "Error"
-    this.temp = "--"
-    console.log(error)
+  this.icon = "exclamationmark.triangle.fill"
+  this.condition = "Weather unavailable"
+  this.temperature = "--"
+  console.error(error)
 }
 ```
 
-Tap **Run**. If the console shows no errors, `this.icon` / `this.text` / `this.temp` are all set.
+Tap **Run**. If the console shows no error, your data is ready.
 
-### Desktop sync (optional)
-
-Tap the computer button in the JS editor only when you want to use VS Code. Opening the editor alone does not start sync. You can stop sync from its panel; closing the code editor also disconnects immediately, and reopening it does not automatically reconnect. Remote writes are temporarily rejected while an input method is composing text; save again after composition finishes.
-
-## 4. Bind JS data to components
-
-Back on the canvas, tap each component and fill in its "content" field:
-
-| Component | Content field |
-|------|-----------|
-| icon | `${icon}` |
-| first text | `${text}` |
-| second text | `${temp}°` |
-
-`${xxx}` is a placeholder — Omni automatically replaces it with the value of `this.xxx` from your JS.
-
-:::tip More placeholder forms
-- `${obj.name}` — read a field on an object directly
-- `${$.xxx}` — force read from the global scope
-- `${rows[row]}` — for loops
-
-See [Placeholder syntax](./placeholder.md).
+:::tip The first run asks for permission
+Weather needs your location. Allow location access when iOS prompts you, or the Weather API will fail.
 :::
 
-## 5. Control the refresh rate
+### Edit in VS Code (optional)
 
-Weather doesn't need to refresh every minute. Add this at the end of your JS:
+When you need desktop editing, tap the computer button in the JavaScript editor to start sync. Closing the code editor disconnects it; reopening the editor doesn't reconnect automatically.
+
+## 4. Put the data into components
+
+Return to the component editor and set each Content field:
+
+| Component | Content |
+| --- | --- |
+| icon | `${icon}` |
+| first text | `${condition}` |
+| second text | `${temperature}°` |
+
+`${temperature}` is replaced with `this.temperature` from your JavaScript. The preview should now show the current weather.
+
+If a field is blank, run the code again and check the console. See [Placeholder syntax](./placeholder.md) for more forms.
+
+## 5. Suggest the next refresh
+
+Add this at the end of your JavaScript:
 
 ```js
-setUpdateFreq(30) // suggest the system refresh again in 30 minutes
+setUpdateFreq(30) // suggest another refresh in 30 minutes
 ```
 
-> This is only a "suggestion" — iOS ultimately decides when the actual refresh happens. See [Widget control](../api/control.md).
+This is only a hint to iOS, not a precise 30-minute timer. See [Widget control](../api/control.md).
 
-## 6. Save → add to home screen
+## 6. Save and add it to the Home Screen
 
-- Tap **Save** in the top-right of the editor.
-- Leave the app, long-press the home screen → add widget → find **Omni Medium** (or the matching type) → add.
-- Long-press the widget you just added → **Edit Widget** → pick the one you just built.
+1. Tap **Save** in the top-right of the editor.
+2. Return to the Home Screen, long-press an empty area, and add an **Omni Medium** widget.
+3. Long-press the new widget and tap **Edit Widget**.
+4. Choose the widget you just saved.
 
-Done!
+You're done. Now adjust the fonts, colors, spacing, and background to make it yours.
 
----
+## What to read next
 
-Recommended next reads:
-
-- [Placeholder syntax](./placeholder.md) — feed complex data into components
-- [Loop](../components/loop.md) — render lists / arrays
-- [API docs](../api/network.md) — see what else you can call
+- [Placeholder syntax](./placeholder.md): display object fields and array data.
+- [Stack containers](../components/stack.md): learn the core layouts.
+- [Loop](../components/loop.md): render several records with one layout.
+- [JavaScript APIs](../api/network.md): use the network and more system data.

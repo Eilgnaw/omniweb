@@ -4,99 +4,107 @@ sidebar_position: 2
 
 # 做出第一个小组件
 
-跟着这一节走完,你会得到一个**显示当前天气**的中号小组件。
+这份教程会带你完成一个显示当前天气的中号小组件。预计用时：10 分钟。
 
-## 1. 新建小组件
+完成后，它会显示：
 
-打开 Omni → 首页右上角 `+` → 选 **中号** → 起个名字 → 进编辑器。
+- 当前天气图标
+- 天气状况
+- 当前温度
 
-## 2. 搭一个简单布局
+## 1. 新建一个中号小组件
 
-从编辑器右上角 ➕ 依次添加:
+打开 Omni，在首页右上角点 `+`，选择**中号**，输入名称后进入编辑器。
 
-- 一个 **vstack**(竖排容器),作为根
-- 在 vstack 里加一个 **icon**(SF 图标)
-- 再加一个 **text**(文本)
-- 再加一个 **text**(温度)
+:::tip 编辑器会适应窗口宽度
+Omni 需要 iOS 17 或更高版本。宽屏时，预览在左侧，组件和属性在右侧；拖动分隔线可以调整两栏，双击分隔线会恢复系统比例。窄屏时，编辑面板位于预览下方，可以拖动顶部把手或收起后再用编辑按钮打开。调整面板不会移动预览。你可以单指移动预览、双指缩放，或双击恢复位置和大小。代码在宽屏中显示于右栏，在窄屏中以大尺寸面板打开。旋转设备或调整分屏宽度时，当前页面、源码和撤销记录都会保留。
+:::
 
-布局大概长这样:
+## 2. 添加三个组件
 
+点编辑器右上角的 `+`，按顺序添加：
+
+1. `vstack`：作为竖排容器。
+2. `icon`：放在 `vstack` 里，显示天气图标。
+3. 两个 `text`：分别显示天气状况和温度。
+
+组件树应当是：
+
+```text
+vstack
+├─ icon
+├─ text
+└─ text
 ```
-┌─────────────┐
-│   ☀ icon    │
-│  晴 (text)   │
-│  26°(text)   │
-└─────────────┘
-```
 
-## 3. 写 JS 代码
+先不用调整样式。确认结构正确后继续。
 
-点击编辑器的代码按钮，打开 JS 编辑器并粘贴以下代码:
+## 3. 获取天气数据
+
+点代码按钮，打开 JavaScript 编辑器，粘贴下面的代码：
 
 ```js
 try {
-    const result = await Weather.getCurrent()
-    const obj = JSON.parse(result)
+  const result = await Weather.getCurrent()
+  const weather = JSON.parse(result)
 
-    this.icon = obj.symbolName                       // SF 图标名,比如 "sun.max"
-    this.text = obj.condition                        // 状况,比如 "mostlyCloudy"
-    this.temp = Math.trunc(obj.temperature.value)    // 温度,取整
+  this.icon = weather.symbolName
+  this.condition = weather.condition
+  this.temperature = Math.trunc(weather.temperature.value)
 } catch (error) {
-    this.icon = "exclamationmark.triangle.fill"
-    this.text = "错误"
-    this.temp = "--"
-    console.log(error)
+  this.icon = "exclamationmark.triangle.fill"
+  this.condition = "暂时无法获取天气"
+  this.temperature = "--"
+  console.error(error)
 }
 ```
 
-点 **运行**。控制台没报错的话, `this.icon` / `this.text` / `this.temp` 都被赋值了。
+点**运行**。只要控制台没有报错，数据就已经准备好了。
 
-### 电脑同步（可选）
-
-仅在需要 VS Code 联调时点击 JS 编辑器右上角的电脑按钮开启同步，正常打开编辑器不会启动同步服务。同步面板中可以停止同步；关闭代码编辑器也会立即断开，重新打开不会自动恢复。输入法组词期间，电脑端的覆盖更新会被暂时拒绝，完成输入后再保存即可。
-
-## 4. 把 JS 数据绑定到组件
-
-回到画布,点击每个组件,在它的"内容"字段填:
-
-| 组件 | 内容字段填 |
-|------|-----------|
-| icon | `${icon}` |
-| 第一个 text | `${text}` |
-| 第二个 text | `${temp}°` |
-
-`${xxx}` 就是占位符 — Omni 会自动把它替换成 JS 里的 `this.xxx` 的值。
-
-:::tip 占位符的更多写法
-- `${obj.name}` 直接读对象字段
-- `${$.xxx}` 强制读全局
-- `${rows[row]}` 给循环用
-
-详见 [占位符语法](./placeholder.md)。
+:::tip 第一次运行会请求权限
+天气依赖位置。系统弹出位置权限时，请允许 Omni 获取位置；否则天气接口会失败。
 :::
 
-## 5. 控制刷新频率
+### 用 VS Code 编辑（可选）
 
-天气没必要一分钟刷一次。在 JS 的最后加一行:
+需要电脑联调时，再点 JavaScript 编辑器右上角的电脑按钮开启同步。关闭代码编辑器会断开连接，重新打开后需要再次手动开启。
+
+## 4. 把数据放进组件
+
+回到组件编辑页，依次填写“内容”：
+
+| 组件 | 内容 |
+| --- | --- |
+| icon | `${icon}` |
+| 第一个 text | `${condition}` |
+| 第二个 text | `${temperature}°` |
+
+`${temperature}` 会被 JavaScript 里的 `this.temperature` 替换。预览现在应该已经显示当前天气。
+
+如果内容是空白，回到代码编辑器重新运行，并在控制台检查错误。更多写法见[占位符语法](./placeholder.md)。
+
+## 5. 建议下次刷新时间
+
+在 JavaScript 最后加一行：
 
 ```js
-setUpdateFreq(30) // 建议系统 30 分钟后再刷
+setUpdateFreq(30) // 建议系统 30 分钟后刷新
 ```
 
-> ⚠️ 这只是"建议",最终由 iOS 决定真正的刷新时机。详见 [组件控制](../api/control.md)。
+这是给 iOS 的建议，不保证精确到 30 分钟。详见[组件控制](../api/control.md)。
 
-## 6. 保存 → 加到桌面
+## 6. 保存并添加到主屏幕
 
-- 编辑器右上角点 **保存**。
-- 退出 App,长按桌面 → 添加小组件 → 找到 **Omni 中号**(或对应类型) → 添加。
-- 长按你刚加的小组件 → **编辑小组件** → 选你刚做的那个。
+1. 在编辑器右上角点**保存**。
+2. 回到主屏幕，长按空白处，添加 **Omni 中号**小组件。
+3. 长按刚添加的小组件，点**编辑小组件**。
+4. 选择你刚才保存的小组件。
 
-完成! 🎉
+完成。接下来可以调整字体、颜色、间距和背景，让它更像你自己的作品。
 
----
+## 接下来读什么？
 
-接下来推荐看:
-
-- [占位符语法](./placeholder.md) — 让组件吃下复杂数据
-- [循环 (loop)](../components/loop.md) — 渲染列表 / 数组
-- [接口文档](../api/network.md) — 看看还能调什么
+- [占位符语法](./placeholder.md)：显示对象字段和数组数据。
+- [容器 Stack](../components/stack.md)：掌握常用布局。
+- [循环 Loop](../components/loop.md)：用一套布局显示多条数据。
+- [JavaScript 接口](../api/network.md)：联网并读取更多系统数据。

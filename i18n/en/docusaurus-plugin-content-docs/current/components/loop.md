@@ -4,99 +4,88 @@ sidebar_position: 11
 
 # Loop
 
-Render a component **N times over an array**. Under the hood, you give a container (vstack / hstack / zstack / grid) a **loop data source**.
+Loop repeats one set of children for every item in an array. It isn't a separate component; it's a capability of containers such as `vstack`, `hstack`, `zstack`, and `grid`.
 
-:::tip
-Loop isn't its own component — it's a capability any container can opt into via its properties.
-:::
+## Build a list in three steps
 
-## Step 1: prepare an array in JS
+### 1. Prepare an array in JavaScript
 
 ```js
-this.list = [
-  { name: "Apple",  price: 5 },
+this.items = [
+  { name: "Apple", price: 5 },
   { name: "Banana", price: 3 },
   { name: "Orange", price: 4 }
 ]
 ```
 
-## Step 2: turn on looping for a container
+### 2. Set the container's Data Source
 
-Select the container (e.g. vstack), find **Data source** (dataSource) in its properties, and enter:
+Select a `vstack` and enter:
 
+```text
+${items[item]}
 ```
-${list[item]}
-```
 
-Meaning: iterate `list`, name each entry `item`, and children can then access `item.xxx`.
+This means “iterate over `items` and name the current item `item`.”
 
-## Step 3: children use the loop variable
+### 3. Use the current item in children
 
-Put an hstack inside, containing:
+Put an `hstack` inside the `vstack`:
 
 | Child | Content |
-|-------|---------|
+| --- | --- |
 | text | `${item.name}` |
 | spacer | — |
-| text | `¥${item.price}` |
+| text | `$${item.price}` |
 
 Result:
 
+```text
+Apple       $5
+Banana      $3
+Orange      $4
 ```
-Apple      ¥5
-Banana     ¥3
-Orange     ¥4
+
+## Empty arrays
+
+```js
+this.items = []
 ```
+
+When the array is empty, the container still exists but creates no repeated children. You don't need an extra check.
 
 ## Nested loops
 
-Containers can nest, and each level loops independently.
+Each container level can use its own loop variable:
 
 ```js
-this.tables = [
-  { title: "Fruit",      items: [{n:"Apple"},{n:"Banana"}] },
-  { title: "Vegetables", items: [{n:"Cabbage"},{n:"Spinach"}] }
+this.groups = [
+  { title: "Fruit", items: [{ name: "Apple" }, { name: "Banana" }] },
+  { title: "Vegetables", items: [{ name: "Cabbage" }, { name: "Spinach" }] }
 ]
 ```
 
-Outer vstack:
-- Data source `${tables[t]}`
-- Inside:
-  - text  content `${t.title}`
-  - vstack (data source `${t.items[it]}`)
-    - text content `${it.n}`
-
-## Empty array behavior
-
-If the array is **empty**, the loop renders no children (blank).
-
-```js
-this.list = []   // safe, no error — the container is just empty
+```text
+Outer vstack: ${groups[group]}
+├─ text: ${group.title}
+└─ Inner vstack: ${group.items[item]}
+   └─ text: ${item.name}
 ```
 
-:::info This is new behavior
-Older versions would **hide the entire container** for an empty array, which could break layouts.
-Now an empty array just means "loops 0 times" — the container itself still exists.
-:::
+## Read a global value
 
-## Global escape: `${$.xxx}`
+Inside a loop, the loop variable takes priority. If it has the same name as a global value, use `$.` to force a global lookup:
 
-Inside a loop, if you want to read an outer global variable but the loop variable has the same name, use the `$.` prefix to force a global lookup:
-
-```js
-this.row = "outer"            // global
-this.list = [{ row: "inner" }]
+```text
+${item.name}  → name on the current item
+${$.item}     → global this.item
 ```
 
-Container data source `${list[row]}`, then inside a text:
-- `${row}`     → inner (loop variable wins)
-- `${$.row}`   → outer (forced global)
+See [Placeholder syntax](../getting-started/placeholder.md) for the full rules.
 
-Full rules in [Placeholder syntax](../getting-started/placeholder.md).
+## Good use cases
 
-## Common use cases
-
-- **Task / to-do lists** (one item per row)
-- **Multi-day weather forecasts** (7 items → 7 forecast cells)
-- **Stock tickers**, **inbox previews**, **RSS headlines**
-- **Photo walls** (grid + loop)
+- To-do and calendar lists
+- Multi-day weather forecasts
+- Stock, RSS, or message summaries
+- Icon panels or photo walls built with Grid

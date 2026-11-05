@@ -4,229 +4,218 @@ sidebar_position: 8
 
 # Health
 
-Read data from the system **Health** app. Requires the "Health" permission — the first call shows the system prompt; if the user denies, subsequent calls fail.
+`Health` reads data that already exists in the Health app. You must authorize access in the main app first; a background widget can't show a permission prompt.
 
-> You can re-request access anytime in the app under **Settings → Health Permission**, or jump to System Settings to manage each category individually.
+:::tip Authorize first
+Request access in Omni under **Settings → Health Permission**. The user can change access for individual data types later in System Settings.
+:::
 
-## Steps / Distance / Active Energy / Flights
+## Check the return type first
 
-These APIs return the **cumulative value from local midnight to now** as a JS `number` (not a JSON string). Results are cached internally for 5 minutes to reduce authorization churn.
+| Data | Return value |
+| --- | --- |
+| Today's steps, distance, active energy, and flights | Number; use it directly |
+| Heart rate, body mass, activity rings, workouts, and sleep | JSON string; call `JSON.parse()` first |
 
-| API | Unit | Description |
-|---|---|---|
-| `Health.getStepsToday()` | steps | Today's step count |
-| `Health.getActiveEnergyToday()` | kcal | Today's active energy |
-| `Health.getDistanceToday()` | meters | Today's walking + running distance |
-| `Health.getFlightsClimbedToday()` | flights | Today's flights climbed |
+## Today's activity data
+
+These methods read the cumulative value from local midnight to now. Results are cached internally for about five minutes.
+
+| Method | Unit |
+| --- | --- |
+| `Health.getStepsToday()` | steps |
+| `Health.getActiveEnergyToday()` | kcal |
+| `Health.getDistanceToday()` | meters |
+| `Health.getFlightsClimbedToday()` | flights |
 
 ```js
 const steps = await Health.getStepsToday()
 const distance = await Health.getDistanceToday()
-this.steps = `${steps} steps · ${(distance / 1000).toFixed(2)} km`
+
+this.steps = Math.round(steps)
+this.distance = (distance / 1000).toFixed(2) + " km"
 ```
 
-### Steps Over an Arbitrary Range
-
-`Health.getStepsBetween(startMs, endMs)` returns the step count for a given range. Both arguments are **millisecond timestamps**.
+### Steps in a time range
 
 ```js
-const now = Date.now()
-const yesterday = now - 24 * 3600 * 1000
-const steps = await Health.getStepsBetween(yesterday, now)
-console.log(`Last 24 hours: ${steps} steps`)
+const end = Date.now()
+const start = end - 24 * 60 * 60 * 1000
+this.steps = await Health.getStepsBetween(start, end)
 ```
 
-## Heart Rate
+Both arguments are millisecond timestamps.
 
-Returns a JSON string with the shape `{ value, unit, date }`. `date` is a millisecond timestamp.
+## Heart rate
 
-| API | Description |
-|---|---|
-| `Health.getLatestHeartRate()` | Most recent heart rate reading (bpm) |
-| `Health.getRestingHeartRate()` | Most recent resting heart rate (bpm) |
+| Method | Content |
+| --- | --- |
+| `Health.getLatestHeartRate()` | Most recent heart rate |
+| `Health.getRestingHeartRate()` | Most recent resting heart rate |
 
 ```js
 const result = await Health.getLatestHeartRate()
-const { value, date } = JSON.parse(result)
-this.hr = `${Math.round(value)} bpm`
+const heartRate = JSON.parse(result)
+
+this.bpm = Math.round(heartRate.value)
+this.measuredAt = heartRate.date
 ```
 
-Example response:
+Return shape:
 
 ```json
 {
-  "value": 72.0,
-  "unit":  "bpm",
-  "date":  1700000000000
+  "value": 72,
+  "unit": "bpm",
+  "date": 1700000000000
 }
 ```
 
-## Body Mass
-
-`Health.getLatestBodyMass()` returns the most recent body mass reading in **kg**.
+## Body mass
 
 ```js
-const r = await Health.getLatestBodyMass()
-const { value, date } = JSON.parse(r)
-this.weight = `${value.toFixed(1)} kg`
+const result = await Health.getLatestBodyMass()
+const bodyMass = JSON.parse(result)
+this.weight = bodyMass.value.toFixed(1) + " kg"
 ```
 
-## Today's Activity Rings
+`date` is a millisecond timestamp, and `value` is in kg.
 
-`Health.getActivitySummaryToday()` aggregates the **Move / Exercise / Stand** rings and their goals into a single JSON string.
+## Today's activity rings
 
 ```js
-const r = await Health.getActivitySummaryToday()
-const a = JSON.parse(r)
+const result = await Health.getActivitySummaryToday()
+const activity = JSON.parse(result)
 
-this.move     = `${Math.round(a.activeEnergyBurned)} / ${Math.round(a.activeEnergyBurnedGoal)} kcal`
-this.exercise = `${Math.round(a.exerciseTime)} / ${Math.round(a.exerciseTimeGoal)} min`
-this.stand    = `${Math.round(a.standHours)} / ${Math.round(a.standHoursGoal)} h`
+this.move = `${Math.round(activity.activeEnergyBurned)} / ${Math.round(activity.activeEnergyBurnedGoal)} kcal`
+this.exercise = `${Math.round(activity.exerciseTime)} / ${Math.round(activity.exerciseTimeGoal)} min`
+this.stand = `${Math.round(activity.standHours)} / ${Math.round(activity.standHoursGoal)} h`
 ```
 
-Return structure:
+Return fields:
 
 ```json
 {
-  "activeEnergyBurned":     320.5,
+  "activeEnergyBurned": 320.5,
   "activeEnergyBurnedGoal": 400,
-  "exerciseTime":           25,
-  "exerciseTimeGoal":       30,
-  "standHours":             10,
-  "standHoursGoal":         12,
-  "date":                   1700000000000
+  "exerciseTime": 25,
+  "exerciseTimeGoal": 30,
+  "standHours": 10,
+  "standHoursGoal": 12,
+  "date": 1700000000000
 }
 ```
 
-If the user hasn't set an exercise or stand goal, those goal fields return `0`.
+A goal may be `0` when the user hasn't set it.
 
-## Workouts
-
-`Health.getRecentWorkouts(days)` returns workouts from the last N days, sorted by start time (most recent first). Pass `0` or a negative value and it defaults to 7 days.
+## Recent workouts
 
 ```js
-const r = await Health.getRecentWorkouts(7)
-const workouts = JSON.parse(r)
-this.count = `${workouts.length} workouts in the last 7 days`
+const result = await Health.getRecentWorkouts(7)
+const workouts = JSON.parse(result)
+this.workoutCount = workouts.length
 ```
 
-Each entry:
+The argument is the number of days to look back. `0` or a negative number defaults to 7 days. Results are sorted newest first.
 
-```json
-{
-  "activityType":       37,
-  "startDate":          1700000000000,
-  "endDate":            1700001800000,
-  "duration":           1800,
-  "activeEnergyBurned": 280,
-  "totalDistance":      4500
-}
-```
+Each workout contains:
 
-- `activityType` is the raw value of [`HKWorkoutActivityType`](https://developer.apple.com/documentation/healthkit/hkworkoutactivitytype) (e.g. `37` = walking, `52` = running).
-- `duration` is in **seconds**, `activeEnergyBurned` in **kcal**, `totalDistance` in **meters**. Missing fields are returned as `null`.
+| Field | Content |
+| --- | --- |
+| `activityType` | Raw numeric value from `HKWorkoutActivityType` |
+| `startDate` / `endDate` | Millisecond timestamps |
+| `duration` | Seconds |
+| `activeEnergyBurned` | kcal; may be `null` |
+| `totalDistance` | Meters; may be `null` |
 
-## Last Night's Sleep Summary
+See Apple's [`HKWorkoutActivityType`](https://developer.apple.com/documentation/healthkit/hkworkoutactivitytype) for activity values.
+
+## Last night's sleep summary
 
 ```js
 const result = await Health.getLastSleepDetail()
-const obj = JSON.parse(result)
+const sleep = JSON.parse(result)
+const total = sleep.sleepDatas.find((item) => item.category === 99)?.seconds || 0
 
-obj.sleepDatas.forEach(item => {
-  console.log(`${categoryName(item.category)} - ${formatDuration(item.seconds)}`)
-})
+const hours = Math.floor(total / 3600)
+const minutes = Math.floor((total % 3600) / 60)
+this.sleep = `${hours}h ${minutes}m`
 ```
 
-Return structure:
+Return shape:
 
 ```json
 {
   "startDate": 1738854640763,
-  "endDate":   1738879690763,
+  "endDate": 1738879690763,
   "sleepDatas": [
-    { "category": 4, "seconds": 3000  },
+    { "category": 4, "seconds": 3000 },
     { "category": 3, "seconds": 15030 },
-    { "category": 2, "seconds": 2700  },
-    { "category": 5, "seconds": 4320  },
-    { "category": 99,"seconds": 22350 }
+    { "category": 2, "seconds": 2700 },
+    { "category": 5, "seconds": 4320 },
+    { "category": 99, "seconds": 22350 }
   ]
 }
 ```
 
-### Category Meanings
+| `category` | Meaning | Included in total sleep |
+| ---: | --- | --- |
+| 2 | Awake | No |
+| 3 | Core sleep | Yes |
+| 4 | Deep sleep | Yes |
+| 5 | REM sleep | Yes |
+| 99 | Total sleep aggregated by Omni | — |
 
-| category | Meaning | Notes |
-|---------:|------|------|
-| 2 | Awake | Not counted toward total sleep time |
-| 3 | Core sleep | The bulk of sleep |
-| 4 | Deep sleep | |
-| 5 | REM sleep | |
-| 99 | **Total sleep duration** (excluding awake) | Aggregated by Omni |
+## Sleep segments from the last 48 hours
 
-## Full Sleep Segments (Last 48 Hours)
-
-If you want to draw your own timeline or analyze by segment:
+Read raw segments when you need to draw a timeline:
 
 ```js
 const result = await Health.getSleepData()
-const arr = JSON.parse(result)
-console.log(arr.length)
+this.sleepSegments = JSON.parse(result)
 ```
 
-Returns an array, where each item is a **time segment**:
+Each segment contains:
 
 ```json
 {
-  "startDate":  1738854640763,
-  "endDate":    1738855510763,
-  "value":      3,
+  "startDate": 1738854640763,
+  "endDate": 1738855510763,
+  "value": 3,
   "sleepState": "sleepCore"
 }
 ```
 
-`sleepState` strings correspond one-to-one with `value`:
+| `value` | `sleepState` | Meaning |
+| ---: | --- | --- |
+| 1 | `inBed` | In bed |
+| 2 | `Awake` | Awake |
+| 3 | `sleepCore` | Core sleep |
+| 4 | `asleepDeep` | Deep sleep |
+| 5 | `asleepREM` | REM sleep |
 
-| value | sleepState | Meaning |
-|------:|------------|------|
-| 1 | `inBed`        | In bed (not asleep yet) |
-| 2 | `Awake`        | Awake |
-| 3 | `sleepCore`    | Core sleep |
-| 4 | `asleepDeep`   | Deep sleep |
-| 5 | `asleepREM`    | REM sleep |
+## When there is no data
 
-<details>
-<summary>Sample response (first few items only)</summary>
+- The user may not have authorized that data type.
+- The device may not have a matching record yet.
+- Data from Apple Watch and other devices can take time to sync to the iPhone.
+- A background widget can't request new permission; it can only read data already authorized in the main app.
 
-```json
-[
-  { "startDate": 1738854640763, "endDate": 1738855510763, "value": 3, "sleepState": "sleepCore" },
-  { "startDate": 1738855510763, "endDate": 1738855870763, "value": 4, "sleepState": "asleepDeep" },
-  { "startDate": 1738855870763, "endDate": 1738855900763, "value": 3, "sleepState": "sleepCore" },
-  { "startDate": 1738855900763, "endDate": 1738855990763, "value": 2, "sleepState": "Awake" },
-  ...
-]
-```
+Use `try...catch` and provide fallback content. Don't assume every method returns a record.
 
-The full data is usually dozens to hundreds of segments — `console.log` it and check for yourself.
-</details>
-
-## Example: Show Last Night's Total Duration
+## Quick reference
 
 ```js
-const result = await Health.getLastSleepDetail()
-const obj = JSON.parse(result)
-const total = obj.sleepDatas.find(d => d.category === 99)?.seconds || 0
-
-const h = Math.floor(total / 3600)
-const m = Math.floor((total % 3600) / 60)
-this.sleep = `${h}h ${m}m`
+Health.getStepsToday() → Promise<number>
+Health.getStepsBetween(startMs, endMs) → Promise<number>
+Health.getActiveEnergyToday() → Promise<number>
+Health.getDistanceToday() → Promise<number>
+Health.getFlightsClimbedToday() → Promise<number>
+Health.getLatestHeartRate() → Promise<string>
+Health.getRestingHeartRate() → Promise<string>
+Health.getLatestBodyMass() → Promise<string>
+Health.getActivitySummaryToday() → Promise<string>
+Health.getRecentWorkouts(days) → Promise<string>
+Health.getLastSleepDetail() → Promise<string>
+Health.getSleepData() → Promise<string>
 ```
-
-Put `${sleep}` in a text component → shows `7h 10m`.
-
-## Notes
-
-- **No Apple Watch / no recorded data**: sleep APIs only read data written by Apple Watch and may return empty results. Other APIs (steps, heart rate, etc.) can read data recorded by the iPhone itself.
-- **iOS Health permission**: prompts on first call. If denied, subsequent calls return an error. Re-request via the app's **Settings → Health Permission**, or jump to System Settings to manage each category.
-- **Data is delayed**: Watch sync to iPhone usually takes a few minutes to an hour.
-- **Widget memory limits**: Health APIs do not show the permission prompt from inside widgets — they only work after authorization has been granted in the main app.

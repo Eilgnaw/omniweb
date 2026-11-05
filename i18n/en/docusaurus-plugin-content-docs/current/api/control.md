@@ -1,101 +1,108 @@
 ---
 sidebar_position: 3
 ---
-# Component Control
 
-:::info
-When building widgets and Live Activities, you can use the APIs below to control widget refresh timing, and you can end a Live Activity from code or push.
-:::
+# Refresh and Live Activities
 
-### Widget Refresh Timing
-Configure widget refreshes by combining a refresh frequency with a specific refresh time.
+This page covers two jobs: suggesting the next refresh for a regular widget, and controlling a Live Activity from code or push.
 
-:::warning
-- The actual refresh time is controlled by the system. Even when you set a frequency and time, the system may not refresh on schedule.
-- Each widget gets 40-70 refreshes per 24 hours, so you should manage the total count by adjusting both frequency and refresh time.
-- In theory, the more often a widget is viewed, the more closely it follows your configured timing. The system learns and optimizes over time.
-:::
+## Regular widget refreshes
 
-#### Set Refresh Frequency
-Set the frequency to control the interval until the next refresh. We recommend a minimum of 5 minutes.
+iOS decides the actual refresh time. These APIs submit a suggestion; they don't create a precise timer.
+
+### Refresh after an interval
 
 ```js
-// setUpdateFreq(minute)
-setUpdateFreq(30) // refresh every 30 minutes
+setUpdateFreq(30) // suggest another refresh in 30 minutes
 ```
 
-#### Set Refresh Time
-If the widget doesn't need to refresh during a certain period, set the refresh time to the moment after that period ends.
+The argument is in minutes. Don't request an unnecessarily short interval; the system may combine or delay frequent refreshes.
+
+### Refresh after a specific time
 
 ```js
-// setUpdateTime(timestamp)
-const tomorrow = new Date()
-tomorrow.setDate(tomorrow.getDate() + 1)
-tomorrow.setHours(0, 1, 0, 0)
-setUpdateTime(tomorrow.getTime()) // set the next refresh time to 00:01 tomorrow
+const next = new Date()
+next.setDate(next.getDate() + 1)
+next.setHours(7, 0, 0, 0)
+
+setUpdateTime(next.getTime())
 ```
 
-### Live Activity Control
-You can end a Live Activity from JS, and you can remotely start, update, and end it with push. The push API only accepts variables. It doesn't run the JS code inside the Live Activity.
+The argument is a millisecond timestamp. This works well for cases such as “don't update overnight; refresh tomorrow morning.”
 
-#### End Current Live Activity
-Use this from a button action or whenever there's no more info to display.
+:::warning Refresh isn't an alarm
+Widgets that people view often usually receive more refresh opportunities, but any suggestion may happen early, late, or not at all. For second-by-second changes, use the [Date component](../components/date.md) or a Live Activity.
+:::
+
+## End a Live Activity from JS
 
 ```js
 endLiveActivity()
 ```
 
-#### Before Sending Pushes
-- In the Live Activity editor, open the top-right menu and tap "Copy push curl" to get the API URL, `user_id`, `widget_id`, and a `start` example.
-- Users only need one visible Push ID, which is the `user_id` in the request. Use the same `widget_id` for start, update, and end.
-- Don't ask users to manage APNs details. The app uploads the information needed for push automatically, and the backend keeps the Push ID, device, and Live Activity bound together.
-- The device needs to open the app at least once before the backend can receive the system information required for remote start.
-- After a Live Activity starts from push, the system creates the follow-up update channel asynchronously. Wait a few seconds before sending the first `update`.
-- Remote start requires iOS 17.2 or later. Older systems can only update or end a Live Activity that has already been started on the device.
+Use it from Button code in the Live Activity, or when there's nothing left to display.
 
-:::warning
-When you start, update, or end a Live Activity with push, the UI only renders variables from `content_state.data`. It won't run Live Activity JS, and it won't fetch network data automatically. Your server or caller needs to calculate the values first and push them in.
+## Control a Live Activity with push
+
+Push can remotely start, update, and end a Live Activity.
+
+### Prepare first
+
+1. In the Live Activity editor's top-right menu, tap **Copy Push curl**.
+2. Keep the endpoint, `user_id`, and `widget_id` from the example.
+3. Have your server calculate the display values and encode them in `content_state.data`.
+
+:::warning Push doesn't run the Live Activity's JavaScript
+Remote `start`, `update`, and `end` only render variables from `content_state.data`. They don't execute the Live Activity JS or fetch network data. Your server or caller must prepare every value first.
 :::
 
-#### Request URL
-Production:
+### Requirements
 
-```text
-POST https://omni.umiibo.app/api/push
-```
+- Remote start requires iOS 17.2 or later.
+- The device must have opened the app at least once so the app can upload the required system push information.
+- Users only manage the one Push ID shown in the app, sent as `user_id`. Don't expose APNs tokens to them.
+- `start`, `update`, and `end` use the same `user_id` and `widget_id` pair.
+- After a remote start, the system creates the update channel asynchronously. Wait a few seconds before the first `update`.
 
-Sandbox:
+### Endpoints
 
-```text
-POST https://omni.umiibo.app/api/sandbox/push
-```
+| Environment | Endpoint |
+| --- | --- |
+| Production | `POST https://omni.umiibo.app/api/push` |
+| Sandbox | `POST https://omni.umiibo.app/api/sandbox/push` |
 
-#### Request Fields
+### Request fields
+
 | Field | Required | Description |
 | --- | --- | --- |
-| `user_id` | ✓ | The Push ID shown in the app. |
-| `widget_id` | ✓ | The Live Activity widget ID. |
-| `type` | ✓ | `start` to start, `update` to update, `end` to end. |
-| `content_state` |  | Live Activity variables. `data` is a JSON string. |
-| `alert_title` |  | Used only by `start`. The notification title shown when the Live Activity starts. |
-| `alert_body` |  | Used only by `start`. The notification body shown when the Live Activity starts. |
-| `sound_mode` |  | Push sound mode: `custom` uses the bundled sound, `system` uses the system default sound, and `silent` sends a silent push. The default is `custom`. |
-| `sound` |  | Legacy field for an optional custom sound filename. |
-| `silent` |  | Legacy field. Set it to `true` for a silent push. It wins over `sound_mode` and `sound`. |
-| `timestamp` | ✓ | Current Unix timestamp in seconds. |
-| `nonce` | ✓ | A random string that must be different for every request. |
+| `user_id` | ✓ | Push ID shown in the app |
+| `widget_id` | ✓ | Live Activity widget ID |
+| `type` | ✓ | `start`, `update`, or `end` |
+| `content_state` |  | Render variables; `data` must be a JSON string |
+| `alert_title` |  | Alert title used only by `start` |
+| `alert_body` |  | Alert body used only by `start` |
+| `sound_mode` |  | `custom`, `system`, or `silent`; defaults to `custom` |
+| `sound` |  | Legacy custom sound filename |
+| `silent` |  | Legacy option; `true` overrides other sound settings |
+| `timestamp` | ✓ | Current Unix timestamp in seconds |
+| `nonce` | ✓ | A different random string for every request |
 
-#### Push Sound
-By default, pushes play the bundled `push_click.caf` sound. You can change the sound per request with `sound_mode`:
+### `content_state.data` is a string
 
-- `custom`: play the bundled `push_click.caf` sound.
-- `system`: play the system default sound.
-- `silent`: send a silent push with no sound.
+The outer request is JSON, but `data` contains another JSON document encoded as a string:
 
-If you're still using the legacy fields, `sound: "xxx.caf"` can name a custom bundled sound file, and `silent: true` forces a silent push.
+```json
+{
+  "content_state": {
+    "isLoading": false,
+    "data": "{\"title\":\"Running\",\"count\":1}"
+  }
+}
+```
 
-#### Start a Live Activity
-The copied curl already uses `start` by default. Check the initial variables, then send it directly. `widget_id` must point to a Live Activity widget saved on the device, otherwise the UI can't render as expected.
+`${title}` and `${count}` in the layout read this inner data.
+
+### Start
 
 ```bash
 curl -X POST https://omni.umiibo.app/api/push \
@@ -110,59 +117,64 @@ curl -X POST https://omni.umiibo.app/api/push \
       "data": "{\"title\":\"Running\",\"count\":1}"
     },
     "alert_title": "Live Activity started",
-    "alert_body": "A new Live Activity is now showing",
-    "timestamp": 1710000000,
+    "alert_body": "A new Live Activity is showing",
+    "timestamp": 1910000000,
     "nonce": "start-001"
   }'
 ```
 
-#### Update a Live Activity
-`update` only updates variables. Put the values used by your layout into `content_state.data`.
+Generate the current timestamp and a unique `nonce` for the real request. Don't copy the sample values.
 
-```bash
-curl -X POST https://omni.umiibo.app/api/push \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "user_id": "your Push ID",
-    "widget_id": "Live Activity widget ID",
-    "type": "update",
-    "sound_mode": "custom",
-    "content_state": {
-      "isLoading": false,
-      "data": "{\"title\":\"Updated\",\"count\":2}"
-    },
-    "timestamp": 1710000001,
-    "nonce": "update-001"
-  }'
+### Update
+
+Keep the same `user_id` and `widget_id`, change `type` to `update`, and supply the new variables:
+
+```json
+{
+  "type": "update",
+  "content_state": {
+    "isLoading": false,
+    "data": "{\"title\":\"Updated\",\"count\":2}"
+  }
+}
 ```
 
-#### End a Live Activity
-`end` ends the Live Activity for the current `widget_id`. You can include final variables for the last display state, or send only the minimal request.
+The request still needs a new `timestamp` and `nonce`.
 
-```bash
-curl -X POST https://omni.umiibo.app/api/push \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "user_id": "your Push ID",
-    "widget_id": "Live Activity widget ID",
-    "type": "end",
-    "sound_mode": "custom",
-    "content_state": {
-      "isLoading": false,
-      "data": "{\"title\":\"Ended\"}"
-    },
-    "timestamp": 1710000002,
-    "nonce": "end-001"
-  }'
+### End
+
+Change `type` to `end`. You may include a final set of display variables:
+
+```json
+{
+  "type": "end",
+  "content_state": {
+    "isLoading": false,
+    "data": "{\"title\":\"Ended\"}"
+  }
+}
 ```
 
-### Quick Reference
+The request still needs the same `user_id` and `widget_id`, plus a new `timestamp` and `nonce`.
+
+## Push sound
+
+| `sound_mode` | Behavior |
+| --- | --- |
+| `custom` | Plays the bundled `push_click.caf` |
+| `system` | Plays the system default sound |
+| `silent` | Sends a silent push |
+
+The legacy `sound` field can name a bundled sound file. `silent: true` overrides every other sound setting.
+
+## Quick reference
+
 ```js
-setUpdateFreq(minute) → void        // suggest a widget refresh after this many minutes
-setUpdateTime(timestamp) → void     // set the next refresh time
-endLiveActivity() → void            // end the current Live Activity
-POST /api/push type="start"         // start a Live Activity with push
-POST /api/push type="update"        // update Live Activity variables with push
-POST /api/push type="end"           // end a Live Activity with push
-POST /api/push sound_mode="custom|system|silent" // choose the push sound
+setUpdateFreq(minutes) → void
+setUpdateTime(timestampMs) → void
+endLiveActivity() → void
+
+POST /api/push type="start"  // remotely start
+POST /api/push type="update" // update variables
+POST /api/push type="end"    // end the activity
 ```

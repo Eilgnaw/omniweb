@@ -4,21 +4,43 @@ sidebar_position: 7.5
 
 # Canvas
 
-Canvas draws graphics from a list of JSON commands. It's a good fit for progress rings, line and bar charts, badges, dashboards, and outlined text. It doesn't execute arbitrary drawing code. The same commands render in the editor preview, home screen widgets, and Live Activities.
+Canvas draws graphics from JSON commands. Use it for progress rings, line and bar charts, badges, dashboards, and outlined text.
 
-## Usage
+## When should you use Canvas?
 
-Tap the ➕ in the top-right of the editor and add **Canvas**. A new Canvas starts with a `75%` gradient progress ring.
+| Need | Recommended component |
+| --- | --- |
+| Ordinary text, images, or symbols | The matching Text, Image, or Icon component |
+| A system-style progress ring or bar | Gauge |
+| One graphic driven by several values, a path, or a special text effect | Canvas |
 
-Open **Drawing Commands** to:
+Canvas doesn't execute arbitrary drawing code. The editor preview, Home Screen widget, and Live Activity all render the same commands.
 
-- Edit a JSON array directly.
-- Format and validate the JSON.
-- Place the cursor at a field value and choose **Insert Variable**.
-- Choose **Bind Entire Array** to generate `${drawing}`.
-- Restore the default example.
+## Quick start
 
-Individual command fields can also bind variables:
+1. Add **Canvas**. A new Canvas starts with a `75%` gradient progress ring.
+2. Open Drawing Commands.
+3. Edit the JSON, format and validate it, then return to the preview.
+
+Every command needs an `op`:
+
+```json
+[
+  {
+    "op": "circle",
+    "x": 50,
+    "y": 50,
+    "radius": 40,
+    "fill": "#0A59F7"
+  }
+]
+```
+
+Commands draw in array order, so later content appears on top.
+
+## Put variables into commands
+
+Individual fields can use placeholders:
 
 ```json
 [
@@ -31,9 +53,9 @@ Individual command fields can also bind variables:
 ]
 ```
 
-When the cursor is inside an existing string, the editor inserts only `${title}`. Outside a string, it adds the JSON quotes automatically.
+Place the cursor on a field value and use Insert Variable to avoid missing JSON quotes.
 
-For data-driven graphics, build an array in JS:
+### Generate the whole command list in JS
 
 ```js
 this.drawing = [
@@ -42,7 +64,7 @@ this.drawing = [
     x: 50,
     y: 50,
     radius: 40,
-    fill: "#0A59F7",
+    fill: "#0A59F7"
   },
   {
     op: "text",
@@ -52,36 +74,34 @@ this.drawing = [
     size: 18,
     fill: "#FFFFFF",
     align: "center",
-    baseline: "middle",
-  },
+    baseline: "middle"
+  }
 ]
 ```
 
-Then open the **Insert Variable** menu, choose **Bind Entire Array**, and select `drawing`. This binds the **whole array**. It isn't a loop data source, so don't use `${drawing[item]}`.
+In Insert Variable, choose Bind Entire Array and select `drawing`. The result is `${drawing}`. Don't use the loop form `${drawing[item]}`.
 
-## Properties
+## Coordinates and display size
 
-| Property | Example | Description |
-|---|---|---|
-| Drawing Commands | `${drawing}` / JSON array | Drawn from first to last |
-| Coordinate Width | `120` / `${viewWidth}` | Horizontal range of the virtual coordinate system |
-| Coordinate Height | `120` / `${viewHeight}` | Vertical range of the virtual coordinate system |
-| Scaling Mode | `fit` / `stretch` | `fit` preserves aspect ratio and centers; `stretch` fills each axis independently |
-| Width / Height | `120` | Actual component size |
-| Background, clipping, shadow | Standard editor properties | Applied to the whole Canvas component |
-| Rotation, offset, opacity, visibility | Standard editor properties | Applied to the whole Canvas component |
+| Property | Example | What it does |
+| --- | --- | --- |
+| Drawing Commands | `${drawing}` / JSON array | Commands executed in order |
+| Coordinate Width | `120` | Horizontal range of the virtual drawing space |
+| Coordinate Height | `120` | Vertical range of the virtual drawing space |
+| Scaling Mode | `fit` / `stretch` | Maps virtual coordinates to the component size |
+| Width / Height | `120` | Actual Canvas size in the layout |
 
-Coordinate width and height define the drawing space. Width and height define the component's actual layout size. For a `100 × 100` coordinate space displayed at `200 × 100`:
+For a `100 × 100` coordinate space displayed in a `200 × 100` component:
 
 - `fit`: preserves the aspect ratio and centers horizontally.
 - `stretch`: scales X by 2 and leaves Y unchanged.
 
+Background, clipping, shadow, rotation, offset, opacity, and visibility apply to the whole Canvas.
+
 ## Primitives
 
-Every command needs an `op`:
-
-| `op` | Main fields | Purpose |
-|---|---|---|
+| `op` | Main fields | Use |
+| --- | --- | --- |
 | `rect` / `roundRect` | `x`, `y`, `width`, `height`, `radius` | Rectangle or rounded rectangle |
 | `circle` | `x`, `y`, `radius` | Circle |
 | `arc` | `x`, `y`, `radius`, `start`, `end`, `counterClockwise`, `close` | Arc; angles use degrees |
@@ -89,9 +109,11 @@ Every command needs an `op`:
 | `polyline` | `points`, `close` | Polyline or polygon |
 | `path` | `segments` | Compound path |
 | `text` | `text`, `x`, `y`, `size` | Text |
-| `clear` | `x`, `y`, `width`, `height` | Clear a region; omit the size to clear the virtual canvas |
+| `clear` | `x`, `y`, `width`, `height` | Clear an area; omit the size to clear the whole Canvas |
 
-`polyline.points` accepts `[x, y]` or `{x, y}`:
+### Polyline
+
+`points` accepts `[x, y]` or `{x, y}`:
 
 ```js
 this.drawing = [
@@ -101,12 +123,14 @@ this.drawing = [
     stroke: "#0A59F7",
     lineWidth: 4,
     lineCap: "round",
-    lineJoin: "round",
-  },
+    lineJoin: "round"
+  }
 ]
 ```
 
-`path.segments` supports `move`, `line`, `quadratic`, `bezier`, `arc`, and `close`:
+### Compound path
+
+`segments` supports `move`, `line`, `quadratic`, `bezier`, `arc`, and `close`:
 
 ```js
 this.drawing = [
@@ -116,55 +140,55 @@ this.drawing = [
       { op: "move", x: 10, y: 70 },
       { op: "quadratic", cx: 50, cy: 5, x: 90, y: 70 },
       { op: "line", x: 10, y: 70 },
-      { op: "close" },
+      { op: "close" }
     ],
-    fill: "#0A59F7",
-  },
+    fill: "#0A59F7"
+  }
 ]
 ```
 
 ## State, transforms, and clipping
 
-| `op` | Fields | Purpose |
-|---|---|---|
-| `save` / `restore` | None | Save or restore the current transform and clips |
-| `translate` | `x`, `y` | Move subsequent commands |
-| `rotate` | `angle`, `x`, `y` | Rotate subsequent commands around a point |
-| `scale` | `scaleX`, `scaleY`, `value`, `x`, `y` | Scale subsequent commands around a point |
-| `clipRect` | `x`, `y`, `width`, `height`, `radius` | Rectangular or rounded clipping |
-| `clipCircle` | `x`, `y`, `radius` | Circular clipping |
+| `op` | Fields | What it does |
+| --- | --- | --- |
+| `save` / `restore` | None | Save or restore the current transform and clip |
+| `translate` | `x`, `y` | Move later commands |
+| `rotate` | `angle`, `x`, `y` | Rotate later commands around a point |
+| `scale` | `scaleX`, `scaleY`, `value`, `x`, `y` | Scale later commands around a point |
+| `clipRect` | `x`, `y`, `width`, `height`, `radius` | Clip to a rectangle or rounded rectangle |
+| `clipCircle` | `x`, `y`, `radius` | Clip to a circle |
 
-Clipping affects every following command. Put `save` before a clip and `restore` after the clipped content when you need to return to the previous state.
+A clip keeps affecting later commands. For a local clip, put `save` before it and `restore` after it.
 
 ## Fill, stroke, and effects
 
-| Field | Example | Description |
-|---|---|---|
-| `fill` | `"#0A59F7"` | Fill; use `"none"` to disable |
-| `stroke` | `"#FFFFFF"` | Stroke; use `"none"` to disable |
+| Field | Example | What it does |
+| --- | --- | --- |
+| `fill` | `"#0A59F7"` | Fill; `"none"` disables it |
+| `stroke` | `"#FFFFFF"` | Stroke; `"none"` disables it |
 | `lineWidth` | `4` | Stroke width |
-| `lineCap` | `"butt"` / `"round"` / `"square"` | Line caps |
+| `lineCap` | `"butt"` / `"round"` / `"square"` | Line endings |
 | `lineJoin` | `"miter"` / `"round"` / `"bevel"` | Line joins |
 | `miterLimit` | `10` | Miter limit |
 | `dash` | `[6, 4]` | Dash pattern |
-| `dashOffset` | `2` | Dash phase |
+| `dashOffset` | `2` | Dash start offset |
 | `alpha` | `0.6` | Opacity for this command |
 | `shadowColor` | `"#00000055"` | Shadow color |
 | `shadowBlur` | `8` | Shadow blur |
 | `shadowX` / `shadowY` | `0` / `4` | Shadow offset |
 | `composite` | `"source-over"` | Blend mode |
 
-Guaranteed blend modes: `source-over`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `destination-out`, and `copy`. Unknown values fall back to `source-over`.
+Supported blend modes: `source-over`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `destination-out`, and `copy`. Unknown values fall back to `source-over`.
 
 ## Text
 
-Text supports fill and stroke together. Canvas draws the stroke first, then the fill:
+Text can use fill and stroke together. Canvas draws the stroke first, then the fill:
 
 ```js
 this.drawing = [
   {
     op: "text",
-    text: "AWidget",
+    text: "Omni Widgets",
     x: 60,
     y: 60,
     size: 22,
@@ -173,30 +197,30 @@ this.drawing = [
     lineWidth: 2,
     fill: "#FFFFFF",
     align: "center",
-    baseline: "middle",
-  },
+    baseline: "middle"
+  }
 ]
 ```
 
-Text also supports:
+Other text fields:
 
-- `weight`: `"normal"`, `"bold"`, `"700"`, and similar values.
+- `weight`: `"normal"`, `"bold"`, `"700"`, and more.
 - `fontStyle`: `"normal"`, `"italic"`, or `"oblique"`.
-- `fontFamily`: a font family name.
+- `fontFamily`: font name.
 - `align`: `"left"`, `"center"`, `"right"`, `"start"`, or `"end"`.
 - `baseline`: `"top"`, `"middle"`, `"bottom"`, `"alphabetic"`, `"hanging"`, or `"ideographic"`.
 - `maxWidth`: maximum drawing width.
 
-Color Emoji doesn't have a regular glyph outline. It falls back to filled text and won't use the text stroke.
+Color Emoji render normally as filled text, but don't receive a regular glyph stroke.
 
-## Gradients and light/dark colors
+## Color, appearance, and gradients
 
-Solid colors support `#RRGGBB` and `#RRGGBBAA`. You can also provide light and dark variants:
+Solid colors accept `#RRGGBB` and `#RRGGBBAA`. You can provide separate light and dark values:
 
 ```js
 const adaptiveText = {
   light: "#162033",
-  dark: "#F7FAFF",
+  dark: "#F7FAFF"
 }
 ```
 
@@ -211,33 +235,29 @@ const gradient = {
   y1: 100,
   stops: [
     { offset: 0, color: "#53C8FF" },
-    { offset: 1, color: "#0A59F7" },
-  ],
+    { offset: 1, color: "#0A59F7" }
+  ]
 }
 ```
 
-A radial gradient uses `type: "radial"` plus `x0`, `y0`, `r0`, `x1`, `y1`, and `r1`. Keep the start and end centers identical in the first version for consistent rendering across all supported iOS releases.
+A radial gradient uses `type: "radial"` with `x0`, `y0`, `r0`, `x1`, `y1`, and `r1`. For consistent results across supported iOS versions, use the same center for the start and end circles.
 
 ## Limits
 
 | Item | Maximum |
-|---|---:|
-| Commands per Canvas | 100 |
-| `polyline` points | 200 |
-| `path` segments | 200 |
-| Stops per gradient | 16 |
+| --- | ---: |
+| Commands in one Canvas | 100 |
+| Points in one `polyline` | 200 |
+| Segments in one `path` | 200 |
+| Stops in one gradient | 16 |
 | `save` stack depth | 20 |
-| `dash` items | 20 |
+| Items in one `dash` array | 20 |
 | Virtual coordinate width or height | 4000 |
 
-:::tip Canvas is for data-driven graphics
-Use the dedicated text, image, and icon components for fixed content. Canvas works best when a set of data determines a chart, path, or special text effect.
+:::warning Canvas isn't an animation loop
+It redraws when commands, size, or appearance changes. It doesn't provide a game loop or per-frame callback. Widget refreshes still follow iOS scheduling.
 :::
 
-:::warning Canvas isn't a continuous animation environment
-It redraws when commands, size, or appearance changes. It doesn't run a game loop or per-frame callback, and widget refresh timing is still controlled by the system.
-:::
-
-:::warning Invalid commands are skipped
-Unknown operations are skipped, invalid fields use safe defaults, and excess values are truncated. These inputs won't crash the app or widget. Drawing images inside Canvas commands isn't supported in this version.
+:::tip Invalid content fails safely
+Unknown `op` values are skipped, invalid fields fall back to safe defaults, and content beyond a limit is truncated. The current version can't draw images inside Canvas commands.
 :::

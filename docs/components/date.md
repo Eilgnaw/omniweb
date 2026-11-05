@@ -4,67 +4,70 @@ sidebar_position: 6
 
 # 日期 Date
 
-显示一个日期 / 时间 / 计时器。利用 iOS 的 `Text(date:)` API,**系统帮你每秒刷新**,不用 JS 介入。
+Date 显示日期、时间、相对时间或倒计时。它使用 iOS 的系统时间文本，可以持续更新，而不需要频繁运行 JavaScript。
 
-## 用法
+## 最快用法
 
-从编辑器右上角 ➕ 添加 **date**,在"内容"字段填日期源。
+1. 添加 **date**。
+2. 在“内容”里填写时间来源。
+3. 选择显示样式。
 
-### 内容字段可写
+### 内容
 
 | 内容 | 含义 |
-|------|------|
-| `now` | 现在 |
-| `tomorrow` | 明天此刻 |
-| `yesterday` | 昨天此刻 |
+| --- | --- |
+| `now` | 当前时间 |
+| `tomorrow` | 明天的同一时刻 |
+| `yesterday` | 昨天的同一时刻 |
 | `startoftoday` | 今天 00:00 |
-| `2024-08-20 10:00:00` | 指定时刻(格式必须严格) |
-| `${ts}` | 占位符,JS 给定时间字符串 |
+| `2030-01-01 00:00:00` | 指定时刻，格式必须一致 |
+| `${target}` | 由 JavaScript 提供时间字符串 |
 
-## 显示样式
+### 样式
 
-属性面板里的"样式"字段决定怎么显示:
+| 样式 | 显示内容 |
+| --- | --- |
+| `time` | 当前时钟，例如 `14:30` |
+| `date` | 日期 |
+| `relative` | 相对时间，例如“5 分钟前” |
+| `offset` | 时间差，例如 `+05:00` |
+| `timer` | 倒计时或正计时，例如 `00:05:00` |
 
-| 样式 | 效果(以 14:30 为例) |
-|------|---------------------|
-| `time` | `2:30 PM` 时钟 |
-| `date` | `2024年8月20日` 日期 |
-| `relative` | `5 分钟前` 相对时间 |
-| `offset` | `+05:00` 时间差 |
-| `timer` | `00:05:00` 倒计时 / 正计时 |
-
-## 例:倒计时到指定时间
+## 示例：倒计时到指定时间
 
 ```js
-this.target = "2026-01-01 00:00:00"
+this.target = "2030-01-01 00:00:00"
 ```
 
-date 组件:
-- 内容:`${target}`
-- 样式:`timer`
-- → 显示: 距离 2026 元旦的剩余时间,**自动刷新**
+Date 设置：
 
-## 例:动态计时
+- 内容：`${target}`
+- 样式：`timer`
+
+## 示例：倒计时到明天零点
 
 ```js
 const tomorrow = new Date()
 tomorrow.setDate(tomorrow.getDate() + 1)
 tomorrow.setHours(0, 0, 0, 0)
 
-const fmt = (d) => {
-  const p = (n) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
-}
-this.next = fmt(tomorrow)
+const pad = (value) => String(value).padStart(2, "0")
+this.target = [
+  tomorrow.getFullYear(),
+  "-", pad(tomorrow.getMonth() + 1),
+  "-", pad(tomorrow.getDate()),
+  " ", pad(tomorrow.getHours()),
+  ":", pad(tomorrow.getMinutes()),
+  ":", pad(tomorrow.getSeconds())
+].join("")
 ```
 
-date 组件内容填 `${next}`,样式 `timer`,即可显示距离明天 0 点的倒计时。
+把内容设为 `${target}`，样式设为 `timer`。
 
-:::tip 为什么 date 能秒级刷新?
-小组件本身不能秒刷,但 `Text(date:)` 是系统级的,iOS 在底层帮你跑这个时钟。
-其它"实时"展示用 [实时活动](../api/control.md#实时活动控制)。
+:::tip 为什么它能持续更新？
+普通小组件不能每秒运行 JS，但 Date 由 iOS 自己更新时间文本。其他持续变化的内容请使用[实时活动](../api/control.md)。
 :::
 
-## 关于裁剪
+## 裁剪
 
-date 组件支持四方向裁剪(leading / trailing / top / bottom),可以做出"只显示数字、不显示冒号"等效果。这部分留给视觉党,普通使用不用管。
+Date 支持从上、下、左、右裁剪，可用于隐藏计时文本的一部分。普通用法可以忽略这些选项。

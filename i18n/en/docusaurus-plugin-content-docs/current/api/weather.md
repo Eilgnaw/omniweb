@@ -4,150 +4,92 @@ sidebar_position: 7
 
 # Weather
 
-Weather data comes from **Apple Weather** (WeatherKit) and refreshes hourly. **Requires the "Location" permission.**
+`Weather` reads Apple Weather (WeatherKit) data. It uses the current location, requires location permission, and caches results for about one hour.
 
-## Current Weather
+## Current weather
 
 ```js
 try {
   const result = await Weather.getCurrent()
-  const obj = JSON.parse(result)
+  const weather = JSON.parse(result)
 
-  this.icon = obj.symbolName                       // SF Symbol icon name
-  this.text = obj.condition                        // condition: mostlyCloudy / sunny ...
-  this.temp = Math.trunc(obj.temperature.value)    // temperature
-  this.feel = Math.trunc(obj.apparentTemperature.value)  // feels-like temperature
-  this.hum  = Math.round(obj.humidity * 100) + "%" // humidity
+  this.icon = weather.symbolName
+  this.condition = weather.condition
+  this.temperature = Math.trunc(weather.temperature.value)
+  this.feelsLike = Math.trunc(weather.apparentTemperature.value)
+  this.humidity = Math.round(weather.humidity * 100) + "%"
 } catch (error) {
+  console.error("Couldn't load weather:", error)
   this.icon = "exclamationmark.triangle.fill"
-  this.temp = "--"
-  console.error("Weather fetch failed, check location permission:", error)
+  this.condition = "Weather unavailable"
+  this.temperature = "--"
 }
 ```
 
-### Common Fields
+`getCurrent()` returns a JSON string, so parse it with `JSON.parse()`.
 
-| Field | Description |
-|------|------|
-| `symbolName` | SF Symbol icon name — pass it straight to an [icon component](../components/icon.md) |
-| `condition` | Weather condition string |
-| `temperature.value` | Temperature (°C) |
+## Common current-weather fields
+
+| Field | Content |
+| --- | --- |
+| `symbolName` | An SF Symbol name you can pass directly to [Icon](../components/icon.md) |
+| `condition` | WeatherKit condition string |
+| `temperature.value` | Temperature in °C |
 | `apparentTemperature.value` | Feels-like temperature |
-| `humidity` | Humidity, 0–1 |
-| `pressure.value` | Pressure (mbar) |
-| `pressureTrend` | Pressure trend: `rising` / `falling` / `steady` |
-| `wind.speed.value` | Wind speed (km/h) |
-| `wind.compassDirection` | Wind direction: `north` / `east`, etc. |
-| `visibility.value` | Visibility (m) |
+| `humidity` | Humidity in the `0...1` range |
+| `pressure.value` | Pressure in mbar |
+| `pressureTrend` | `rising`, `falling`, or `steady` |
+| `wind.speed.value` | Wind speed in km/h |
+| `wind.compassDirection` | Direction such as `north` or `east` |
+| `visibility.value` | Visibility in meters |
 | `uvIndex.value` | UV index |
-| `cloudCover` | Cloud cover, 0–1 |
-| `isDaylight` | Is it daytime |
+| `cloudCover` | Cloud cover in the `0...1` range |
+| `isDaylight` | Whether it's daytime |
 | `precipitationIntensity.value` | Precipitation intensity |
 | `dewPoint.value` | Dew point temperature |
 
-<details>
-<summary>Full response fields (click to expand)</summary>
+When you need more fields, inspect the actual response in the editor:
 
-```json
-{
-  "temperature":         {"value": 23.07, "unit": {"symbol": "°C"}},
-  "apparentTemperature": {"value": 23.73, "unit": {"symbol": "°C"}},
-  "dewPoint":            {"value": 16.86, "unit": {"symbol": "°C"}},
-  "humidity": 0.68,
-  "pressure": {"value": 1010.61, "unit": {"symbol": "mbar"}},
-  "pressureTrend": "falling",
-  "visibility": {"value": 22522.81, "unit": {"symbol": "m"}},
-  "wind": {
-    "speed":            {"value": 22.63, "unit": {"symbol": "km/h"}},
-    "direction":        {"value": 182,   "unit": {"symbol": "°"}},
-    "gust":             {"value": 39,    "unit": {"symbol": "km/h"}},
-    "compassDirection": "south"
-  },
-  "uvIndex": {"value": 0, "category": "low"},
-  "cloudCover":     0.84,
-  "cloudCoverLow":  0.15,
-  "cloudCoverMid":  0.4,
-  "cloudCoverHigh": 0.92,
-  "rainfallAmount":   {"pastHour": {...}, "pastSixHours": {...}, "pastTwentyFourHours": {...}},
-  "snowfallAmount":   {"pastHour": {...}, "pastSixHours": {...}, "pastTwentyFourHours": {...}},
-  "precipitationIntensity": {"value": 0, "unit": {"symbol": "mm/h"}},
-  "condition":  "mostlyCloudy",
-  "symbolName": "cloud",
-  "isDaylight": true,
-  "metadata": {
-    "latitude":  35.694,
-    "longitude": 139.767,
-    "date":           738146429,
-    "expirationDate": 738146729
-  }
-}
+```js
+console.log(JSON.stringify(weather, null, 2))
 ```
-</details>
 
-## Today's Weather (with Intra-Day Forecast)
+## Today's forecast
 
 ```js
 const result = await Weather.getToday()
-const obj = JSON.parse(result)
+const weather = JSON.parse(result)
+const today = weather.forecast[0]
 
-const today = obj.forecast[0]
 this.high = Math.trunc(today.highTemperature.value)
-this.low  = Math.trunc(today.lowTemperature.value)
+this.low = Math.trunc(today.lowTemperature.value)
 this.icon = today.symbolName
+this.rain = Math.round(today.precipitationChance * 100) + "%"
 ```
 
-`forecast` is an array, where each item is one day's forecast. Includes:
+`forecast` is an array. This API requests the current day, so you'll normally read the first item.
 
-| Field | Description |
-|------|------|
+## Common daily-forecast fields
+
+| Field | Content |
+| --- | --- |
 | `highTemperature.value` / `lowTemperature.value` | High / low temperature |
-| `symbolName` / `condition` | Icon / condition |
-| `precipitationChance` | Precipitation probability, 0–1 |
-| `humidityMax` / `humidityMin` | Humidity range |
+| `symbolName` / `condition` | Symbol name / condition |
+| `precipitationChance` | Chance of precipitation in the `0...1` range |
+| `humidityMax` / `humidityMin` | Maximum / minimum humidity |
 | `wind.speed.value` | Wind speed |
 | `uvIndex.value` | UV index |
-| `sun.sunrise` / `sun.sunset` | Sunrise / sunset, ms timestamps |
-| `moon.phase` / `moon.moonrise` / `moon.moonset` | Moon phase / moonrise / moonset |
-| `daytimeForecast` / `restOfDayForecast` / `overnightForecast` | Day / afternoon / overnight segmented forecasts (same shape as above) |
+| `sun.sunrise` / `sun.sunset` | Sunrise / sunset as millisecond timestamps |
+| `moon.phase` / `moon.moonrise` / `moon.moonset` | Moon phase, moonrise, and moonset |
+| `daytimeForecast` / `restOfDayForecast` / `overnightForecast` | Daytime, rest-of-day, and overnight segments |
 
-<details>
-<summary>Full response fields (click to expand)</summary>
+## Permissions and failures
 
-The response is very rich. Main nesting:
+Weather depends on location. Run it once in the main app and grant location permission. Background refreshes may use cached location and weather. Always give your symbols, text, and numbers a fallback when a call fails.
 
+## Quick reference
+
+```js
+Weather.getCurrent() → Promise<string> // current weather JSON string
+Weather.getToday() → Promise<string>   // today's forecast JSON string
 ```
-{
-  metadata,
-  forecast: [
-    {
-      highTemperature, lowTemperature,
-      highTemperatureTime, lowTemperatureTime,
-      symbolName, condition, precipitation, precipitationChance,
-      humidityMin, humidityMax, maximumHumidity, minimumHumidity,
-      wind: { speed, gust, direction, compassDirection },
-      windSpeedAvg, windSpeedMax, windGustSpeedMax, highWindSpeed,
-      visibilityMin, visibilityMax,
-      maximumVisibility, minimumVisibility,
-      rainfallAmount, snowfallAmount,
-      precipitationAmountByType: { rainfall, snowfall, hail, sleet, mixed, precipitation },
-      uvIndex,
-      sun:  { sunrise, sunset, civilDawn, civilDusk, nauticalDawn, nauticalDusk, astronomicalDawn, astronomicalDusk, solarNoon, solarMidnight },
-      moon: { phase, moonrise, moonset },
-      daytimeForecast:    {…same field types as above},
-      restOfDayForecast:  {…},
-      overnightForecast:  {…}
-    },
-    ...
-  ]
-}
-```
-
-For the exact units and types of each field, the fastest way is to run `console.log(result)` and inspect it yourself.
-</details>
-
-## Unreleased APIs
-
-The following APIs aren't available yet. Contact the author if you need them:
-
-- Weather alerts
-- Hourly forecast

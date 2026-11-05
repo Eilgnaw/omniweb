@@ -27,14 +27,14 @@ this.bg = Setting.image("bgKey")   // → "LL:{wid}/..." 路径
 
 图片选完后会**根据小组件里 image 组件的显示尺寸自动压缩**,放心选大图。
 
-还能从 **JS 反向声明设置项**,不必再去面板里一个个加:
+还能从 **JS 反向声明部分设置项**,不必再去面板里一个个加:
 
 ```js
 Setting.add({ key: "city", name: "城市", type: "text" })
-Setting.add({ key: "bg",   name: "背景", type: "image" })
+Setting.add({ key: "theme", name: "主题", type: "select", options: ["light", "dark"] })
 ```
 
-详见 [配置读写 — Setting](./api/config.md#设置项-setting)。
+数字、日期和图片可以在编辑器中创建并读取,但当前不能通过 `Setting.add()` 声明。详见[配置与设置](./api/config.md)。
 
 ---
 

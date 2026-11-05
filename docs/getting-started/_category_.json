@@ -3,6 +3,6 @@
     "position": 1,
     "link": {
         "type": "generated-index",
-        "description": "了解 Omni 小组件的基础概念，从 0 到 1 做出第一个小组件"
+        "description": "第一次使用 Omni？从这里开始，10 分钟做出一个能自动更新的天气小组件。"
     }
 }

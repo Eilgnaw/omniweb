@@ -27,14 +27,14 @@ this.bg = Setting.image("bgKey")    // → "LL:{wid}/..." path
 
 When picking an image, it gets **auto-compressed to match the image component's display size** in your widget, so feel free to pick large photos.
 
-You can also **declare settings from JS**, no need to add each one by hand in the panel:
+You can also **declare supported settings from JS**, with no need to add each one by hand in the panel:
 
 ```js
 Setting.add({ key: "city", name: "City", type: "text" })
-Setting.add({ key: "bg",   name: "Background", type: "image" })
+Setting.add({ key: "theme", name: "Theme", type: "select", options: ["light", "dark"] })
 ```
 
-See [Config — Setting](./api/config.md#settings-setting).
+Number, date, and image settings can be created and read in the editor, but can't currently be declared with `Setting.add()`. See [Config and settings](./api/config.md).
 
 ---
 

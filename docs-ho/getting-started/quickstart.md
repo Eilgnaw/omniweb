@@ -4,81 +4,65 @@ sidebar_position: 4
 
 # 速查地图
 
-如果只想拍马上手,**直接看 [做出第一个卡片](./first-widget.md)** —— 跟着走一遍就能跑出一张能用的卡片。
+第一次使用请先看[做出第一个卡片](./first-widget.md)。已经熟悉编辑器时，可以从这里直接跳到答案。
 
-下面是常用语法 / API 一表搜:
+## 常用语法
 
-## 占位符
-
+```text
+${name}          普通值
+${user.name}     对象字段
+${list.0}        数组项
+{rows[row]}      容器的循环数据源
 ```
-${var}                  普通字段(content / fontSize / forColor / src ...)
-${a.b.0.c}              点号路径 + 数组索引
-{rows[row]}             容器 dataSource 字段,循环数组
-```
 
-详见 [占位符语法](./placeholder.md)。
+## 常用 JavaScript
+
+```js
+const data = await new Request(url).fetchJSON()
+
+Config.set("count", 1)
+const count = Config.get("count", 0)
+
+const city = Setting.string("city") || "北京"
+
+setUpdateFreq(30)
+console.log(data)
+```
 
 ## 卡片形态
 
-| 形态 | 尺寸 | 入口 |
-|---|---|---|
-| 桌面 `desk` | `1*2` / `2*2` / `2*4` / `4*4` | 编辑页「更多 → 添加至桌面」或首页长按卡片 |
-| 锁屏 `lock` | `lock_1*1` / `lock_1*2` | 锁屏编辑态添加卡片位 |
+| 位置 | 尺寸 | 添加方式 |
+| --- | --- | --- |
+| 桌面 | `1*2`、`2*2`、`2*4`、`4*4` | 编辑页“更多 → 添加至桌面” |
+| 锁屏 | `lock_1*1`、`lock_1*2` | 先添加锁屏卡片位，再选择同尺寸卡片 |
 
-锁屏卡片添加后先选卡再显示,流程见 [锁屏卡片](./lock-screen.md)。
+## 按目标找 API
 
-## 常用 JS
+| 目标 | 文档 |
+| --- | --- |
+| 保存状态、共享数据、用户设置 | [配置与设置](../api/config.md) |
+| 发起 HTTP 请求 | [网络请求](../api/network.md) |
+| 下载图片、读写文件 | [文件读写](../api/fileManager.md) |
+| 获取设备和屏幕信息 | [设备信息](../api/device.md) |
+| 获取坐标和地址 | [位置信息](../api/location.md) |
+| 控制刷新、判断调试环境 | [卡片控制](../api/control.md) |
+| 接收闪控球文字识别结果 | [捷径参数](../api/shortcut.md) |
+| 从外部运行卡片或打开 App | [URL Scheme 与 AppLink](../api/url-scheme.md) |
 
-```js
-// 网络
-const obj = await new Request(url).fetchJSON()
+## 按目标找组件
 
-// 本地文件
-const bytes = await new Request(url).fetch()
-const path  = await FileManager.write("x.png", bytes)   // → "files/x.png"
-
-// 持久化(类型保真,JSON 兼容)
-Config.set("key", val)
-const v = Config.get("key", 0)            // 缺失返 0,number 类型保留
-
-// 用户参数(类型保真)
-const city = Setting.get("city", "北京")
-Setting.set("city", "上海")
-
-// 设备信息
-Device.locale                              // "zh-Hans-CN"
-
-// 调度
-setUpdateFreq(30)                          // 30 分钟后再唤起
-
-// 调试
-console.log("...")
-if (isDebug()) { /* 编辑器才会进 */ }
-```
-
-## 完整 API 列表
-
-| 模块 | 看哪儿 |
-|---|---|
-| 配置 / 持久化 | [Config](../api/config.md) |
-| 网络请求 | [Network](../api/network.md) |
-| 文件读写 | [FileManager](../api/fileManager.md) |
-| 设备信息 | [Device](../api/device.md) |
-| 卡片控制(刷新 / 跳转) | [Control](../api/control.md) |
-| 日志 | [Console](../api/console.md) |
-
-## 组件
-
-| 类型 | 看哪儿 |
-|---|---|
-| 文本 Text | [Text](../components/text.md) |
-| 时钟 TextClock | [TextClock](../components/text-clock.md) |
-| 计时器 TextTimer | [TextTimer](../components/text-timer.md) |
-| 图片 Image | [Image](../components/image.md) |
-| 图标 Icon | [Icon](../components/icon.md) |
-| 二维码 QRCode | [QRCode](../components/qrcode.md) |
-| 仪表 Gauge | [Gauge](../components/gauge.md) |
-| 按钮 Button | [Button](../components/button.md) |
-| 容器(Row/Column/Stack/...) | [Stack](../components/stack.md) |
-| 网格 Grid | [Grid](../components/grid.md) |
-| 占位 Blank | [Blank](../components/blank.md) |
+| 目标 | 组件 |
+| --- | --- |
+| 显示普通文字 | [文字](../components/text.md) |
+| 显示系统时间 | [时钟](../components/text-clock.md) |
+| 正计时或倒计时 | [计时器](../components/text-timer.md) |
+| 显示网络或本地图片 | [图片](../components/image.md) |
+| 显示系统符号或 Emoji | [图标](../components/icon.md) |
+| 生成可扫码内容 | [二维码](../components/qrcode.md) |
+| 组织横向、纵向或叠层布局 | [容器](../components/stack.md) |
+| 点击后运行代码 | [按钮](../components/button.md) |
+| 固定行列展示 | [网格](../components/grid.md) |
+| 可滚动长内容 | [列表](../components/list.md) |
+| 显示进度 | [仪表](../components/gauge.md) |
+| 绘制图表和路径 | [画布](../components/canvas.md) |
+| 推开相邻内容 | [占位](../components/blank.md) |

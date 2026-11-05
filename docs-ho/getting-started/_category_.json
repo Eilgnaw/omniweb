@@ -1,5 +1,9 @@
 {
   "label": "入门",
   "position": 1,
-  "collapsed": false
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "第一次使用 Omni？从这里开始，10 分钟完成一张可以自动更新的鸿蒙卡片。"
+  }
 }

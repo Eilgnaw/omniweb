@@ -4,100 +4,88 @@ sidebar_position: 11
 
 # 循环 Loop
 
-让一个组件**按数组重复 N 次**渲染。本质上是给容器(vstack / hstack / zstack / grid)
-设置一个**循环数据源**。
+循环让一套子组件按数组内容重复显示。它不是独立组件，而是 `vstack`、`hstack`、`zstack`、`grid` 等容器的能力。
 
-:::tip
-循环不是一个独立组件,而是任意容器都能开启的能力。配置在容器属性里。
-:::
+## 三步完成一个列表
 
-## 第一步:JS 准备数组
+### 1. 用 JavaScript 准备数组
 
 ```js
-this.list = [
-  { name: "苹果",   price: 5 },
-  { name: "香蕉",   price: 3 },
-  { name: "橙子",   price: 4 }
+this.items = [
+  { name: "苹果", price: 5 },
+  { name: "香蕉", price: 3 },
+  { name: "橙子", price: 4 }
 ]
 ```
 
-## 第二步:容器开循环
+### 2. 给容器设置循环数据源
 
-选中容器(比如 vstack),在属性里找到**循环数据源**(dataSource),填:
+选中一个 `vstack`，在“循环数据源”里填写：
 
+```text
+${items[item]}
 ```
-${list[item]}
-```
 
-含义:遍历 `list`,每一项命名为 `item`,然后子组件就能用 `item.xxx`。
+这表示“遍历 `items`，把当前项命名为 `item`”。
 
-## 第三步:子组件用循环变量
+### 3. 在子组件里使用当前项
 
-容器内放一个 hstack,里面:
+在 `vstack` 里放一个 `hstack`：
 
 | 子组件 | 内容 |
-|--------|------|
+| --- | --- |
 | text | `${item.name}` |
 | spacer | — |
 | text | `¥${item.price}` |
 
-效果:
+结果：
 
-```
+```text
 苹果       ¥5
 香蕉       ¥3
 橙子       ¥4
 ```
 
-## 嵌套循环
-
-支持容器套容器,每层独立循环。
+## 空数组
 
 ```js
-this.tables = [
-  { title: "水果", items: [{n:"苹果"},{n:"香蕉"}] },
-  { title: "蔬菜", items: [{n:"白菜"},{n:"菠菜"}] }
+this.items = []
+```
+
+数组为空时，容器仍然存在，但不会生成任何循环子组件。你不需要额外判断。
+
+## 嵌套循环
+
+每一层容器都可以使用自己的循环变量：
+
+```js
+this.groups = [
+  { title: "水果", items: [{ name: "苹果" }, { name: "香蕉" }] },
+  { title: "蔬菜", items: [{ name: "白菜" }, { name: "菠菜" }] }
 ]
 ```
 
-外层 vstack:
-- 数据源 `${tables[t]}`
-- 内部:
-  - text  内容 `${t.title}`
-  - vstack(数据源 `${t.items[it]}`)
-    - text 内容 `${it.n}`
-
-## 空数组的行为
-
-如果数组**为空**,循环就不会渲染任何子节点(空白)。
-
-```js
-this.list = []   // 安全,不会报错,容器变空
+```text
+外层 vstack：${groups[group]}
+├─ text：${group.title}
+└─ 内层 vstack：${group.items[item]}
+   └─ text：${item.name}
 ```
 
-:::info 这是新行为
-旧版本空数组会**整个容器都不显示**,可能造成布局错乱。
-现在空数组只是"循环出 0 次",容器本身仍在。
-:::
+## 读取全局变量
 
-## 全局穿透:`${$.xxx}`
+循环内会优先读取循环变量。如果它与全局变量重名，用 `$.` 强制读取全局值：
 
-循环里如果想读外层的全局变量,而循环变量名又恰好同名,用 `$.` 前缀强制读全局:
-
-```js
-this.row = "外层"            // 全局
-this.list = [{ row: "内层" }]
+```text
+${item.name}  → 当前项的 name
+${$.item}     → 全局的 this.item
 ```
 
-容器数据源 `${list[row]}`,内部 text 写:
-- `${row}`     → 内层(循环变量优先)
-- `${$.row}`   → 外层(强制全局)
+更多规则见[占位符语法](../getting-started/placeholder.md)。
 
-详细规则见 [占位符语法](../getting-started/placeholder.md)。
+## 适合的场景
 
-## 常用场景
-
-- **任务列表 / 待办**(数组循环 → 每行一条)
-- **天气多日预报**(7 项循环 → 7 个预报单元)
-- **股票行情**、**邮箱预览**、**RSS 标题**
-- **照片墙**(用 grid + loop)
+- 待办和日程列表
+- 多日天气预报
+- 股票、RSS 或消息摘要
+- 配合 Grid 制作图标面板或照片墙

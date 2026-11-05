@@ -1,49 +1,93 @@
 ---
 sidebar_position: 1
 ---
+
 # 网络请求
-:::tip
-网络 (Network) 模块是 Omni 小组件与互联网通信的桥梁，是动态数据显示的核心。无论是获取天气信息、新闻头条，还是与您自己的服务器 API 交互，都依赖于此模块。它提供了简单而强大的 API 来发起网络请求并处理响应。
-:::
-新版 API 提供了更灵活的链式调用和配置方式。
 
-#### 发起请求
+使用 `Request` 从 HTTP 接口读取 JSON、文本或二进制数据。它是 Omni 中浏览器 `fetch` 的替代品。
 
-1.  **初始化请求**: 使用 `new Request(url)` 创建一个请求实例。
-2.  **配置请求 (可选)**:
-    *   `method`: 设置请求方法，如 `GET` (默认), `POST`, `PUT` 等。
-    *   `headers`: 设置请求头，格式为 JSON 对象。
-    *   `body`: 设置请求体，通常用于 `POST` 或 `PUT` 请求。
-3.  **发送请求并获取数据**:
-    *   `fetch()`: 发送请求并返回原始响应。
-    *   `fetchJSON()`: 发送请求并将响应解析为 JSON 对象。
-    *   `fetchString()`: 发送请求并将响应解析为字符串。
+## 最短示例
 
-#### 示例
-
-##### GET 请求
-
-```javascript
-const req = new Request("https://2f0.cn/api/omni");
-req.headers = { "Content-Type": "application/json" };
-
-// 获取 JSON 数据
-const jsonData = await req.fetchJSON();
-console.log(jsonData.omni);
-
-// 获取字符串数据
-const stringData = await req.fetchString();
-console.log(stringData);
+```js
+try {
+  const request = new Request("https://2f0.cn/api/omni")
+  const data = await request.fetchJSON()
+  this.title = data.omni
+} catch (error) {
+  console.error("请求失败：", error)
+  this.title = "暂时无法加载"
+}
 ```
 
-##### POST 请求
+`fetchJSON()` 已经返回解析后的对象，不需要再调用 `JSON.parse()`。
 
-```javascript
-const req = new Request("https://2f0.cn/api/omni");
-req.method = "POST";
-req.headers = { "Content-Type": "application/json" };
-req.body = { "omni": "hello OmniWidgets"};
+## 选择返回类型
 
-const response = await req.fetchJSON();
-console.log(response);
+| 方法 | 返回 | 适合 |
+| --- | --- | --- |
+| `fetchJSON()` | 已解析的对象或数组 | JSON API |
+| `fetchString()` | 字符串 | HTML、纯文本、XML |
+| `fetch()` | 字节数组 | 图片和其他二进制文件 |
+
+## GET 请求
+
+```js
+const request = new Request("https://2f0.cn/api/omni")
+request.headers = {
+  "Accept": "application/json"
+}
+
+const data = await request.fetchJSON()
+console.log(data)
+```
+
+`GET` 是默认方法，不需要额外设置。
+
+## POST JSON
+
+```js
+const request = new Request("https://2f0.cn/api/omni")
+request.method = "POST"
+request.headers = {
+  "Content-Type": "application/json"
+}
+request.body = {
+  message: "Hello, Omni Widgets"
+}
+
+const response = await request.fetchJSON()
+console.log(response)
+```
+
+`body` 中的对象会被编码成 JSON。也可以把 `method` 改成服务器支持的其他 HTTP 方法。
+
+## 错误处理
+
+网络失败、URL 无效或返回内容无法按指定类型解析时，Promise 会被拒绝。给小组件设置一个可读的回退值：
+
+```js
+try {
+  const request = new Request(url)
+  const data = await request.fetchJSON()
+  this.value = data.value
+} catch (error) {
+  console.error(error)
+  this.value = "--"
+}
+```
+
+:::tip 别在一次刷新里请求太多接口
+小组件的运行时间和内存都有限。能合并的请求尽量合并，重复数据可以用 [`Config`](./config.md) 或[文件](./fileManager.md)缓存。
+:::
+
+## 速查
+
+```js
+new Request(url)                 // 创建请求
+request.method = "POST"          // 设置 HTTP 方法
+request.headers = { ... }        // 设置请求头
+request.body = { ... }           // 设置 JSON 请求体
+request.fetchJSON() → Promise<any>
+request.fetchString() → Promise<string>
+request.fetch() → Promise<number[]>
 ```

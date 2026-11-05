@@ -2,213 +2,199 @@
 sidebar_position: 2
 ---
 
-# 配置读写
+# 配置与设置
 
-Omni 提供 **3 种存储**,各自的作用域不同:
+Omni 有三类持久数据。先按作用域选择，后面的代码会简单很多。
 
-| 类型 | 跟着谁走 | 用途 |
-|------|---------|------|
-| 小组件配置 (`Config`) | **每个小组件独立**,类型保真 | 这个小组件的 token、城市、状态对象等 |
-| 通用配置 (`getValue` / `setValue`) | **跨小组件共享**(同一种类型 + 同一槽位) | 用户全局信息;按钮代码里改的状态 |
-| 设置项 (`Setting`) | **每个小组件独立** + 用户在设置面板填 | 模板分享后,让别人填自己的信息 |
+| 需要保存什么 | 使用 | 作用域 |
+| --- | --- | --- |
+| 当前小组件自己的数据 | `Config` | 每个小组件独立 |
+| 某个桌面槽位的按钮状态 | `getValue` / `setValue` | 小组件类型 + 系统槽位 |
+| 让用户在设置面板中填写的值 | `Setting` | 每个小组件独立 |
 
-## 小组件配置
+新代码默认使用 `Config`。只有明确需要槽位状态或用户设置面板时，再选另外两类。
 
-每个小组件独立的存储空间。**新代码统一用 `Config`** — 类型保真、带默认值,见下方。
+## `Config`：保存当前小组件的数据
 
-老的 `setConfig` / `getConfig` 是字符串版,保留主要是为了:
-- 跟**快捷指令**互通(快捷指令侧只能传字符串)
-- 不破坏老 widget
-
-### `Config`(推荐)
-
-`Config` 对每个小组件自动初始化好了,直接调用就行。number / boolean / array / object 都能存,读出来类型不变。
+`Config` 保留数字、布尔值、字符串、数组和对象的类型。
 
 ```js
-Config.set("count", 42)              // number
-Config.set("on", true)               // boolean
-Config.set("items", [1, 2, 3])       // array
-Config.set("user", { name: "x" })    // object
+Config.set("count", 42)
+Config.set("enabled", true)
+Config.set("items", [1, 2, 3])
+Config.set("user", { name: "Alice" })
 
-Config.get("count")          // 42 (number,不是 "42")
-Config.get("on")             // true (boolean,不是 1)
-Config.get("missing")        // undefined
+const count = Config.get("count")       // 42
+const enabled = Config.get("enabled")   // true
+const missing = Config.get("missing")   // undefined
 ```
 
-#### 默认值省去 `??` 兜底
-
-`get` 的第二个参数是 key 不存在时的回退值,看代码就知道这个字段默认什么:
+### 给读取设置默认值
 
 ```js
-const idx  = Config.get("page",   0)              // → 0
-const list = Config.get("recent", [])              // → []
-const user = Config.get("user",   { name: "" })   // → 给个空对象
+const page = Config.get("page", 0)
+const recent = Config.get("recent", [])
+const profile = Config.get("profile", { name: "" })
 ```
 
-#### 完整签名
+键不存在或保存内容损坏时，会返回第二个参数。
 
-| 方法 | 说明 |
-|---|---|
-| `Config.set(key, value)` | 存任意 JSON 兼容值;传 `null` / `undefined` 等价于 `delete` |
-| `Config.get(key, default?)` | 读;键不存在或值损坏时返回 `default`(不传则为 `undefined`) |
-| `Config.has(key) → boolean` | 检查 key 是否存在 |
-| `Config.delete(key)` | 删除 |
-| `Config.keys() → string[]` | 列出所有 key,按字母排序 |
+### 检查、列出和删除
 
-#### 注意事项
+```js
+if (Config.has("token")) {
+  console.log(Config.get("token"))
+}
 
-:::tip 类型保真
-内部走 JSON 序列化,所以存什么类型读什么类型 — `true` 不会变成 `1`,`42` 不会变成 `"42"`,嵌套数组/对象里的各成员类型也都对。
+console.log(Config.keys())
+Config.delete("token")
+```
+
+传入 `null` 或 `undefined` 也会删除：
+
+```js
+Config.set("token", null)
+```
+
+:::warning 只能保存 JSON 兼容值
+请保存字符串、数字、布尔值、`null`、数组和普通对象。函数、循环引用等内容不能可靠序列化。
 :::
 
-:::warning 跟 `setConfig` 不共用 key
-`Config` 用的是独立的 key 前缀,跟 `setConfig` 物理隔离 — 即使 key 名字相同,两套 API 互不干扰、互相也读不到对方的数据。想迁移得自己手动 `Config.set("token", getConfig("token"))`。
+## `setConfig` / `getConfig`：旧版字符串存储
+
+```js
+setConfig("token", "abcdef")
+const token = getConfig("token")
+```
+
+这组 API 只保存字符串，主要用于兼容旧小组件和快捷指令。新代码使用 `Config`。
+
+:::warning 两套键互不相通
+`Config.get("token")` 读不到 `setConfig("token", ...)` 保存的值。迁移时需要自己复制一次：
+
+```js
+Config.set("token", getConfig("token"))
+```
 :::
 
-### `setConfig` / `getConfig`(遗留,仅字符串)
+## `getValue` / `setValue`：按桌面槽位保存
 
 ```js
-setConfig("token", "abcdef")    // 存
-const t = getConfig("token")    // 取
-console.log(t)                  // abcdef
+setValue("favorite", "heart.fill")
+const icon = getValue("favorite")
 ```
 
-只能存字符串。**新写代码请直接用 `Config`**;老 widget 改成 `Config` 也需要手动迁移数据(两套 key 不共享)。**唯一仍然需要它的场景**是跟快捷指令交换数据。
+这组 API 按“小组件类型 + 系统槽位”保存字符串，常用于 Button 点击后的轻量状态。编辑器运行时使用调试槽位 `999`。
 
-## 通用配置
-
-按"小组件类型 + 槽位"为键的存储。同一种小组件如果你加到桌面**两次**,就是两个槽位(slot 1、slot 2),互不干扰。
-编辑器里运行时,槽位永远是 `999`(调试位)。
-
-```js
-setValue("database", "abcdefg")
-const data = getValue("database")
-console.log(data)
-```
-
-:::warning
-"槽位"概念由系统决定,你换桌面位置可能导致槽位变化。**慎用**作为重要数据存储。
-日常推荐用 `setConfig` / `getConfig`。
+:::warning 不要保存重要数据
+系统决定槽位，重新添加或移动小组件后，槽位可能变化。重要数据请使用 `Config`。
 :::
 
-## 设置项 (Setting)
+## `Setting`：读取用户填写的设置
 
-如果你想把小组件**分享**给别人用,但需要别人填自己的 token / 城市 / 图片 — 用设置项。
+分享模板时，用设置项让每个用户填写自己的城市、Token、颜色、图片或文件。
 
-### 流程
+### 在编辑器中创建
 
-1. **编辑器里**:右上 ⚙️ → 添加设置项,选类型(文本 / 数字 / 日期 / 开关 / 选项 / 图标 / 颜色 / 图片 / 文件),给个 key
-2. **JS 里**:`Setting.string("xxx")` / `Setting.number("xxx")` 等读用户填的值
-3. **别人导入**后,会在小组件设置面板里看到这些设置项,填好就能用
+1. 打开小组件的设置面板。
+2. 添加设置项，选择类型并填写唯一 key。
+3. 在 JavaScript 中用同一个 key 读取。
 
-> 也可以**从 JS 反向声明**设置项 —— 见下方 [Setting.add](#反向声明-settingadd)。
-
-### 读设置
-
-每个类型对应一个读取函数,未设置时返回各自的默认值。
+### 按类型读取
 
 ```js
-// 文本 / 选项 / 图标 / 颜色 hex —— 都是字符串
-this.token   = Setting.string("token")     // 未设置 → ""
-this.theme   = Setting.string("theme")     // select 选项也用 string 读
-this.icon    = Setting.string("iconName")  // SF Symbol 名
-this.color   = Setting.string("bgHex")     // "FF3000FF" 之类的 hex
+this.token = Setting.string("token")       // 文本、选项、图标、颜色
+this.notify = Setting.bool("notify")       // 开关
+this.fontSize = Setting.number("fontSize") // 数字，未设置时为 0
 
-// 开关
-this.notify  = Setting.bool("notify")      // 未设置 → false
+const birthdayMs = Setting.date("birthday")
+const birthday = new Date(birthdayMs)       // 毫秒时间戳
 
-// 数字
-this.size    = Setting.number("fontSize")  // Double,未设置 → 0
-
-// 日期 —— 返回 ms 时间戳,直接喂 new Date()
-const birthday = new Date(Setting.date("birthday"))
-const daysOld  = (Date.now() - Setting.date("birthday")) / 86400000
-
-// 图片 —— 返回 LL: 路径 token,配合 buttonStyle="file" 渲染
-this.bgPath  = Setting.image("background") // "LL:{wid}/background.jpg" 或 ""
-
-// 文件(用户从系统文件选的)→ 直接拿到文件内容字符串
-this.fileTxt = Setting.fileString("rules")
+this.background = Setting.image("background") // LL: 路径或 ""
+this.rules = Setting.fileString("rules")       // 用户所选文本文件的内容
 ```
 
-#### 图片怎么显示
+未设置时，字符串返回 `""`，布尔值返回 `false`，数字和日期返回 `0`。
 
-`Setting.image()` 返回的是 `LL:` 前缀路径,**不能直接 `<img>`**。要在小组件里渲染,把它赋给一个 image 组件的 `value`,并把 `buttonStyle` 设为 `"file"`:
+### 显示用户选择的图片
 
 ```js
-this.bgPath = Setting.image("background")  // "LL:{wid}/background.jpg"
+this.background = Setting.image("background")
 ```
-然后在编辑器里的 image 组件:`buttonStyle = "file"`, `value = "${bgPath}"`,小组件就能加载到那张图。保存小组件时会**根据这个 image 组件的宽度自动压缩**,不必担心大图占内存。
 
-### 反向声明 (Setting.add)
+把 Image 的类型设为“文件”，内容设为 `${background}`。`Setting.image()` 返回的是本地 `LL:` 路径，不是网络 URL。
 
-不想在编辑器里手动一个个加设置项?**让 JS 自己声明**。每次预览运行时,JS 调用 `Setting.add({...})` 会把设置项写进设置面板的暂存区,用户下次打开设置面板就能看到。
+## 用 JavaScript 声明设置项
+
+在编辑器中运行时，`Setting.add()` 可以把声明放进设置面板的暂存区：
 
 ```js
-Setting.add({ key: "city",       name: "城市",     icon: "location", type: "text" })
-Setting.add({ key: "notify",     name: "通知开关", type: "toggle" })
-Setting.add({ key: "fontSize",   name: "字号",     type: "number" })
-Setting.add({ key: "birthday",   name: "生日",     type: "date" })
-Setting.add({ key: "background", name: "背景图",   type: "image" })
-Setting.add({ key: "theme",      name: "主题",     type: "select",
-              options: ["dark", "light"] })
-```
+Setting.add({
+  key: "city",
+  name: "城市",
+  type: "text",
+  icon: "location",
+  description: "输入用于天气查询的城市"
+})
 
-字段:
+Setting.add({
+  key: "theme",
+  name: "主题",
+  type: "select",
+  options: ["light", "dark"]
+})
+```
 
 | 字段 | 必填 | 说明 |
-|---|---|---|
-| `key` | ✓ | 唯一标识,跟 `Setting.xxx("key")` 对应 |
-| `name` | ✓ | 设置面板里显示的名字 |
-| `type` | ✓ | `text` / `number` / `date` / `toggle` / `select` / `icon` / `color` / `image` / `file` |
-| `icon` | | SF Symbol 名,默认 `gearshape` |
-| `description` | | 名字下方的小灰字说明 |
-| `options` | type=select 时必填 | 字符串数组 |
+| --- | --- | --- |
+| `key` | ✓ | 唯一标识，与 `Setting.xxx(key)` 对应 |
+| `name` | ✓ | 设置面板中的名称 |
+| `type` | ✓ | `text`、`toggle`、`select`、`icon`、`color` 或 `file` |
+| `icon` |  | SF Symbol 名称，默认 `gearshape` |
+| `description` |  | 名称下方的说明 |
+| `options` | `select` 必填 | 字符串数组 |
 
-**合并规则**:
-- key 已存在 → 更新 name / icon / description / options,**保留用户已填的值和原类型**
-- key 不存在 → 新增
-- JS 删掉某行 `Setting.add(...)`,下次预览时该项**从暂存区消失**,但已在面板里的项不会被自动删(用户可以手动删)
+:::warning `Setting.add()` 支持的类型少于编辑器
+数字、日期和图片设置可以在编辑器中创建并读取，但当前不能通过 `Setting.add()` 声明。
+:::
 
-**只在主 App 里生效**:widget 扩展刷新时调用是 no-op,不会反复写暂存区。
+相同 key 会更新名称、图标、说明和选项，同时保留用户已经填写的值和原类型。删除一行 `Setting.add()` 只会清除暂存声明，不会自动删除已存在的设置项。
 
-### 写设置(少用)
+`Setting.add()` 只在主 App 运行时生效；小组件扩展中调用不会修改设置。
+
+## 写入设置值
+
+`Setting.set(value, key)` 可以写回一个设置值，适合首次运行时生成并保存 ID：
 
 ```js
-Setting.set("uuid-12345", "userId")        // 把字符串写进去
-const id = Setting.string("userId")
-console.log(id)
+if (!Setting.string("userId")) {
+  Setting.set(String(Date.now()), "userId")
+}
 ```
 
-通常用于:首次运行生成一个唯一 ID 写回去,下次运行直接用。
+一般情况下，让用户通过设置面板修改值会更清楚。
 
 ## 速查
 
 ```js
-// 小组件级 —— 简单字符串
-setConfig(key, value)        // 写
-getConfig(key) → string      // 读
-
-// 小组件级 —— 类型保真 KV
-Config.set(key, value)               // 写,任意 JSON 兼容值
-Config.get(key, default?) → any      // 读,缺失返回 default
+Config.set(key, value)
+Config.get(key, default?) → any
 Config.has(key) → boolean
 Config.delete(key)
 Config.keys() → string[]
 
-// 通用(按类型 + 槽位)
-setValue(key, value)         // 写
-getValue(key) → string       // 读
+setConfig(key, value)      // 旧版字符串存储
+getConfig(key) → string
 
-// 用户填的设置项 —— 读
-Setting.string(key)     → string  // text/select/icon/color hex
-Setting.bool(key)       → bool
-Setting.number(key)     → Double  // 0 if unset
-Setting.date(key)       → Number  // ms timestamp, 0 if unset
-Setting.image(key)      → string  // "LL:{wid}/file.jpg", "" if unset
-Setting.fileString(key) → string  // 文件内容
+setValue(key, value)       // 按类型 + 槽位保存字符串
+getValue(key) → string
 
-// 用户填的设置项 —— 写
-Setting.set(value, key)           // 仅写字符串
-Setting.add({ key, name, type, ... })  // JS 反向声明设置项(仅 App 端生效)
+Setting.string(key) → string
+Setting.bool(key) → boolean
+Setting.number(key) → number
+Setting.date(key) → number
+Setting.image(key) → string
+Setting.fileString(key) → string
+Setting.set(value, key)
+Setting.add({ key, name, type, ... })
 ```

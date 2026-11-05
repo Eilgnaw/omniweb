@@ -4,161 +4,109 @@ sidebar_position: 9
 
 # Calendar
 
-Read system calendar events and lunar dates. Requires the "Calendar" permission.
+`Calendar` reads system calendar events for the next month and provides lunar-date and date-difference helpers.
 
-## Lunar Date
+| Goal | Use |
+| --- | --- |
+| Read calendar events | `Calendar.getEvents()` |
+| Display today's lunar date | `Calendar.lunarDate()` |
+| Count down to a birthday or holiday | `daysUntilSolar()` / `daysUntilLunar()` |
+| Count days between dates | `daysBetween()` / `daysFromNow()` |
 
-```js
-this.lunar = Calendar.lunarDate()
-console.log(this.lunar)
-// 2026丙午年三月十六
-```
-
-`lunarDate()` is synchronous — it returns the lunar date string directly (in Chinese format).
-
-If you want a pre-formatted "year-month-day" string:
-
-```js
-const s = Calendar.getLunarDate()
-console.log(s) // something like "丙午三月十六"
-```
-
-## Lunar Components (Month / Day / Leap Month)
-
-If you want to lay things out yourself or use the values in logic, get the lunar date as numbers:
-
-```js
-this.y = Calendar.lunarYear()         // position in the 60-year sexagenary cycle (1–60)
-this.m = Calendar.lunarMonth()        // 1–12
-this.d = Calendar.lunarDay()          // 1–30
-this.leap = Calendar.isLunarLeapMonth() // whether the current lunar month is a leap month
-```
-
-| Method | Returns | Description |
-|------|------|------|
-| `lunarYear()` | Int | 1–60, **not the Gregorian year**; for Heavenly Stems and Earthly Branches use [`ganZhi()`](#chinese-zodiac-and-heavenly-stems--earthly-branches) |
-| `lunarMonth()` | Int | 1–12 |
-| `lunarDay()` | Int | 1–30 |
-| `isLunarLeapMonth()` | Bool | Whether this is a leap month (e.g. returns `true` during a leap second month) |
-
-## Chinese Zodiac and Heavenly Stems / Earthly Branches
-
-```js
-console.log(Calendar.zodiac()) // "马" (Horse)
-console.log(Calendar.ganZhi()) // "丙午"
-```
-
-| Method | Returns |
-|------|------|
-| `zodiac()` | The year's zodiac sign: Rat / Ox / Tiger / Rabbit / Dragon / Snake / Horse / Goat / Monkey / Rooster / Dog / Pig |
-| `ganZhi()` | The year's Heavenly Stems and Earthly Branches, e.g. "甲辰", "丙午" |
-
-## Days Until a Date
-
-Most useful for "Chinese New Year countdown" or "X days until my birthday".
-
-```js
-// Days until the next "Lunar New Year's Day" (Spring Festival)
-this.dDay = Calendar.daysUntilLunar(1, 1)
-
-// Days until the next "December 25" (Gregorian)
-this.xmas = Calendar.daysUntilSolar(12, 25)
-```
-
-- Arguments are `(month, day)`. **If today is that date, returns 0**.
-- If the date has already passed this year, it automatically rolls to next year (always a "future" count).
-- If the target lunar month doesn't exist (e.g. there's no leap second month this year), it automatically searches forward to the nearest matching year.
-
-| Method | Meaning |
-|------|------|
-| `daysUntilLunar(month, day)` | Days until the next lunar (month, day) |
-| `daysUntilSolar(month, day)` | Days until the next Gregorian (month, day) |
-
-## Days Between Any Two Dates
-
-```js
-// Days from now to a fixed Gregorian date
-this.left = Calendar.daysFromNow("2026-10-01") // positive for future, negative for past
-
-// Days between two specific dates (to - from)
-this.span = Calendar.daysBetween("2026-01-01", "2026-05-15") // 134
-```
-
-Arguments support `YYYY-MM-DD` / `YYYY/MM/DD` / `YYYY.MM.DD`. Returns `0` if parsing fails.
-
-| Method | Returns |
-|------|------|
-| `daysFromNow(ymd)` | `target - today`, positive for future, negative for past |
-| `daysBetween(from, to)` | `to - from`, can be positive or negative |
-
-## Gregorian to Lunar
-
-Convert any Gregorian date to a lunar date string:
-
-```js
-console.log(Calendar.lunarFromSolar("2026-02-17"))
-// "丙午正月初一"
-```
-
-Same format as `getLunarDate()` (`U`+`MMM`+`d`). Returns an empty string on parse failure.
-
-## Calendar Events
-
-```js
-const result = await Calendar.getEvents()
-const events = JSON.parse(result)
-console.log(events)
-```
-
-Returns all events from now to one month later, as an array:
-
-```json
-[
-  {
-    "title": "Team Weekly",
-    "startDate": "2026-05-03 10:00:00 +0000",
-    "endDate":   "2026-05-03 11:00:00 +0000",
-    "notes":     "Discuss Q2 plans",
-    "color":     "FF6B6B"
-  },
-  ...
-]
-```
-
-| Field | Description |
-|------|------|
-| `title` | Event title |
-| `startDate` / `endDate` | Start / end time strings |
-| `notes` | Event notes |
-| `color` | Source calendar's color (hex) |
-
-## Example: Show the Next 3 Events
-
-```js
-const result = await Calendar.getEvents()
-const events = JSON.parse(result)
-this.events = events.slice(0, 3)
-```
-
-On a vstack, set the loop data source to `${events[ev]}`. Inside:
-
-| Child component | Content |
-|--------|------|
-| text | `${ev.title}` |
-| text (gray) | `${ev.startDate}` |
-
-## Permission Notes
-
-The first time you call `getEvents()`, the system shows a "Calendar" access prompt.
-**If the user denies access, subsequent calls return an error**:
+## Read events for the next month
 
 ```js
 try {
   const result = await Calendar.getEvents()
-  // ...
-} catch (e) {
-  console.log("Can't read calendar:", e)
+  const events = JSON.parse(result)
+  this.events = events.slice(0, 3)
+} catch (error) {
+  console.error("Couldn't read calendar:", error)
+  this.events = []
 }
 ```
 
-iOS 17+ uses "Full Access" (`requestFullAccessToEvents`); older versions use the legacy API — behavior is identical.
+Each event contains:
+
+| Field | Content |
+| --- | --- |
+| `title` | Title |
+| `startDate` / `endDate` | Start / end time strings |
+| `notes` | Notes |
+| `color` | Source calendar color as hex |
+
+Set a VStack's Data Source to `${events[event]}`. Its children can display `${event.title}` and `${event.startDate}`.
+
+:::warning Authorize in the main app first
+The first `getEvents()` call asks for Full Access to Calendar. A background widget can't show the permission prompt, so run it once in the editor and finish authorization there.
+:::
+
+## Display today's lunar date
+
+```js
+this.fullLunar = Calendar.lunarDate()
+this.shortLunar = Calendar.getLunarDate()
+```
+
+- `lunarDate()` returns a more complete Chinese date.
+- `getLunarDate()` returns a compact sexagenary year, month, and day string.
+
+## Read lunar components
+
+```js
+this.year = Calendar.lunarYear()            // 1...60 in the sexagenary cycle
+this.month = Calendar.lunarMonth()          // 1...12
+this.day = Calendar.lunarDay()              // 1...30
+this.isLeap = Calendar.isLunarLeapMonth()   // true / false
+this.zodiac = Calendar.zodiac()             // Chinese zodiac
+this.ganZhi = Calendar.ganZhi()             // Heavenly Stems and Earthly Branches
+```
+
+`lunarYear()` isn't a Gregorian year. Use `ganZhi()` when you need text such as “甲辰” or “丙午”.
+
+## Count down to the next holiday
+
+```js
+this.springFestival = Calendar.daysUntilLunar(1, 1)
+this.christmas = Calendar.daysUntilSolar(12, 25)
+```
+
+Arguments are month and day. The target date returns `0`; after it passes, the function counts to next year.
+
+## Calculate date differences
+
+```js
+this.daysLeft = Calendar.daysFromNow("2030-01-01")
+this.span = Calendar.daysBetween("2030-01-01", "2030-05-15")
+```
+
+- `daysFromNow()` returns target minus today: future is positive, past is negative.
+- `daysBetween()` returns the second date minus the first.
+- Dates may use `YYYY-MM-DD`, `YYYY/MM/DD`, or `YYYY.MM.DD`. A parse failure returns `0`.
+
+## Convert Gregorian to lunar
+
+```js
+this.lunar = Calendar.lunarFromSolar("2030-02-03")
+```
+
+A parse failure returns an empty string.
+
+## Quick reference
+
+```js
+Calendar.getEvents() → Promise<string>
+Calendar.lunarDate() → string
+Calendar.getLunarDate() → string
+Calendar.lunarYear() → number
+Calendar.lunarMonth() → number
+Calendar.lunarDay() → number
+Calendar.isLunarLeapMonth() → boolean
+Calendar.zodiac() → string
+Calendar.ganZhi() → string
+Calendar.daysUntilLunar(month, day) → number
+Calendar.daysUntilSolar(month, day) → number
+Calendar.daysFromNow(ymd) → number
+Calendar.daysBetween(from, to) → number
+Calendar.lunarFromSolar(ymd) → string
+```

@@ -2,92 +2,100 @@
 sidebar_position: 4
 ---
 
-# Widget Info
+# Widget information
 
-`Widget` is an **auto-injected** object that represents the currently running widget. Use it to get the widget's ID, type, and name, and — when running in the **main app context** — to trigger navigation or refreshes.
+`Widget` is the context object for the current widget. Omni injects it automatically; you don't create it.
 
-## Properties
+## Read the current widget
 
 ```js
-console.log(Widget.id)         // "ABCD-1234-EF56-..."  the widget's unique UUID
-console.log(Widget.name)       // "My Weather Widget"   the widget's name
-console.log(Widget.type)       // "small" | "medium" | "large" | "circular" | ...
-console.log(Widget.urlscheme)  // "awidget://runjs/medium/ABCD..."  auto-generated callback URL
+console.log(Widget.id)
+console.log(Widget.name)
+console.log(Widget.type)
+console.log(Widget.urlscheme)
 ```
 
 | Property | Meaning |
-|------|------|
-| `id` | The widget's UUID — persistent identifier |
-| `name` | The name the user gave it |
-| `type` | The widget's type string (small / medium / large / circular / rectangular / inline / button / toggle / live) |
-| `urlscheme` | A fixed URL — opening it **re-runs the widget's JS**; useful for button / shortcut callbacks |
+| --- | --- |
+| `id` | The widget's persistent UUID |
+| `name` | The name set by the user |
+| `type` | `small`, `medium`, `large`, `circular`, `rectangular`, `inline`, `button`, `toggle`, or `live` |
+| `urlscheme` | A URL that runs this widget's JS again in the main app |
 
-:::tip URL Scheme aliases
-Omni Widgets accepts both `omniwidgets://` and `awidget://`. Their paths, parameters, and behavior are identical. `Widget.urlscheme` currently keeps generating an `awidget://` URL, so existing shortcuts and widgets don't need any changes; new links can use the more recognizable `omniwidgets://` directly.
-:::
+`Widget.urlscheme` currently returns `awidget://...`. Omni also accepts the clearer `omniwidgets://...`; both behave the same.
 
-## ⚠️ About the Runtime Environment
+## Check where the code is running
 
-The `openUrl` / `reload` methods below **only work in the main app context**.
-That means they only take effect in two scenarios:
+`Widget.openUrl()` and `Widget.reload()` only work in the main app:
 
-1. **In the editor**: when you're editing a widget and hit "Run" — the JS runs in the main app
-2. **Via a URL Scheme**: someone opens `omniwidgets://runjs/...` or the `awidget://runjs/...` URL returned by `Widget.urlscheme` (from a shortcut, button, or another app), iOS launches Omni, and the JS runs in the main app
+- When you tap Run in the editor.
+- When `omniwidgets://runjs/...` or `Widget.urlscheme` opens Omni.
 
-When the widget refreshes **on its own on the home screen**, the JS runs inside the widget extension (a separate sandbox) — these two methods become **no-ops**. They don't throw and don't do anything.
+During an automatic Home Screen refresh, JS runs in the widget extension. These methods do nothing there and don't throw an error.
 
-## Widget.openUrl(url)
-
-Opens the specified URL (https, scheme, etc.).
+## Open a URL
 
 ```js
 Widget.openUrl("https://2f0.cn")
 Widget.openUrl("weixin://")
-Widget.openUrl(Widget.urlscheme)   // equivalent to "re-run myself"
 ```
 
-**Only works in the two scenarios above.** If you want "user taps the widget on the home screen → open a URL", **don't** rely on `Widget.openUrl` — use the [stack container's "Open URL" property](../components/stack.md#openurl) instead.
+For “tap a Home Screen widget to navigate,” set [Open URL on a Stack](../components/stack.md#make-a-container-tappable). Don't put `Widget.openUrl()` in background refresh code.
 
-## Widget.reload()
-
-Asks the system to **refresh all timelines for this widget type**.
+## Request a timeline reload
 
 ```js
 Widget.reload()
 ```
 
-Typical use: the user changed config or data in the main app, and you want the home screen to sync immediately.
-**Also only works in the main app context** (no-op when running in the widget extension on the home screen).
+This asks iOS to reload every timeline for the current widget type. Use it after changing config in the main app.
 
-:::info
-"Reload" doesn't mean "redraw immediately" — it just tells iOS "my data has updated, you can come fetch it". iOS still decides when to actually pull.
+:::warning `reload()` doesn't guarantee an immediate refresh
+It only tells iOS that data changed. The system still decides when to read and display the new content.
 :::
 
-## Example: Launch via Shortcut, Run JS, Then Jump to a Third-Party App
+## Run JS from a URL
 
-In the Shortcuts "Open URL" action, fill in:
+A Shortcut or another app can open:
 
+```text
+omniwidgets://runjs/medium/<widget-id>
 ```
-omniwidgets://runjs/medium/<widget id>
+
+You can include query parameters:
+
+```text
+omniwidgets://runjs/medium/<widget-id>?city=Shanghai&count=10
 ```
 
-This launches the Omni main app and runs the widget's JS. In the JS, you can finish your work and then jump elsewhere:
+Read them from `$params`:
 
 ```js
-const data = await new Request("https://api.example.com/sync").fetchJSON()
-setConfig("lastSync", String(Date.now()))
-Widget.openUrl("weixin://")    // after syncing, open WeChat
+const city = $params.city || "Shanghai"
+Config.set("city", city)
+Widget.reload()
 ```
 
-The `runjs` URL can also **carry query parameters** through to the JS, e.g.:
-```
-omniwidgets://runjs/medium/<widget id>?city=Shanghai&count=10
-```
-Then in JS, read them via `$params` (e.g. `$params.city`).
-
-## Example: Update Config in the Main App, Trigger a Home Screen Refresh
+## Example: sync, then open another app
 
 ```js
-setConfig("city", "Shanghai")
-Widget.reload()  // tell the system: all instances of this widget type should update
+const request = new Request("https://api.example.com/sync")
+await request.fetchJSON()
+Config.set("lastSync", Date.now())
+Widget.reload()
+Widget.openUrl("weixin://")
+```
+
+Start this code from the editor or a run URL. Don't rely on a Home Screen background refresh for it.
+
+## Quick reference
+
+```js
+Widget.id → string
+Widget.name → string
+Widget.type → string
+Widget.urlscheme → string
+Widget.openUrl(url) → void // main app only
+Widget.reload() → void     // main app only
+$params → object           // query parameters from a run URL
 ```

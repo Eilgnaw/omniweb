@@ -2,69 +2,75 @@
 sidebar_position: 12
 ---
 
-# HTML Parsing
+# HTML parsing
 
-`HTMLDoc` is for **extracting data from HTML text**. If your API returns JSON directly, you don't need this — but if you need to scrape data from a webpage (Douban ratings, blog titles), this is your tool.
+When a service only provides a webpage and has no JSON or RSS endpoint, use `HTMLDoc` and XPath to extract content from the HTML.
 
-## Usage
+:::tip Prefer structured data when it's available
+Page structure can change at any time, and HTML uses more memory than JSON. Use a JSON API or RSS feed instead whenever you can.
+:::
 
-```js
-const html = await new Request("https://example.com").fetchString()
-const doc = new HTMLDoc(html)
-
-const result = doc.xpath("//h1")  // returns a JSON string
-const items = JSON.parse(result)
-console.log(items)
-```
-
-## What Is XPath?
-
-In short: like a CSS selector, but with a more "path-style" syntax for precisely locating nodes in HTML.
-
-| XPath | Meaning |
-|-------|------|
-| `//h1` | All h1s |
-| `//div[@class='title']` | div with class `title` |
-| `//a/@href` | The href of every a tag |
-| `//ul[@id='list']/li` | li under the ul with id `list` |
-
-For full syntax, search for "XPath tutorial".
-
-## Return Data Format
-
-`xpath()` returns a JSON string. After parsing, it's an array:
-
-```json
-[
-  {
-    "text":      "node's plain text",
-    "innerHTML": "node's inner HTML",
-    "toHTML":    "full HTML including self",
-    "toXML":     "XML form",
-    "className": "css class name",
-    "tagName":   "h1",
-    "content":   "plain text content"
-  }
-]
-```
-
-The most commonly used are `text` (plain text) and `innerHTML` (inner HTML).
-
-## Example: Scrape a Douban Movie Rating
+## Smallest useful example
 
 ```js
-const html = await new Request("https://movie.douban.com/subject/1292052/").fetchString()
-const doc = new HTMLDoc(html)
+const request = new Request("https://example.com")
+const html = await request.fetchString()
+const document = new HTMLDoc(html)
 
-const titleArr = JSON.parse(doc.xpath("//h1/span[@property='v:itemreviewed']"))
-const ratingArr = JSON.parse(doc.xpath("//strong[@class='ll rating_num']"))
-
-this.title  = titleArr[0]?.text || "?"
-this.rating = ratingArr[0]?.text || "?"
+const result = document.xpath("//h1")
+const headings = JSON.parse(result)
+this.title = headings[0]?.text || ""
 ```
 
-## Notes
+`xpath()` returns a JSON string. Parse it into an array with `JSON.parse()`.
 
-- HTML parsing **uses memory** inside the widget (limit is under 30MB) — don't throw huge pages at it.
-- If the page structure changes, the XPath breaks. For production-grade use, prefer an RSS feed or a third-party API.
-- Only HTML is supported (parsed by the [Kanna](https://github.com/tid-kijyun/Kanna) library). JavaScript execution isn't supported, so client-rendered SPAs won't give you any data.
+## Common XPath queries
+
+| XPath | Selects |
+| --- | --- |
+| `//h1` | Every `h1` element |
+| `//div[@class='title']` | A `div` whose `class` is `title` |
+| `//a/@href` | The `href` from every link |
+| `//ul[@id='list']/li` | `li` elements in one specific list |
+
+## Returned fields
+
+Each match may include:
+
+| Field | Content |
+| --- | --- |
+| `text` / `content` | Plain text |
+| `innerHTML` | HTML inside the element |
+| `toHTML` | Full HTML including the element itself |
+| `toXML` | XML representation |
+| `className` | CSS class name |
+| `tagName` | Tag name |
+
+Most widgets only need `text` and `innerHTML`.
+
+## Example: extract a title and rating
+
+```js
+const request = new Request("https://movie.douban.com/subject/1292052/")
+const html = await request.fetchString()
+const document = new HTMLDoc(html)
+
+const titles = JSON.parse(document.xpath("//h1/span[@property='v:itemreviewed']"))
+const ratings = JSON.parse(document.xpath("//strong[@class='ll rating_num']"))
+
+this.title = titles[0]?.text || "?"
+this.rating = ratings[0]?.text || "?"
+```
+
+## Limits
+
+- XPath can break when the page is redesigned.
+- `HTMLDoc` doesn't execute webpage JavaScript, so it can't read content rendered by a client-side SPA.
+- Don't parse very large pages. Widget extensions have limited memory.
+
+## Quick reference
+
+```js
+new HTMLDoc(html)              // create a document from an HTML string
+document.xpath(query) → string // return matches as a JSON string
+```

@@ -4,52 +4,42 @@ sidebar_position: 2
 
 # Image
 
-Displays an image. **The key property is "type"** — it decides where the image comes from.
+Image can display a fixed photo from your library or a file downloaded by JavaScript. Choose the right Type before setting Content.
 
-## Type (must read)
+## Choose an image type first
 
-Image has two types, switchable in the property panel. They behave completely differently:
+| Type | Best for | What Content contains |
+| --- | --- | --- |
+| **Photo** | Fixed wallpapers, avatars, and decoration | A UUID generated after you pick the image; don't enter it yourself |
+| **File** | Remote images, changing covers, and local caches | An `LD:`, `LL:`, `ID:`, or `IL:` path, or a path placeholder |
 
-| Type | Meaning | What goes in the content field |
-|------|---------|--------------------------------|
-| **Photo** (default) | Pick a photo from the system **Photo Library**; Omni saves a copy inside the app | A UUID (auto-generated when you pick a photo — you don't fill it in) |
-| **File** | Use a local **file path**, typically an image downloaded by JS | A file path like `LD:.../xxx.png`, `LL:.../xxx.png`, or the placeholder `${path}` |
-
-:::warning You can't pass a URL directly
-The image component **does not fetch from the network on its own**. No matter the type, **putting `https://...` in there shows nothing**.
-To display a remote image, **first download it in JS and save it locally, then use the "File" type with that path**. Example below.
+:::warning A network URL won't work directly
+Image doesn't download `https://...` on its own. Download and save the image with JavaScript first, then set Type to File.
 :::
 
-## "Photo" type usage
+## Display a photo from the library
 
-1. Add an image component
-2. Keep the type as default ("Photo")
-3. In the property panel, find **➕ Add image** — the system photo picker pops up
-4. After picking, a crop UI appears; crop and save
-5. The content field is auto-filled with a UUID — leave it alone
+1. Add **image**.
+2. Keep Type set to Photo.
+3. Tap Add Image in the property panel, then choose and crop a photo.
+4. Save. Omni manages the UUID in Content; don't edit it.
 
-Good for **fixed wallpapers / decoration** — pick once and you're done.
+## Display a local file
 
-## "File" type usage
+1. Add **image**.
+2. Change Type to File.
+3. Enter a file path or placeholder in Content.
 
-1. Add an image component
-2. Switch type to "File"
-3. In the content field, enter a **file path** (examples below)
-
-Path prefixes:
-
-| Prefix | Meaning | From |
-|--------|---------|------|
-| `LD:` | Local public directory (visible in the Files app) | `FileManager.local().documents()` |
+| Prefix | Location | How to get it |
+| --- | --- | --- |
+| `LD:` | Local public directory, visible in Files | `FileManager.local().documents()` |
 | `LL:` | Local private directory | `FileManager.local().library()` |
 | `ID:` | iCloud public directory | `FileManager.iCloud().documents()` |
 | `IL:` | iCloud private directory | `FileManager.iCloud().library()` |
 
-Full path rules in [File Manager](../api/fileManager.md).
+See [File Manager](../api/fileManager.md) for the full rules.
 
-## Example: fetch a remote image (with local cache)
-
-Download once; subsequent runs use the local copy with no re-download:
+## Example: download and cache a remote image
 
 ```js
 const fm = FileManager.local()
@@ -60,43 +50,44 @@ if (!fm.fileExists(path)) {
   fm.saveImage(path, data)
 }
 
-this.img = path   // path looks like "LD:widgetId/avatar.png"
+this.imagePath = path
 ```
 
-Image component:
+Image setup:
 
 - Type: **File**
-- Content: `${img}`
+- Content: `${imagePath}`
 
-After the first run, every refresh skips the download — **rendering is super fast** (local IO, no network).
+The first run downloads the image. Later runs read the local file.
 
-:::tip When do you re-download?
-For images that rarely change (avatars, logos), the "fetch once and reuse" pattern above is ideal.
+### Cache an image that changes
 
-For images that change (daily covers, dynamic posters), let the cache **expire by time** by including a date in the filename.
-iOS will reclaim old files on its own during system cleanup — no manual deletion needed.
+For a daily image, include the date in its filename:
 
 ```js
-const today = new Date().toISOString().slice(0, 10)  // "2026-05-02"
-const path = fm.documents() + `cover-${today}.png`
+const fm = FileManager.local()
+const day = new Date().toISOString().slice(0, 10)
+const path = fm.documents() + `cover-${day}.png`
+
 if (!fm.fileExists(path)) {
   const data = await new Request("https://example.com/cover.png").fetch()
   fm.saveImage(path, data)
 }
-this.img = path
+
+this.imagePath = path
 ```
-:::
 
-
+This creates several cache files over time. If you need strict space control, remove files you no longer use with `fm.remove(path)`.
 
 ## Common properties
 
-| Property | Description |
-|----------|-------------|
-| Type | Photo / File — see above |
-| Content | UUID (auto-filled for Photo) or file path (for File) |
+| Property | What it does |
+| --- | --- |
+| Type | Photo or File |
+| Content | Photo UUID or file path |
 | Width / Height | Display size |
-| Scale mode | `fit` (preserve aspect, fully visible) / `fill` (fill and crop) / `stretch` |
-| Clip shape | Rectangle / RoundedRectangle / Circle / Capsule / Ellipse |
-| Corner radius | Only effective for RoundedRectangle |
-| Rotation / Offset / Opacity | Visual tweaks |
+| Scale mode | `fit` shows the whole image; `fill` fills and crops; `stretch` distorts to fit |
+| Clip shape | Rectangle, rounded rectangle, circle, capsule, or ellipse |
+| Corner radius | Applies only to a rounded rectangle |
+| Rotation / Offset / Opacity | Changes the visual treatment |
+| Blur / Scale Effect | Blurs, scales, or flips the image; see [Visual effects](./visual-effects.md) |

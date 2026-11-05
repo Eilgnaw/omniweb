@@ -1,5 +1,9 @@
 {
   "label": "组件",
   "position": 2,
-  "collapsed": false
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "按目标查找文字、图片、按钮、容器、列表、图表等组件的用法。"
+  }
 }

@@ -4,75 +4,55 @@ sidebar_position: 7
 
 # 卡片控制
 
-控制卡片刷新节奏、判断当前环境的几个全局函数。
+这些全局函数用于建议下次刷新时间、判断运行环境和短暂等待。
 
-## setUpdateFreq \{#setupdatefreq\}
+## 按间隔刷新
 
 ```js
-setUpdateFreq(30)    // 建议系统 30 分钟后再唤起刷新
+setUpdateFreq(30) // 建议系统 30 分钟后刷新
 ```
 
-| 参数 | 类型 | 说明 |
-|---|---|---|
-| `min` | number | 分钟数,**整数**,非数字 / 0 等价于「不调用」 |
+参数单位为分钟。`0` 或无效值不会设置刷新。
 
-主机侧 JS 跑完读 `__nextUpdate`,有 `freq` 就转成对应的 `formProvider.setFormNextRefreshTime` 调度。
+## 在指定时间后刷新
 
-:::warning 真的只是「建议」
-鸿蒙 `FormExtension` 也是系统调度,你写 `setUpdateFreq(1)` 也不会真 1 分钟刷一次;系统会按热度、电量、网络等因素决定。MIN 是「**不要早于这个时间**」的下界。
+```js
+const next = new Date()
+next.setDate(next.getDate() + 1)
+next.setHours(7, 0, 0, 0)
+
+setUpdateTime(next.getTime())
+```
+
+参数是毫秒时间戳。`setUpdateFreq()` 与 `setUpdateTime()` 同时出现时，最后一次调用生效。
+
+:::warning 刷新不是准点闹钟
+系统决定实际刷新时间。秒级时钟和倒计时请使用对应组件，不要把间隔设得很短。
 :::
 
-## setUpdateTime
-
-```js
-setUpdateTime(Date.now() + 60 * 60 * 1000)    // 1 小时后再刷
-```
-
-| 参数 | 类型 | 说明 |
-|---|---|---|
-| `ts` | number | 绝对时间戳(ms 单位),非数字 / 0 等价于「不调用」 |
-
-跟 `setUpdateFreq` 互斥,**最后调用的那个生效**。建议用绝对时间的场景:倒计时类卡片(算到「下次整点」),用 `setUpdateTime` 比 `setUpdateFreq` 准。
-
-## isDebug
+## 判断是否在编辑器中运行
 
 ```js
 if (isDebug()) {
-  console.log("调试态:JS 在编辑器里运行")
-} else {
-  // 卡片刷新路径
+  console.log("当前在编辑器中运行")
 }
 ```
 
-| 返回 | 说明 |
-|---|---|
-| `boolean` | 编辑器预览运行 → `true`;`FormExtension` 刷新 / 真机卡片 → `false` |
+编辑器返回 `true`，桌面和锁屏卡片刷新返回 `false`。适合控制调试日志或只在编辑器中执行的准备工作。
 
-用来:调试时多打点日志,真机里跳过重试 / 跳过昂贵分支。
-
-## sleep
+## 短暂等待
 
 ```js
-await sleep(500)    // 等 500ms
+await sleep(300)
 ```
 
-| 参数 | 类型 | 说明 |
-|---|---|---|
-| `ms` | number | 毫秒,非数字按 0 处理 |
-
-主要用来给两次接口请求拉开间隔。**别在卡片侧滥用** —— 卡片侧 4.5s 上限,sleep 500ms 等于丢半秒预算。
+参数单位为毫秒。等待时间也会占用 4.5 秒运行预算，不要用它模拟定时器。
 
 ## 速查
 
 ```js
-// 调度
-setUpdateFreq(min)        // min 分钟后再唤起;0/非数 = 不调用
-setUpdateTime(ts)         // 绝对时间戳 ms;0/非数 = 不调用
-                          // 两者互斥,最后调用的生效
-
-// 环境判断
-isDebug()                 → boolean       // 编辑器 = true,卡片 = false
-
-// 流控
-await sleep(ms)           → Promise<ms>
+setUpdateFreq(minutes) → void
+setUpdateTime(timestampMs) → void
+isDebug() → boolean
+sleep(ms) → Promise<string> // 返回等待毫秒数的字符串
 ```

@@ -2,45 +2,44 @@
 sidebar_position: 3
 ---
 
-# Icon (SF Symbols)
+# Icon
 
-Displays an Apple SF Symbols system icon. No network needed, vector-scalable, and consistent with system visuals.
+Use Icon to display Apple's SF Symbols. They don't need a network connection, scale cleanly, and match the system design.
 
-## Usage
+## Quick start
 
-Tap the ➕ in the top-right of the editor and add **icon**, then enter an SF Symbol name in the "content" field:
+1. Add **icon**.
+2. Pick an SF Symbol in the property panel, or enter its name in Content.
 
 | Content | Result |
-|---------|--------|
-| `sun.max` | ☀ |
-| `cloud.rain` | 🌧 |
-| `heart.fill` | ♥ |
-| `${icon}` | Decided by your JS |
+| --- | --- |
+| `sun.max` | Sun symbol |
+| `cloud.rain` | Rain cloud symbol |
+| `heart.fill` | Filled heart |
+| `${icon}` | Chosen by JavaScript |
 
-The editor has a built-in SF Symbols picker (in the icon component's property panel) so you don't have to memorize names.
-
-For the full icon library, see [Apple SF Symbols](https://developer.apple.com/sf-symbols/) (use the icon's English name).
+You don't need to memorize names: the editor includes a picker. You can also browse [Apple SF Symbols](https://developer.apple.com/sf-symbols/).
 
 ## Common properties
 
-| Property | Description |
-|----------|-------------|
-| Content | SF Symbol name (e.g. `bolt.fill`) |
-| Width / Height | Display size |
-| Color | Solid / gradient |
-| Rotation / Offset | Effects |
-| Opacity | 0~1 |
+| Property | What it does |
+| --- | --- |
+| Content | The SF Symbol name, such as `bolt.fill` |
+| Width / Height | Symbol size |
+| Color | Solid or gradient color |
+| Opacity | From `0` to `1` |
+| Rotation / Offset | Changes the angle and position |
 
-## Example: switch icon based on weather
+## Example: show a weather symbol
 
 ```js
 const result = await Weather.getCurrent()
-const obj = JSON.parse(result)
-this.icon = obj.symbolName    // Apple hands you the SF Symbol name directly
+const weather = JSON.parse(result)
+this.icon = weather.symbolName
 ```
 
-Set the icon component's content to `${icon}` — it automatically renders the matching weather icon.
+Set the Icon content to `${icon}`. The `symbolName` from WeatherKit can be used directly.
 
-:::tip Lock screen widgets
-Lock screen circular / rectangular / inline widgets **only render single color**, which makes SF Symbols a perfect fit here.
+:::tip Lock Screen widgets
+Circular, rectangular, and inline Lock Screen widgets usually render in one color. Prefer a clear SF Symbol that doesn't depend on several colors to convey meaning.
 :::

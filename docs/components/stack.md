@@ -4,166 +4,129 @@ sidebar_position: 9
 
 # 容器 Stack
 
-容器把多个子组件**组合在一起**,有四种排列方式:
+Stack 把多个子组件组合成一套布局。先根据排列方向选择容器：
 
-| 类型 | 排列 | 用途 |
-|------|------|------|
-| **vstack** | 竖排 ↕ | 标题 + 副标题、列表行 |
-| **hstack** | 横排 ↔ | 图标 + 文字、左右对齐 |
-| **zstack** | 叠放 ⊕ | 背景图 + 上层内容 |
-| **tstack** | 富文本拼接 ✏️ | 一行字里多种字体 / 颜色 |
+| 类型 | 排列方式 | 常见用途 |
+| --- | --- | --- |
+| `vstack` | 从上到下 | 标题与说明、纵向列表 |
+| `hstack` | 从左到右 | 图标与文字、左右对齐 |
+| `zstack` | 前后叠放 | 背景图、遮罩、叠层效果 |
+| `tstack` | 拼成一段文字 | 同一行中混合字号、字体或颜色 |
 
-## 通用属性
+## 常用属性
 
-| 属性 | 说明 |
-|------|------|
-| 子组件 | 内部任意组件,可嵌套 |
-| 间距(spacing) | 子组件之间的距离 |
-| 内边距(padding/pacings) | 容器内 4 方向边距,如 `10,10,10,10` |
-| 对齐方式(alignment) | `center` / `leading` / `trailing` 等 |
-| 背景色 / 圆角 | 容器整体背景 |
-| 毛玻璃(material) | 模糊背景效果(`thick` / `thin` / `regular`) |
-| 旋转 / 偏移 / 透明度 | 视觉调整 |
-| 打开 URL (openUrl) | 整个容器作为可点区域,点了会打开 — 详见 [下方专门章节](#openurl) |
+| 属性 | 作用 |
+| --- | --- |
+| 子组件 | 放入任意组件，也可以继续嵌套容器 |
+| 间距 | 子组件之间的距离 |
+| 内边距 | 容器四边留白，例如 `10,10,10,10` |
+| 对齐 | `center`、`leading`、`trailing` 等 |
+| 背景 / 圆角 | 设置容器整体的背景 |
+| 毛玻璃 | `thick`、`thin` 或 `regular` 材质 |
+| 旋转 / 偏移 / 不透明度 | 调整容器整体效果 |
+| Blur / Scale Effect | 让整个容器及其子组件一起模糊、缩放或镜像；详见[视觉效果](./visual-effects.md) |
+| 打开 URL | 让整个容器可点击 |
 
-## openurl
+## 选择排列方式
 
-所有 stack 容器(vstack / hstack / zstack / tstack / grid)都支持 **"打开 URL"属性**。
-设置之后,**整个容器变成一个可点区域**;用户点了它,iOS 就会打开这个 URL。
+### VStack：纵向排列
 
-:::info 为什么要在容器上、而不是 button 上?
-[button 组件](./button.md) **只能跑 JS,不能打开 URL**(底层用的是 AppIntent,系统限制)。
-所以"点击跳转"的需求统一靠 stack 容器实现。
-:::
+```text
+vstack
+├─ text（标题）
+├─ text（副标题）
+└─ icon
+```
 
-### 常见 URL
+### HStack：横向排列
 
-| 写法 | 行为 |
-|------|------|
+```text
+hstack
+├─ icon
+├─ text
+├─ spacer
+└─ text
+```
+
+配合 [Spacer](./spacer.md) 可以把内容推到左右两侧。
+
+### ZStack：前后叠放
+
+子组件按顺序叠放，后面的内容显示在前面：
+
+```text
+zstack
+├─ image（背景）
+└─ text（前景）
+```
+
+适合背景图、半透明遮罩和由两层形状组成的进度条。
+
+### TStack：拼接富文本
+
+TStack 只接受 Text 子组件。它会把多段 Text 拼成一段连续文字，而不是把它们当作独立视图排列。
+
+```text
+tstack
+├─ text（"32"，字号 36）
+└─ text（"°C"，字号 14）
+```
+
+结果是一行紧密排列的 `32°C`，但两段可以使用不同样式。
+
+使用 TStack 时注意：
+
+- 段落之间不会自动加空格，需要在内容中自己保留。
+- 只支持 Text；Icon、Image 和其他容器会被忽略。
+- 需要分行或独立对齐时，请改用 VStack 或 HStack。
+
+## 让容器可点击
+
+给 `vstack`、`hstack`、`zstack`、`tstack` 或 `grid` 设置“打开 URL”，整个容器就会成为点击区域。
+
+| URL | 点击后的行为 |
+| --- | --- |
 | `https://2f0.cn` | 打开网页 |
 | `weixin://` | 打开微信 |
-| `mailto:foo@bar.com` | 写邮件 |
-| `omniwidgets://runjs/medium/{Widget.id}` | 重新跑当前小组件的 JS |
-| `omniwidgets://openmini?...` | 打开微信小程序(系统会自动追加 `&from=omni`) |
-| `${link}` | 由 JS 决定 |
+| `mailto:foo@bar.com` | 新建邮件 |
+| `omniwidgets://runjs/medium/{Widget.id}` | 重新运行当前中号小组件的 JS |
+| `omniwidgets://openmini?...` | 打开微信小程序 |
+| `${link}` | 使用 JavaScript 提供的 URL |
 
-> `omniwidgets://` 和旧的 `awidget://` 完全等价,已有链接不需要修改。
+`omniwidgets://` 与旧的 `awidget://` 行为相同，已有链接不需要修改。
 
-### 例:做一个"按钮"
+### 示例：一个可跳转的按钮外观
 
-最简单的"按钮":一个 zstack + 文字 + 设置 openUrl
-
-```
-zstack (打开 URL: https://2f0.cn)
-  └─ text  ("访问官网")
-```
-
-复杂一点:icon + 文字 + 圆角背景 + 跳转
-
-```
-hstack (背景色: 蓝色, 圆角: 10, 内边距: 10,10,15,15, 打开 URL: weixin://)
-  ├─ icon  (message.fill, 白色)
-  └─ text  ("打开微信", 白色)
+```text
+hstack（背景：蓝色；圆角：10；内边距：10；打开 URL：weixin://）
+├─ icon（message.fill，白色）
+└─ text（打开微信，白色）
 ```
 
-## vstack — 竖排
+:::info 跳转与运行代码是两件事
+Stack 的“打开 URL”负责跳转。[Button](./button.md) 负责运行 JavaScript。先按用户点击后要发生的结果选择组件。
+:::
 
-最常用。子组件**自上而下**摆。
+## 让容器按数组重复
 
-```
-┌─────────┐
-│  text 1  │
-│  text 2  │  ← vstack
-│  icon    │
-└─────────┘
-```
+VStack、HStack、ZStack 和 Grid 都可以设置循环数据源，按数组重复内部布局。详见[循环 Loop](./loop.md)。
 
-## hstack — 横排
+## 示例：图标、标题和副标题
 
-子组件**自左到右**摆。配合 [spacer](./spacer.md) 实现"两端对齐"。
-
-```
-[ icon | text | spacer | button ]   ← hstack
+```text
+hstack
+├─ icon
+└─ vstack
+   ├─ text（标题）
+   └─ text（副标题，小号、灰色）
 ```
 
-## zstack — 叠放
+## 示例：封面图上的标题
 
-子组件**层层叠**,后写的在上面。常用于:
-
-- 背景图 + 文字
-- 半透明遮罩
-- 进度条(底色 + 进度色)
-
+```text
+zstack
+├─ image（填满容器）
+└─ vstack
+   ├─ spacer
+   └─ text（标题，白色）
 ```
-   ┌───────┐
-   │  bg   │ ← 第一层(背景)
-   │  txt  │ ← 第二层(在背景上)
-   └───────┘
-```
-
-## tstack — 富文本拼接
-
-跟前三种**完全不一样** — tstack **不是布局容器**,而是把多个 `text` 子组件
-**拼成一段连贯的文字**(底层是 SwiftUI 的 `Text + Text`),
-**每段可以有自己的字号 / 字体 / 颜色,但作为整体当成一段文本来排版换行**。
-
-vstack / hstack 装文本是 **3 个独立的 Text 视图**,会换行 / 对齐独立处理;
-tstack 装文本是 **1 段文字**,不会在中间换行,只在整段超长时整体折行。
-
-### 子组件
-
-只放 `text`(其它类型会被忽略)。**子组件之间没有分隔符**,要空格自己在 value 里加。
-
-### 例:大数字 + 小单位
-
-```
-tstack:
-  ├─ text  (内容: "32",  字号 36, 颜色 主色)
-  └─ text  (内容: "°C",  字号 14, 颜色 灰色)
-```
-
-显示:**32**°C(数字大,单位小,贴在一起)。如果用 hstack,小字会单独居中,跟大数字隔得很开,不自然。
-
-### 例:加粗一个词
-
-```
-tstack:
-  ├─ text  (内容: "您有 ")
-  ├─ text  (内容: "${count}", 字号大、颜色红)
-  └─ text  (内容: " 条新消息")
-```
-
-显示:`您有 5 条新消息`,中间数字突出。
-
-### 注意
-
-- 想让两段文字之间**有空格**,就在 value 末尾或开头加空格,tstack 不会替你加
-- 想要**换行单独显示** → 用 vstack,不要用 tstack
-- tstack 内不能放 icon / image / 容器,只识别 text
-
-## 容器也能做循环
-
-任意容器(vstack / hstack / zstack / grid)都可以设置一个**循环数据源**,
-让自己的内部组件按数组**重复 N 次**。详见 [循环 Loop](./loop.md)。
-
-## 例:经典"图标 + 标题 + 副标题"卡片
-
-```
-hstack:
-  ├─ icon (大尺寸)
-  └─ vstack:
-       ├─ text  ("标题")
-       └─ text  ("副标题",字号小、灰色)
-```
-
-## 例:封面图 + 标题(zstack)
-
-```
-zstack:
-  ├─ image (封面,撑满)
-  └─ vstack:
-       ├─ spacer
-       └─ text ("标题",白色)
-```
-
-效果:文字浮在封面图底部。

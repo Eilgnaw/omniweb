@@ -4,80 +4,95 @@ sidebar_position: 6
 
 # Location
 
-Get the current **coordinates** and **address** (reverse geocoding). Requires the "Location" permission.
+`Location` reads the current coordinates and converts coordinates into an address. The first use requires location permission.
 
-## Get Coordinates
-
-```js
-const loc = await Location.getLocation()        // defaults to 60-minute cache
-console.log(loc.latitude, loc.longitude)
-// 34.7472 113.625
-```
+## Get coordinates
 
 ```js
-const loc = await Location.getLocation(5)       // 5-minute cache, fresher data
+const location = await Location.getLocation()
+console.log(location.latitude, location.longitude)
 ```
 
-Returns: `{ latitude, longitude, altitude }` (altitude in meters).
+Returns:
 
-:::tip Why caching matters
-Re-locating on every widget refresh **burns battery fast**, and iOS imposes strict limits on widget location access.
-The default 60-minute cache means repeated calls within the same hour reuse one coordinate — usually more than enough.
-Only pass a smaller cache value when you genuinely need fresher real-time positioning.
+```js
+{
+  latitude: 34.7472,
+  longitude: 113.625,
+  altitude: 96.3
+}
+```
+
+The default cache is 60 minutes. Pass a number of minutes for a shorter cache:
+
+```js
+const location = await Location.getLocation(5)
+```
+
+:::tip Don't shorten the cache without a reason
+Background location uses battery, and iOS limits location access from widgets. Weather and city widgets usually work well with the default 60 minutes.
 :::
 
-:::warning Automatic refreshes may use an older coordinate
-When a Home Screen widget refreshes automatically in the background, iOS may not provide a live location in time. If `getLocation()` still hasn't received a new coordinate after 6 seconds, it returns the last successful location from the previous 24 hours so the whole JS run doesn't fail on a location timeout.
+### Fallback during background refresh
 
-The GPS request keeps running on a best-effort basis, but only for up to 20 seconds from the start of the request. A late coordinate is cached for the next refresh; it won't reload the current widget again. If there's no cached location from the previous 24 hours, the call still returns an error.
+During an automatic refresh, iOS may not return a new coordinate in time. After 6 seconds, Omni tries the last successful location from the previous 24 hours. The location request may continue for up to 20 seconds, but a late result is only cached for the next refresh. If no cached location is available, the call fails.
 
-A manual refresh happens right after you interact with the widget, so it's more likely to receive a live location, but iOS still makes the final decision.
-:::
+## Convert coordinates to an address
 
-## Get Address (Reverse Geocoding)
-
-No arguments = use the current location:
+With no argument, it uses the current location:
 
 ```js
-const mark = await Location.getPlacemark()
-console.log(mark.city)         // Hong Kong SAR
-console.log(mark.street)       // Forest Street
-console.log(mark.country)      // China
+const place = await Location.getPlacemark()
+this.city = place.city || place.name
 ```
 
-Return fields:
+You can also pass coordinates:
 
-| Field | Description |
-|------|------|
-| `name` | Place name (e.g. "2 Forest Street") |
+```js
+const place = await Location.getPlacemark({
+  latitude: 22.284681,
+  longitude: 114.158177
+})
+```
+
+## Address fields
+
+| Field | Meaning |
+| --- | --- |
+| `name` | Place name |
 | `street` | Street |
 | `streetNumber` | Street number |
 | `district` | District |
 | `city` | City |
-| `state` | State / province |
-| `country` | Country |
-| `countryCode` | ISO country code (e.g. `CN`) |
+| `state` | State or province |
+| `country` | Country or region |
+| `countryCode` | ISO country code, such as `CN` |
 | `postalCode` | Postal code |
 
-You can also pass specific coordinates:
+Address structures vary by region, so fields may be empty. Always provide a display fallback.
+
+## Example: current city and weather
 
 ```js
-const mark = await Location.getPlacemark({
-  latitude:  22.284681,
-  longitude: 114.158177
-})
-console.log(mark.city)   // Hong Kong SAR
+try {
+  const place = await Location.getPlacemark()
+  const weather = JSON.parse(await Weather.getCurrent())
+
+  this.city = place.city || place.district || place.name || "Current location"
+  this.temperature = Math.trunc(weather.temperature.value) + "°"
+  this.icon = weather.symbolName
+} catch (error) {
+  console.error("Couldn't load location or weather:", error)
+  this.city = "Location unavailable"
+  this.temperature = "--"
+  this.icon = "location.slash"
+}
 ```
 
-## Example: Show Current City's Weather in a Widget
+## Quick reference
 
 ```js
-const mark = await Location.getPlacemark()
-this.city = mark.city || mark.name
-
-const weather = JSON.parse(await Weather.getCurrent())
-this.temp = Math.trunc(weather.temperature.value) + "°"
-this.icon = weather.symbolName
+Location.getLocation(cacheMinutes?) → Promise<{ latitude, longitude, altitude }>
+Location.getPlacemark() → Promise<object>
+Location.getPlacemark({ latitude, longitude }) → Promise<object>
 ```
-
-In the text / icon components, just fill in `${city}` `${temp}` `${icon}`.

@@ -2,40 +2,47 @@
 sidebar_position: 1
 ---
 
-# 欢迎使用 Omni Widgets (鸿蒙版)
+# Omni Widgets 鸿蒙版文档
 
-Omni Widgets 鸿蒙版让你**自己 DIY 鸿蒙桌面 / 锁屏卡片**。
+Omni Widgets 让你用可视化编辑器制作鸿蒙桌面卡片和锁屏卡片。先摆好文字、图片与容器；需要动态数据时，再加一段 JavaScript。
 
-:::tip
-本文档目前跟随最新测试版本更新,可能与您当前安装的 APP 行为不一致.
-
-如需体验文档内最新 `API`和 `组件` 可通过 APP 内 `联系我们` 加入测试.
+:::warning 文档跟随最新测试版
+部分组件或 API 可能尚未出现在你当前安装的版本中。如需体验最新能力，可在 App 的“联系我们”中加入测试。
 :::
 
-简单需求拖一拖就能拼出一个;复杂一点 —— 想要拉接口、读本地文件、按状态切样式 —— 内置一个 JavaScript 运行时,写一段脚本就行。
+:::tip 第一次使用？
+直接跟着[做出第一个卡片](./getting-started/first-widget.md)操作。大约 10 分钟，你会完成一张可以自动更新数据的桌面卡片。
+:::
 
-## 鸿蒙版能做什么
+## 你想完成什么？
 
-- **桌面卡片 4 种尺寸**:`1*2` / `2*2` / `2*4` / `4*4`
-- **锁屏卡片 2 种尺寸**:`lock_1*1` / `lock_1*2`,添加到锁屏后点占位选择卡片
-- **可视化编辑器**:文本 / 时钟 / 计时器 / 图片 / 图标 / 按钮 / 容器 / 网格…… ➕ 一下加进去
-- **JavaScript 接口**:`Request` 联网、`Location` 定位/反向地理编码、`FileManager` 读写沙盒文件、`Config` 持久化、`Setting` 用户填的参数、`Device` 设备信息
-- **占位符语法**:`${变量}` 把 JS 拿到的数据,直接绑到组件上
-- **跨形态共享**:同 `kind + dimension` 的多张卡片可走 `Shared.set` / `Shared.get` 共享数据
+| 目标 | 从这里开始 |
+| --- | --- |
+| 第一次制作卡片 | [做出第一个卡片](./getting-started/first-widget.md) |
+| 了解布局、数据与刷新 | [基础概念](./getting-started/concepts.md) |
+| 把 JavaScript 数据显示到组件上 | [占位符语法](./getting-started/placeholder.md) |
+| 添加卡片到锁屏 | [锁屏卡片](./getting-started/lock-screen.md) |
+| 快速查语法、组件和 API | [速查地图](./getting-started/quickstart.md) |
+| 联网、存储或读取设备数据 | [JavaScript 接口](./api/network.md) |
 
-## 看哪里
+## 鸿蒙版能做什么？
 
-第一次接触按顺序看:
+- **桌面卡片**：支持 `1*2`、`2*2`、`2*4`、`4*4`。
+- **锁屏卡片**：支持 `lock_1*1` 和 `lock_1*2`。
+- **可视化布局**：文字、时钟、计时器、图片、图标、二维码、按钮、容器、列表、网格、仪表和画布。
+- **JavaScript 数据**：联网、定位、文件、持久配置、用户设置、设备信息和外部调用参数。
+- **系统协作**：支持 URL Scheme、AppLink、闪控球捷径以及桌面和锁屏绑定。
 
-1. [基础概念](./getting-started/concepts.md) —— 5 分钟搞懂卡片怎么工作
-2. [做出第一个卡片](./getting-started/first-widget.md) —— 跟着做一个天气卡片
-3. [占位符语法](./getting-started/placeholder.md) —— 把 JS 数据塞进组件最关键的一步
-4. [锁屏卡片](./getting-started/lock-screen.md) —— 添加锁屏位、选择卡片、随时换卡
+## 记住这一条流程
 
-熟了直接看左边的 **组件** 和 **接口文档**。
+1. 在编辑器中添加组件，决定卡片长什么样。
+2. 在 JavaScript 顶层声明变量，例如 `let title = "天气"`。
+3. 在组件字段中用 `${title}` 显示结果。
+
+不需要动态数据时，只做第 1 步即可。
 
 ## 遇到问题
 
-- 卡片**不刷新**? 系统决定时机,可调 [`setUpdateFreq(min)`](./api/control.md#setupdatefreq) 建议刷新间隔
-- JS **报错**? 编辑器底部「日志」面板看 `console.*` 输出和异常
-- JS **超时**? 卡片侧每次 eval 上限 **4.5 秒**(对齐 FormExtension 5s 硬限制),做好兜底
+- **数据没显示**：先在日志面板检查变量，再核对[占位符](./getting-started/placeholder.md)。
+- **卡片没按时刷新**：系统决定实际时间，参见[卡片控制](./api/control.md)。
+- **脚本超时**：卡片刷新中的 JavaScript 最多运行 4.5 秒，请减少串行请求并准备回退内容。

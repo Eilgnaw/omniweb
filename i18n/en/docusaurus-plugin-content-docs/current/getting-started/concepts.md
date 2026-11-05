@@ -2,97 +2,93 @@
 sidebar_position: 1
 ---
 
-# Concepts
+# Core concepts
 
-How Omni works, in 5 minutes.
+Before you build, get familiar with widget types, layouts, data, and refresh behavior.
 
-## 1. The three "places" a widget can live
+## 1. Choose a widget type
 
-iOS has different spots for widgets, and Omni supports all of them:
+Each type has a different size and system location. Start with the use case:
 
-| Category | Type | Where it shows up |
-|------|------|------------|
-| Home screen | Small / Medium / Large | Home screen |
-| Lock screen | Circular / Rectangular / Inline | Lock screen |
-| Control Center | Button / Toggle | Control Center pull-down |
-| Dynamic Island | Live Activity | Capsule area at the top of the screen |
+| Location | Types | Good for |
+| --- | --- | --- |
+| Home Screen | Small / Medium / Large | Weather, photos, schedules, dashboards |
+| Lock Screen | Circular / Rectangular / Inline | A status or number you can read at a glance |
+| Control Center | Button / Toggle | Triggering an action or changing a state |
+| Dynamic Island and Lock Screen | Live Activity | Ongoing progress such as sports, timers, or deliveries |
 
-Each type has a different size and different capabilities (for example, lock screen widgets can't use color). When you create a new widget, pick the type first.
+The system limits color, interaction, and refresh behavior on each surface. Lock Screen widgets, for example, usually render in a single color.
 
-## 2. A widget has two parts
+## 2. Layout defines the view; JS supplies the data
 
-### 1. View (what you see)
+A dynamic widget has three parts:
 
-The view is built from **components**. Common ones:
+1. **Components** such as `text`, `image`, and `icon` display content.
+2. **JavaScript** fetches network or system data and stores the result in variables.
+3. **Placeholders** such as `${variable}` put those variables into component properties.
 
-- **text** `text`, **image** `image`, **SF icon** `icon`, **shape** `shape`
-- **button** `button`, **date/timer** `date`, **gauge** `gauge`, **spacer** `spacer`
-- **Containers**: horizontal `hstack`, vertical `vstack`, stacked `zstack`, timed-switch `tstack`, grid `grid`
-- **Loop** `loop` (repeats a component N times to render array data)
-
-See the [Components](../components/text.md) section for details.
-
-### 2. Data (the dynamic part)
-
-If you want your widget to show "live data" (weather, unread email, stock prices, etc.), you need to write a snippet of **JavaScript**.
+Here's the complete data flow:
 
 ```js
-// Example: fetch data from an API
 const req = new Request("https://2f0.cn/api/omni")
-const obj = await req.fetchJSON()
-this.title = obj.omni  // store the result on this.xxx so the components can use it
+const data = await req.fetchJSON()
+this.title = data.omni
 ```
 
-The result is bound to components via **placeholders**:
+Then enter this in a text component's Content field:
 
+```text
+${title}
 ```
-In the text component's "content" field, write: ${title}
-```
 
-The widget will then display the value of `obj.omni`.
+The component displays the value of `data.omni`.
 
-:::tip Key rule
-**Only variables written to `this.xxx` or declared with a top-level `let/var/const xxx` can be consumed by components.** After running the JS, Omni grabs those variables and fills them into the placeholders.
-:::
-
-:::tip Hiding internal variables
-By default, every top-level `let / var / const` becomes a widget output field. If you don't want a variable exposed to components (internal constants, module-level temporaries), **prefix the name with `_`** and the extractor will skip it. Variables declared inside function bodies are automatically ignored — no need to prefix.
+:::tip Which variables can placeholders use?
+The clearest approach is to put outputs on `this.xxx`. Top-level `let`, `var`, and `const` declarations are also exported. Names that start with `_` are skipped, and variables inside functions stay local.
 
 ```js
-let title = "Hello"            // → output field
-const _PAGE_SIZE = 20          // _ prefix, not output
-const _WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+this.title = "Today's weather"  // available as ${title}
+const count = 3                 // available as ${count}
+const _token = "secret"         // not exported
 
 function load() {
-  const now = new Date()       // function-local, auto-skipped, no _ needed
+  const temp = 26               // local, not exported
 }
 ```
 :::
 
-## 3. Using JS
+## 3. Pick the right layout component
 
-- Standard JS syntax, `async/await`, `Promise`, `Date`, `JSON` all work
-- No `window`, `document`, or `fetch` (use Omni's `Request` instead)
-- No npm — only Omni's built-in APIs
-- The widget runtime has **limited memory (under 30MB)** — don't load huge files
+| Layout you want | Use |
+| --- | --- |
+| Top to bottom | `vstack` |
+| Left to right | `hstack` |
+| Layers on top of each other | `zstack` |
+| Mixed sizes or colors in one text run | `tstack` |
+| A fixed number of columns with wrapping | `grid` |
+| Repeat one layout for every array item | A container's data source |
 
-## 4. When does a widget refresh?
+Start with [Stack containers](../components/stack.md). For lists, continue with [Loop](../components/loop.md).
 
-iOS decides. Generally:
+## 4. JavaScript runtime
 
-- The more often you **view** it → the system thinks you check it often → it refreshes more frequently
-- Roughly **40-70 times per day** (you can't refresh on demand)
-- You can "suggest": [`setUpdateFreq(30)`](../api/control.md) means "refresh again in 30 minutes" — the system **takes it as a hint**
+- Standard JavaScript, `async/await`, `Promise`, `Date`, `JSON`, and `Intl` are available.
+- There is no `window`, `document`, or browser `fetch`. Use Omni's [`Request`](../api/network.md) instead.
+- You can't install npm packages. Use standard JavaScript and Omni's built-in APIs.
+- Widget extensions have limited memory. Don't load large images, files, or full web pages at once.
+
+## 5. iOS decides when widgets refresh
+
+`setUpdateFreq(30)` suggests another refresh in 30 minutes, but it isn't a timer. iOS chooses the actual time based on usage, battery, and available resources.
 
 :::warning
-Don't expect instant refresh from widgets. For near-real-time scenarios, use **Live Activities** (Dynamic Island).
+Don't use a regular widget for second-by-second updates. Use the [Date component](../components/date.md) for timers, or a Live Activity for ongoing status.
 :::
 
-## 5. Settings (so others can use your template)
+## 6. Turn personal values into settings before sharing
 
-If you built a widget and want to share it, but others need to fill in their own token, city, etc.
-Omni offers "settings" — you leave a few slots empty, and after import, others fill them in via the settings panel. See [Config read/write](../api/config.md).
+If people need to enter their own city, token, color, or image, don't hard-code it. Create a setting and read it with `Setting`. See [Config and settings](../api/config.md).
 
 ---
 
-Next step: [Build your first widget →](./first-widget.md)
+Next: [Build your first widget →](./first-widget.md)

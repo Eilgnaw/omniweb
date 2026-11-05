@@ -2,213 +2,199 @@
 sidebar_position: 2
 ---
 
-# Config Read / Write
+# Config and settings
 
-Omni provides **3 kinds of storage**, each with a different scope:
+Omni has three kinds of persistent data. Choose by scope first, and the rest of your code stays simpler.
 
-| Type | Scope | Use Case |
-|------|---------|------|
-| Widget config (`Config`) | **Per-widget, isolated**, type-preserving | This widget's token, city, state objects, etc. |
-| Common values (`getValue` / `setValue`) | **Shared across widgets** (same type + same slot) | Global user info; state changed inside button code |
-| Settings (`Setting`) | **Per-widget** + filled in by user from the settings panel | After sharing a template, lets others fill in their own info |
+| What you need to save | Use | Scope |
+| --- | --- | --- |
+| Data owned by this widget | `Config` | Isolated per widget |
+| Button state for one Home Screen slot | `getValue` / `setValue` | Widget type + system slot |
+| A value the user fills in from Settings | `Setting` | Isolated per widget |
 
-## Widget Config
+Use `Config` by default in new code. Choose the others only when you specifically need slot state or a user-facing settings panel.
 
-Each widget has its own isolated storage. **For new code, use `Config`** — it preserves types and supports defaults; see below.
+## `Config`: store data for this widget
 
-The older `setConfig` / `getConfig` is the string-only flavor, kept around for:
-- Interop with **Shortcuts** (Shortcuts can only pass strings)
-- Not breaking older widgets
-
-### `Config` (recommended)
-
-`Config` is pre-initialized for each widget — just call it. It stores numbers / booleans / arrays / objects and gives them back as the same type.
+`Config` preserves numbers, booleans, strings, arrays, and objects.
 
 ```js
-Config.set("count", 42)              // number
-Config.set("on", true)               // boolean
-Config.set("items", [1, 2, 3])       // array
-Config.set("user", { name: "x" })    // object
+Config.set("count", 42)
+Config.set("enabled", true)
+Config.set("items", [1, 2, 3])
+Config.set("user", { name: "Alice" })
 
-Config.get("count")          // 42 (number, not "42")
-Config.get("on")             // true (boolean, not 1)
-Config.get("missing")        // undefined
+const count = Config.get("count")       // 42
+const enabled = Config.get("enabled")   // true
+const missing = Config.get("missing")   // undefined
 ```
 
-#### Defaults — no more `??` fallbacks
-
-`get`'s second argument is the fallback when the key is missing. Reading the call already tells you what the field defaults to:
+### Provide a default while reading
 
 ```js
-const idx  = Config.get("page",   0)              // → 0
-const list = Config.get("recent", [])              // → []
-const user = Config.get("user",   { name: "" })   // → empty object
+const page = Config.get("page", 0)
+const recent = Config.get("recent", [])
+const profile = Config.get("profile", { name: "" })
 ```
 
-#### Full signature
+The second argument is returned when the key doesn't exist or the stored value is corrupted.
 
-| Method | Notes |
-|---|---|
-| `Config.set(key, value)` | Stores any JSON-compatible value; `null` / `undefined` is equivalent to `delete` |
-| `Config.get(key, default?)` | Reads; returns `default` if the key is missing or the value is corrupted (defaults to `undefined`) |
-| `Config.has(key) → boolean` | Whether the key exists |
-| `Config.delete(key)` | Removes |
-| `Config.keys() → string[]` | Lists all keys, alphabetically sorted |
+### Check, list, and delete
 
-#### Things to know
+```js
+if (Config.has("token")) {
+  console.log(Config.get("token"))
+}
 
-:::tip Type fidelity
-Internally JSON-serialized, so what you put in is what you get out — `true` stays `true`, `42` stays `42`, never coerced to `1` or `"42"`. Member types inside nested arrays / objects are preserved too.
+console.log(Config.keys())
+Config.delete("token")
+```
+
+Setting `null` or `undefined` also deletes the key:
+
+```js
+Config.set("token", null)
+```
+
+:::warning Store JSON-compatible values only
+Use strings, numbers, booleans, `null`, arrays, and plain objects. Functions, circular references, and similar values can't be serialized reliably.
 :::
 
-:::warning Doesn't share keys with `setConfig`
-`Config` uses an isolated key prefix — even with the same key name, the two APIs are physically separated and won't see each other's data. To migrate, do it manually: `Config.set("token", getConfig("token"))`.
+## `setConfig` / `getConfig`: legacy string storage
+
+```js
+setConfig("token", "abcdef")
+const token = getConfig("token")
+```
+
+These APIs only store strings. They remain for older widgets and Shortcuts interoperability. Use `Config` in new code.
+
+:::warning The two key spaces are separate
+`Config.get("token")` can't read a value stored by `setConfig("token", ...)`. Copy it once when you migrate:
+
+```js
+Config.set("token", getConfig("token"))
+```
 :::
 
-### `setConfig` / `getConfig` (legacy, strings only)
+## `getValue` / `setValue`: store by Home Screen slot
 
 ```js
-setConfig("token", "abcdef")    // write
-const t = getConfig("token")    // read
-console.log(t)                  // abcdef
+setValue("favorite", "heart.fill")
+const icon = getValue("favorite")
 ```
 
-Strings only. **For new code, just use `Config`**; migrating an existing widget over also means moving the data by hand (the two key sets don't overlap). **The one case where you still need this** is exchanging data with Shortcuts.
+These APIs store strings by “widget type + system slot.” They're useful for lightweight state changed by a Button. Runs in the editor use debug slot `999`.
 
-## Common Values
-
-Storage keyed by "widget type + slot". If you add the same widget to your home screen **twice**, those become two slots (slot 1, slot 2), each isolated from the other.
-When running inside the editor, the slot is always `999` (debug slot).
-
-```js
-setValue("database", "abcdefg")
-const data = getValue("database")
-console.log(data)
-```
-
-:::warning
-The "slot" concept is decided by the system — moving your widget around on the home screen can cause slot changes. **Be careful** about using this for important data.
-For everyday use, prefer `setConfig` / `getConfig`.
+:::warning Don't use this for important data
+iOS decides the slot. Removing, re-adding, or moving a widget can change it. Use `Config` for important data.
 :::
 
-## Settings (Setting)
+## `Setting`: read values entered by the user
 
-If you want to **share** your widget with someone else but need them to fill in their own token / city / image — use Settings.
+When sharing a template, use settings so each person can enter their own city, token, color, image, or file.
 
-### Flow
+### Create settings in the editor
 
-1. **In the editor**: top-right ⚙️ → Add Setting, pick a type (text / number / date / toggle / select / icon / color / image / file), give it a key
-2. **In your JS**: `Setting.string("xxx")` / `Setting.number("xxx")` etc. reads what the user filled in
-3. **After import**, others see those settings in the widget's settings panel; once they fill them in, the widget works
+1. Open the widget's settings panel.
+2. Add a setting, choose its type, and enter a unique key.
+3. Read the same key in JavaScript.
 
-> You can also **declare settings from JS** — see [Setting.add](#reverse-declaration-settingadd) below.
-
-### Reading Settings
-
-Each type has its own read function. If the user hasn't set a value, you get the type's default.
+### Read by type
 
 ```js
-// Text / select / icon / color hex — all strings
-this.token   = Setting.string("token")     // "" if unset
-this.theme   = Setting.string("theme")     // select also reads as string
-this.icon    = Setting.string("iconName")  // SF Symbol name
-this.color   = Setting.string("bgHex")     // e.g. "FF3000FF"
+this.token = Setting.string("token")       // text, select, symbol, or color
+this.notify = Setting.bool("notify")       // toggle
+this.fontSize = Setting.number("fontSize") // number; 0 when unset
 
-// Toggle
-this.notify  = Setting.bool("notify")      // false if unset
+const birthdayMs = Setting.date("birthday")
+const birthday = new Date(birthdayMs)       // millisecond timestamp
 
-// Number
-this.size    = Setting.number("fontSize")  // Double, 0 if unset
-
-// Date — returns a ms timestamp, plug straight into new Date()
-const birthday = new Date(Setting.date("birthday"))
-const daysOld  = (Date.now() - Setting.date("birthday")) / 86400000
-
-// Image — returns an LL: path token, render via buttonStyle="file"
-this.bgPath  = Setting.image("background") // "LL:{wid}/background.jpg" or ""
-
-// File (picked by user from the system file picker) → file content as string
-this.fileTxt = Setting.fileString("rules")
+this.background = Setting.image("background") // LL: path or ""
+this.rules = Setting.fileString("rules")       // content of a picked text file
 ```
 
-#### Rendering the image
+When unset, strings return `""`, booleans return `false`, and numbers and dates return `0`.
 
-`Setting.image()` returns an `LL:` prefixed path — **you can't drop it into `<img>` directly**. To render inside the widget, assign it to an image component's `value` and set `buttonStyle` to `"file"`:
-
-```js
-this.bgPath = Setting.image("background")  // "LL:{wid}/background.jpg"
-```
-Then in the editor's image component: `buttonStyle = "file"`, `value = "${bgPath}"`. The widget will pick up the file. On save, the image is **auto-compressed based on the image component's width**, so you don't need to worry about large photos eating memory.
-
-### Reverse Declaration (Setting.add)
-
-Don't want to manually add each setting in the editor? **Let JS declare them**. On each preview run, `Setting.add({...})` calls write into the settings panel's staging area; the user sees them the next time they open the panel.
+### Display an image selected by the user
 
 ```js
-Setting.add({ key: "city",       name: "City",     icon: "location", type: "text" })
-Setting.add({ key: "notify",     name: "Notify",   type: "toggle" })
-Setting.add({ key: "fontSize",   name: "Font size", type: "number" })
-Setting.add({ key: "birthday",   name: "Birthday", type: "date" })
-Setting.add({ key: "background", name: "Background", type: "image" })
-Setting.add({ key: "theme",      name: "Theme",    type: "select",
-              options: ["dark", "light"] })
+this.background = Setting.image("background")
 ```
 
-Fields:
+Set the Image Type to File and Content to `${background}`. `Setting.image()` returns a local `LL:` path, not a network URL.
 
-| Field | Required | Notes |
-|---|---|---|
-| `key` | ✓ | Unique identifier; matches `Setting.xxx("key")` |
-| `name` | ✓ | Label shown in the settings panel |
-| `type` | ✓ | `text` / `number` / `date` / `toggle` / `select` / `icon` / `color` / `image` / `file` |
-| `icon` | | SF Symbol name; defaults to `gearshape` |
-| `description` | | Small gray hint shown below the name |
-| `options` | required for `select` | array of strings |
+## Declare settings from JavaScript
 
-**Merge rules:**
-- key already exists → updates name / icon / description / options, **keeps the user's value and the original type**
-- key doesn't exist → added
-- If you remove a `Setting.add(...)` line in JS, the entry **disappears from staging on next preview**, but anything already merged into the panel isn't auto-deleted (user can delete manually)
-
-**Main app only**: in the widget extension, `Setting.add` is a no-op, so it won't keep rewriting staging on every widget refresh.
-
-### Writing Settings (Rare)
+When running in the editor, `Setting.add()` can place declarations in the settings panel's staging area:
 
 ```js
-Setting.set("uuid-12345", "userId")        // write a string
-const id = Setting.string("userId")
-console.log(id)
+Setting.add({
+  key: "city",
+  name: "City",
+  type: "text",
+  icon: "location",
+  description: "Enter the city used for weather"
+})
+
+Setting.add({
+  key: "theme",
+  name: "Theme",
+  type: "select",
+  options: ["light", "dark"]
+})
 ```
 
-Typical use: on first run, generate a unique ID and store it for next time.
+| Field | Required | Description |
+| --- | --- | --- |
+| `key` | ✓ | Unique ID matching `Setting.xxx(key)` |
+| `name` | ✓ | Label in the settings panel |
+| `type` | ✓ | `text`, `toggle`, `select`, `icon`, `color`, or `file` |
+| `icon` |  | SF Symbol name; defaults to `gearshape` |
+| `description` |  | Explanatory text below the name |
+| `options` | Required for `select` | Array of strings |
 
-## Quick Reference
+:::warning `Setting.add()` supports fewer types than the editor
+You can create and read number, date, and image settings in the editor, but you can't currently declare them with `Setting.add()`.
+:::
+
+The same key updates the name, icon, description, and options while preserving the user's current value and original type. Removing a `Setting.add()` line only clears the staged declaration; it doesn't automatically delete an existing setting.
+
+`Setting.add()` only works in the main app. Calling it from the widget extension doesn't modify settings.
+
+## Write a setting value
+
+`Setting.set(value, key)` writes a value back to a setting. One use is generating and saving an ID on the first run:
 
 ```js
-// Widget-level — simple strings
-setConfig(key, value)        // write
-getConfig(key) → string      // read
+if (!Setting.string("userId")) {
+  Setting.set(String(Date.now()), "userId")
+}
+```
 
-// Widget-level — type-preserving KV
-Config.set(key, value)               // write any JSON-compatible value
-Config.get(key, default?) → any      // read; returns default if missing
+For most settings, it's clearer to let the user change the value in the settings panel.
+
+## Quick reference
+
+```js
+Config.set(key, value)
+Config.get(key, default?) → any
 Config.has(key) → boolean
 Config.delete(key)
 Config.keys() → string[]
 
-// Common (by type + slot)
-setValue(key, value)         // write
-getValue(key) → string       // read
+setConfig(key, value)      // legacy string storage
+getConfig(key) → string
 
-// User-filled settings — read
-Setting.string(key)     → string  // text/select/icon/color hex
-Setting.bool(key)       → bool
-Setting.number(key)     → Double  // 0 if unset
-Setting.date(key)       → Number  // ms timestamp, 0 if unset
-Setting.image(key)      → string  // "LL:{wid}/file.jpg", "" if unset
-Setting.fileString(key) → string  // file content
+setValue(key, value)       // string stored by type + slot
+getValue(key) → string
 
-// User-filled settings — write
-Setting.set(value, key)           // string only
-Setting.add({ key, name, type, ... })  // JS reverse declaration (App only)
+Setting.string(key) → string
+Setting.bool(key) → boolean
+Setting.number(key) → number
+Setting.date(key) → number
+Setting.image(key) → string
+Setting.fileString(key) → string
+Setting.set(value, key)
+Setting.add({ key, name, type, ... })
 ```

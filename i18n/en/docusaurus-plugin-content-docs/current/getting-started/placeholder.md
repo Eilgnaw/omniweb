@@ -4,114 +4,118 @@ sidebar_position: 3
 
 # Placeholder syntax
 
-Placeholders are the bridge that **feeds JS data into components**. The syntax is dead simple: wrap a variable name or path in `${...}`.
+Placeholders put JavaScript results into component properties. Most of the time, you only need one form:
 
-:::tip
-The old `{...}` form is still compatible and is normalized to `${...}` when saved. Use `${...}` for new templates.
+```text
+${variableName}
+```
+
+:::tip Existing templates still work
+The old `{variableName}` form is converted to `${variableName}` when you save. Use `${...}` in new templates.
 :::
 
-## Basics: `${variableName}`
+## Display a variable
 
-In JS:
+JavaScript:
 
 ```js
-this.title = "Hello"
-this.count = 42
+this.title = "Today's weather"
+this.temperature = 26
 ```
 
-In a component's content field:
+Component content:
 
+```text
+${title}
+Currently ${temperature}°
 ```
-${title}      → shows: Hello
-You have ${count} new messages  → shows: You have 42 new messages
-```
 
-## Going further: `${object.field}` dot-path
+One string can contain fixed text and multiple placeholders.
 
-If your variable is an object or array, you can drill in with dot / bracket notation:
+## Read a value from an object or array
 
 ```js
 this.user = {
   name: "Alice",
-  badges: ["VIP", "Newbie"]
+  badges: ["VIP", "New"]
 }
 ```
 
-```
-${user.name}        → Alice
-${user.badges[0]}   → VIP
-```
-
-Any level of nesting works: `${a.b[0].c.d}` resolves fine.
-
-:::info This is a new feature
-Older versions required `${$.user.name}`; with this update, **dot-paths now work without a prefix**.
-:::
-
-## Force global: `${$.xxx}`
-
-The `$.` prefix means "**bypass the loop scope and look in the outermost global scope**".
-You won't usually need this — only when writing a loop where a **variable inside the loop** collides with a **global variable name** outside.
-
-```js
-this.row = "outer"
-this.list = [{ name: "A" }, { name: "B" }]
+```text
+${user.name}       → Alice
+${user.badges[0]}  → VIP
 ```
 
-```
-Inside the loop:
-  ${row}     → current loop item, e.g. {name:"A"}
-  ${$.row}   → "outer"   ← force read from global
-```
+You can keep nesting dot paths and array indexes, as in `${forecast[0].temperature.value}`.
 
-## Loop data source: `${array[variableName]}`
+## Loop over an array in a container
 
-This form is only used in the "loop data source" field of containers like **loop / vstack / hstack**.
-It means: **iterate over an array, naming each item with a given variable**, so child components can use that variable.
+A loop data source uses a different form from a normal placeholder:
 
 ```js
 this.rows = [
-  { title: "Apple", price: 5 },
-  { title: "Banana", price: 3 }
+  { name: "Apple", price: 5 },
+  { name: "Banana", price: 3 }
 ]
 ```
 
-In the container's loop data source field:
+Enter this in the container's Data Source field:
 
-```
+```text
 ${rows[row]}
 ```
 
-This means — iterate over `rows`, calling each item `row`. Child components can then write:
+This means “iterate over `rows` and name the current item `row`.” Child components can use:
 
-```
-${row.title}    → Apple / Banana
-${row.price}    → 5 / 3
+```text
+${row.name}
+USD ${row.price}
 ```
 
-Nested loops are supported too:
+Nested loops can continue from the outer item:
 
-```
+```text
 Outer data source: ${rows[row]}
-Inner data source: ${row.cells[cell]}    ← use the `cells` field of the outer `row`
-Inner component:   ${cell.text}
+Inner data source: ${row.cells[cell]}
+Inner component: ${cell.text}
 ```
 
-See [Loop component](../components/loop.md) for details.
+See [Loop](../components/loop.md) for a complete example.
 
-## What happens when a value can't be found?
+## When should you use `${$.name}`?
 
-- Placeholder **doesn't exist** → replaced with an empty string `""`, no error
-- You **wrote the wrong path** → same thing, shows blank (so use `console.log` to check)
+`$.` means “ignore the current loop variable and read from the outermost scope.” You only need it when a loop variable and global variable have the same name.
 
-## Cheat sheet
+```js
+this.row = "Global value"
+this.rows = [{ name: "First item" }]
+```
 
-| Syntax | Meaning |
-|------|------|
+Inside a `${rows[row]}` loop:
+
+```text
+${row.name}  → First item
+${$.row}     → Global value
+```
+
+## What if the content is blank?
+
+If Omni can't find a variable or path, it displays an empty string without throwing an error. Check in this order:
+
+1. Run the JavaScript again.
+2. Use `console.log` to confirm the value isn't `undefined`.
+3. Check capitalization, dots, and array indexes.
+4. Make sure a normal component isn't using loop data-source syntax.
+
+## Quick reference
+
+| Syntax | Use |
+| --- | --- |
 | `${name}` | Read `this.name` |
-| `${user.name}` | Read `this.user.name` |
-| `${list[0]}` | Read `this.list[0]` |
-| `${a.b[2].c}` | Any level of nesting |
-| `${$.name}` | Force global, skip loop scope |
-| `${rows[row]}` | Loop: used in the "loop data source" field |
-| text `${x}` text | Multiple placeholders can mix inside one string |
+| `Hello, ${name}` | Insert a variable into text |
+| `${user.name}` | Read an object field |
+| `${list[0]}` | Read an array item |
+| `${a.b[2].c}` | Read a nested path |
+| `${rows[row]}` | Iterate over an array in a container's Data Source field |
+| `${row.name}` | Read the current item inside a loop |
+| `${$.name}` | Force a global lookup from inside a loop |

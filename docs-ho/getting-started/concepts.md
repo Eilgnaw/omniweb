@@ -4,110 +4,84 @@ sidebar_position: 1
 
 # 基础概念
 
-5 分钟搞懂 Omni 鸿蒙版怎么工作。
+开始制作前，先认识卡片形态、布局、数据和刷新方式。
 
-## 一、卡片形态
+## 1. 先选卡片形态
 
-当前版本支持桌面卡片和锁屏卡片:
+| 位置 | 形态 | 尺寸 |
+| --- | --- | --- |
+| 主屏幕 | 桌面 `desk` | `1*2`、`2*2`、`2*4`、`4*4` |
+| 锁屏 | 锁屏 `lock` | `lock_1*1`、`lock_1*2` |
 
-| 形态 (`kind`) | 尺寸 (`dimension`) | 出现在哪里 |
-|---|---|---|
-| 桌面 `desk` | `1*2` / `2*2` / `2*4` / `4*4` | 主屏幕 |
-| 锁屏 `lock` | `lock_1*1` / `lock_1*2` | 锁屏 |
+新建时先按使用位置和内容量选择。桌面卡片适合天气、日程和信息面板；锁屏卡片空间更小，适合图标、数字和短状态。
 
-每种 `kind + dimension` 组合在编辑器里画布大小不同。新建卡片时先选 `kind + dimension`。
+## 2. 布局决定外观，JS 提供数据
 
-桌面卡片可以在编辑页点「更多 → 添加至桌面」,也可以返回 Omni 首页长按卡片后点「添加至桌面」,系统会直接添加并绑定当前卡片。也可以从桌面卡片库添加 Omni 卡片,再在系统卡片编辑里选择具体卡片。锁屏卡片添加到锁屏后会先显示「点击选择卡片」占位,点占位回到 Omni 选择同尺寸锁屏卡片。详见 [锁屏卡片](./lock-screen.md)。
+一张动态卡片由三部分组成：
 
-## 二、一张卡片由两部分组成
-
-### 1. 视图(看得见的部分)
-
-视图由**组件**搭出来,目前支持:
-
-- **文本** `Text` / **图片** `Image` / **图标** `Icon` / **二维码** `QRCode`
-- **时钟** `TextClock` / **计时器** `TextTimer`
-- **仪表** `Gauge`
-- **按钮** `Button`(容器,可放子节点)
-- **容器**:`Column` / `Row` / `Stack` / `VStack` / `HStack` / `Grid`
-- **占位** `Blank`(撑剩余空间)
-
-每个组件支持的属性见左侧 [组件](../components/text.md) 一节。
-
-### 2. 数据(动态的部分)
-
-想让卡片显示「实时数据」(天气、未读、股价、Pos 排名 ...),写一段 **JavaScript**:
+1. **组件**：文字、图片、图标和容器负责显示。
+2. **JavaScript**：获取数据，并在顶层声明输出变量。
+3. **占位符**：用 `${变量名}` 把变量放进组件字段。
 
 ```js
-// 例:拉一个接口
-const req = new Request("https://2f0.cn/api/omni")
-const obj = await req.fetchJSON()
+const request = new Request("https://2f0.cn/api/omni")
+const data = await request.fetchJSON()
 
-let title = obj.omni      // 写到顶层变量,组件就能用
+let title = data.omni
 let count = 12
 ```
 
-代码运行完,JS 顶层变量被收集成一个 bindings 对象,再通过**占位符**绑到组件上:
+在文字组件的“内容”中填写：
 
+```text
+${title}
 ```
-文本组件的「内容」字段写: ${title}
-                  → 显示 obj.omni 的值
-```
 
-## 三、变量怎么"被组件看到"
+## 3. 哪些变量能显示？
 
-JS 运行后,Omni 会自动把顶层 `const` / `let` / `var` 声明的变量收集成 bindings:
+Omni 会收集顶层的 `const`、`let` 和 `var`：
 
 ```js
-const title = "未读"      // ✅ 进 bindings
-let   count = 12          // ✅ 进 bindings
-var   tag   = "new"       // ✅ 进 bindings
+const title = "今日天气"   // 可以使用 ${title}
+let count = 3             // 可以使用 ${count}
+const _token = "secret"   // _ 开头，不输出
 
-const _PAGE_SIZE = 20     // ❌ `_` 开头按惯例当私有,不进 bindings
 function load() {
-  const now = new Date()  // ❌ 函数内局部,不进 bindings
+  const temp = 26         // 函数局部变量，不输出
 }
 ```
 
-:::tip 关键规则
-**只有顶层(行首零缩进)的 `const` / `let` / `var` 才被收集。** 解构 `const {a, b} = obj` 暂不进 bindings。
+:::warning 不要自己写顶层 `return`
+Omni 会自动收集顶层变量并返回结果。你只需要写普通脚本。
 :::
 
-:::warning 顶层必须返回一个对象
-内部已自动 `(async () => { ...; return { ...vars }; })()`。你只管写普通顶层代码就行,**别再自己写 `return`**。
-:::
+## 4. 选对布局组件
 
-## 四、JS 使用
+| 想要的效果 | 使用 |
+| --- | --- |
+| 从上到下排列 | 纵列 |
+| 从左到右排列 | 横排 |
+| 前后叠放 | 层叠 |
+| 固定行列 | 网格 |
+| 可滚动长内容 | 列表 |
+| 把前后内容推向两端 | 占位 |
+| 按数组重复一套布局 | 容器的“数据源（循环）” |
 
-- ✅ 标准 JS 语法、`async/await`、`Promise`、`Date`、`JSON`、`Math` 都能用
-- ✅ 内置 `Request` / `FileManager` / `Config` / `Shared` / `Setting` / `Device` / `openUrl` / `setUpdateFreq` / `sleep` / `isDebug` / `console`
-- ❌ 没有 `window`、`document`、浏览器 `fetch`(用 `Request` 替代)
-- ❌ 没有 npm,只能用 Omni 内置的接口
-- ⚠️ **卡片侧 JS 每次 eval 上限 4.5 秒**,超时会回退到上一次成功的 bindings
+## 5. JavaScript 运行环境
 
-## 五、卡片什么时候刷新?
+- 支持标准 JavaScript、`async/await`、`Promise`、`Date`、`JSON` 和 `Math`。
+- 使用 Omni 的 `Request`，没有浏览器 `fetch`、`window` 或 `document`。
+- 不能安装 npm 包。
+- 卡片刷新中的脚本最多运行 4.5 秒；超时会保留上一次成功内容。
 
-系统(`FormExtensionAbility`)决定。你能做的两件事:
+## 6. 刷新由系统调度
 
-- `setUpdateFreq(min)`:建议系统多少分钟后再唤起一次刷新
-- `setUpdateTime(ts)`:建议系统在某个绝对时间(ms 时间戳)再唤起
+`setUpdateFreq(30)` 可以建议系统 30 分钟后刷新，但不是精确定时器。时钟和计时器应使用对应组件，不要依赖频繁运行 JavaScript。
 
-这两个**只是建议**,具体节奏看系统调度。详见 [`api/control`](../api/control.md)。
+## 7. 分享前，把个人值做成设置项
 
-:::warning
-不要指望秒级刷新。当前桌面卡片走系统调度,做不了「秒级近实时」。
-:::
-
-## 六、设置项 ——「让别人用你的模板」
-
-如果你做了张卡片想分享给别人,但别人需要填自己的 token / 城市 / 图片 —— 用「设置项」。
-
-- 在 JS 里 `Setting.get("city", "北京")` 读
-- 用户在卡片设置面板里填的值落到 `widget.setting`(JSON 对象)
-- 跨次运行持久化
-
-详见 [`api/config#setting`](../api/config.md#setting--用户填的参数)。
+需要用户填写城市、Token、颜色或图片时，使用 `Setting.add()` 声明设置项，再用 `Setting.string()`、`Setting.number()` 等方法读取。详见[配置与设置](../api/config.md)。
 
 ---
 
-下一步:[做出第一个卡片 →](./first-widget.md)
+下一步：[做出第一个卡片 →](./first-widget.md)

@@ -4,35 +4,34 @@ sidebar_position: 8
 
 # Spacer
 
-A flexible placeholder that **pushes apart** the elements before and after it in the same container. Think of it as "whitespace that auto-expands".
+Spacer fills the remaining room in a container and pushes the components before and after it apart.
 
-## Usage
+## Quick start
 
-Tap the ➕ in the top-right of the editor and add **spacer**. You usually don't need any properties.
+Add **spacer** inside an `hstack` or `vstack`. It usually needs no properties.
 
-## Example: text on the left, icon on the right
+## Example: align to both sides
 
-Inside an **hstack**:
-
-```
-[ text ] [ spacer ] [ icon ]
-```
-
-Result: text sticks to the left, icon to the right, spacer fills the middle.
-
-## Example: push content to top and bottom
-
-Inside a **vstack**:
-
-```
-[ text title ]
-[ spacer ]
-[ text subtitle ]
+```text
+hstack
+├─ text
+├─ spacer
+└─ icon
 ```
 
-Result: title pinned to the top, subtitle pinned to the bottom.
+Text stays on the left, Icon stays on the right, and Spacer fills the middle.
 
-:::tip
-- Without a spacer, container children default to **center**-aligned (or whatever "alignment" is set to).
-- You can put multiple spacers in the same container — they **share** the remaining space equally.
+## Example: align to top and bottom
+
+```text
+vstack
+├─ text (title)
+├─ spacer
+└─ text (caption)
+```
+
+The title stays at the top and the caption at the bottom.
+
+:::tip Multiple spacers
+Several Spacers in the same container share the remaining room. For a fixed distance, use container spacing or padding instead.
 :::

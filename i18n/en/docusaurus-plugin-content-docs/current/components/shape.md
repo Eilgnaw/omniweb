@@ -4,15 +4,17 @@ sidebar_position: 4
 
 # Shape
 
-Draws a geometric shape. Useful for decoration, backgrounds, dividers, and progress bar bases.
+Use Shape for backgrounds, dividers, dots, capsules, and simple progress bars.
 
-## Usage
+## Quick start
 
-Tap the ➕ in the top-right of the editor and add **shape**, then pick a shape name in the "content" field:
+1. Add **shape**.
+2. Choose a shape in Content.
+3. Set its width, height, and color.
 
 | Content | Shape |
-|---------|-------|
-| `circle` | Circle ⚫ |
+| --- | --- |
+| `circle` | Circle |
 | `rectangle` | Rectangle |
 | `roundedrectangle` | Rounded rectangle |
 | `ellipse` | Ellipse |
@@ -20,25 +22,29 @@ Tap the ➕ in the top-right of the editor and add **shape**, then pick a shape 
 
 ## Common properties
 
-| Property | Description |
-|----------|-------------|
-| Width / Height | Size |
-| Color | Fill color, supports gradients |
-| Corner radius | Rounded rectangle only |
-| Rotation / Offset | Effects |
-| Opacity | 0~1 |
+| Property | What it does |
+| --- | --- |
+| Width / Height | Shape size |
+| Color | Solid or gradient fill |
+| Corner radius | Rounded rectangles only |
+| Opacity | From `0` to `1` |
+| Rotation / Offset | Changes the angle and position |
 
 ## Example: a simple progress bar
 
-A **zstack** containing two shapes:
+Layer two rectangles in a `zstack`:
 
-| Layer | Type | Width | Color |
-|-------|------|-------|-------|
-| Bottom | rectangle | 100 | Gray |
-| Top | rectangle | `${percent}` | Theme color |
+| Layer | Content | Width | Color |
+| --- | --- | --- | --- |
+| Back | `rectangle` | `100` | Gray |
+| Front | `rectangle` | `${percent}` | Accent color |
 
-In JS, set `this.percent = 60` → the bar fills to 60%.
+```js
+this.percent = 60
+```
 
-:::tip Want something more polished?
-Try [Gauge](./gauge.md) — rings, arcs, and progress bars all come with built-in styling.
+The front rectangle becomes 60 points wide, producing a 60% progress bar.
+
+:::tip Need a system-style indicator?
+Use [Gauge](./gauge.md). For lines, arcs, or multi-part graphics, use [Canvas](./canvas.md).
 :::

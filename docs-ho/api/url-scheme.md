@@ -2,15 +2,11 @@
 sidebar_position: 9
 ---
 
-# 外部调用 URL Scheme 与 AppLink
+# URL Scheme 与 AppLink
 
-Omni Widgets 支持用外部调用链接触发 App 内动作。可以放在系统快捷指令、其它 App、二维码,也可以从卡片 JS 里用 `Widget.openUrl()` 打开。
+外部链接可以运行一张卡片、控制闪控球，或打开指定应用。可以把链接放进系统快捷指令、其他 App、二维码或容器的“打开链接”。
 
-协议展示为 `OmniWidgets://`,实际匹配不区分大小写。
-
-也可以使用文档站域名的 HTTPS AppLink。已安装 App 时,系统会尝试直接交给 Omni Widgets；未安装或系统未接管时,会回退到文档站下载页。
-
-AppLink 基础地址:
+协议写作 `OmniWidgets://`，匹配时不区分大小写。HTTPS AppLink 使用：
 
 ```text
 https://omni.2f0.cn/ho/app/
@@ -19,32 +15,30 @@ https://omni.2f0.cn/ho/app/
 ## 运行卡片
 
 ```text
+OmniWidgets://run-widget/<卡片 ID>
 OmniWidgets://run-widget/<卡片 ID>?city=Shanghai&count=10
 ```
 
-打开后会运行这张卡片已经保存的逻辑。URL 只能选择本地卡片,不能把任意代码放进 URL 执行。
-
-对应的 AppLink:
+AppLink：
 
 ```text
 https://omni.2f0.cn/ho/app/run-widget/<卡片 ID>?city=Shanghai&count=10
 ```
 
-查询参数会注入到 `$params`:
+查询参数会进入 `$params`，值都是字符串：
 
 ```js
 const city = $params.city || "Beijing"
 const count = Number($params.count || 0)
 
 Config.set("lastCity", city)
-console.log("run from url", city, count)
 ```
 
-:::warning 不会自动刷新卡片
-`run-widget` 默认只运行卡片逻辑。`Config.set()`、`FileManager.write()` 等结果会保存,但桌面 / 锁屏卡片不会立刻重绘;等下次刷新时才会显示新结果。
+:::warning 运行后不会立即重绘桌面卡片
+配置和文件会保存，但桌面或锁屏内容通常要等下一次系统刷新才会变化。
 :::
 
-## 获取当前卡片链接
+## 当前卡片的运行链接
 
 ```js
 console.log(Widget.id)
@@ -54,11 +48,8 @@ console.log(Widget.dimension)
 console.log(Widget.urlscheme)
 ```
 
-`Widget.urlscheme` 会返回当前卡片的运行链接:
-
 ```js
-const url = Widget.urlscheme + "?source=button"
-Widget.openUrl(url)
+Widget.openUrl(Widget.urlscheme + "?source=button")
 ```
 
 ## 控制闪控球
@@ -69,68 +60,45 @@ OmniWidgets://floating-ball/stop
 OmniWidgets://floating-ball/toggle
 ```
 
-| URL | 说明 |
-|---|---|
-| `OmniWidgets://floating-ball/start` | 启动闪控球 |
-| `OmniWidgets://floating-ball/stop` | 停止闪控球 |
-| `OmniWidgets://floating-ball/toggle` | 已启动则停止,未启动则启动 |
-
-首次启动可能会弹出系统授权。拒绝后不会启动闪控球。
-
-对应的 AppLink:
+对应 AppLink：
 
 ```text
 https://omni.2f0.cn/ho/app/floating-ball/start
 https://omni.2f0.cn/ho/app/floating-ball/stop
 https://omni.2f0.cn/ho/app/floating-ball/toggle
 ```
+
+首次启动可能需要系统授权。
 
 ## 打开指定应用
 
 ```text
-OmniWidgets://open-app/<应用包名>?ability=EntryAbility
-OmniWidgets://open-app/<应用包名>?ability=EntryAbility&module=entry
+OmniWidgets://open-app/<包名>?ability=EntryAbility
+OmniWidgets://open-app/<包名>?ability=EntryAbility&module=entry
 ```
 
-打开应用需要提供应用包名和 `ability`。只有目标应用还需要模块名时,再加 `module`。
-
-卡片逻辑里也可以这样打开:
-
-```js
-Widget.openUrl("OmniWidgets://open-app/com.huawei.hmos.calendar?ability=MainAbility")
-```
-
-对应的 AppLink:
+AppLink：
 
 ```text
-https://omni.2f0.cn/ho/app/open-app/com.huawei.hmos.calendar?ability=MainAbility
+https://omni.2f0.cn/ho/app/open-app/<包名>?ability=EntryAbility
 ```
+
+只有目标应用需要模块名时才添加 `module`。
 
 ## 速查
 
 ```text
-OmniWidgets://run-widget/<widgetId>
 OmniWidgets://run-widget/<widgetId>?key=value
-
-OmniWidgets://floating-ball/start
-OmniWidgets://floating-ball/stop
-OmniWidgets://floating-ball/toggle
-
-OmniWidgets://open-app/<bundleName>?ability=EntryAbility
-OmniWidgets://open-app/<bundleName>?ability=EntryAbility&module=entry
+OmniWidgets://floating-ball/start|stop|toggle
+OmniWidgets://open-app/<bundleName>?ability=<abilityName>&module=<moduleName>
 
 https://omni.2f0.cn/ho/app/run-widget/<widgetId>?key=value
-https://omni.2f0.cn/ho/app/floating-ball/start
-https://omni.2f0.cn/ho/app/floating-ball/stop
-https://omni.2f0.cn/ho/app/floating-ball/toggle
-https://omni.2f0.cn/ho/app/open-app/<bundleName>?ability=EntryAbility
-https://omni.2f0.cn/ho/app/open-app/<bundleName>?ability=EntryAbility&module=entry
+https://omni.2f0.cn/ho/app/floating-ball/start|stop|toggle
+https://omni.2f0.cn/ho/app/open-app/<bundleName>?ability=<abilityName>
 ```
 
 ## 注意事项
 
-- query 参数值在 `$params` 里都是字符串。
-- 重复参数名以后面的值为准。
-- 找不到卡片、运行报错或超时时,结果会写入最近一次输出和日志。
-- AppLink 未被系统接管时,会打开文档站下载页。
-- 运行卡片、目标应用或闪控球动作不存在时,App 内会显示最近一次外部调用结果。
+- 找不到卡片、运行报错或超时时，可以在 App 中查看最近一次外部调用结果。
+- AppLink 未被系统交给 Omni 时，会回退到文档站下载页。
+- 重复查询参数以后面的值为准。
