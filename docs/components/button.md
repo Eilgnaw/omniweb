@@ -29,6 +29,10 @@ Button 基于 App Intent，只负责运行代码。要跳转 URL，请让 `vstac
 
 Button 代码运行完成后，Omni 会请求刷新小组件，让新状态显示出来。
 
+:::warning 不要在 Button 里放循环容器
+尽量不要把设置了循环数据源的 `vstack`、`hstack`、`zstack` 或 `grid` 放在 Button 里面。这种嵌套在部分小组件中可能无法显示。让 Button 只包含 `text`、`icon`、`image` 或其他不带循环的简单布局，并把循环容器放在 Button 外面。
+:::
+
 ## 主 JS 与 Button 代码
 
 | | 主 JS | Button 代码 |

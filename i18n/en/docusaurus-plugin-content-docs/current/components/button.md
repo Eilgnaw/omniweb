@@ -29,6 +29,10 @@ Button in a Home Screen widget requires iOS 17 or later. Lock Screen widgets and
 
 After the code finishes, Omni asks the system to refresh the widget so the new state can appear.
 
+:::warning Don't put a loop container inside a Button
+Avoid placing a `vstack`, `hstack`, `zstack`, or `grid` with a loop data source inside a Button. This nesting may fail to appear in some widgets. Keep the Button label to `text`, `icon`, `image`, or another simple layout without a loop, and place the loop container outside the Button.
+:::
+
 ## Main JS vs. Button code
 
 | | Main JS | Button code |
