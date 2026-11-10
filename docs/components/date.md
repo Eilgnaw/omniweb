@@ -71,3 +71,7 @@ this.target = [
 ## 裁剪
 
 Date 支持从上、下、左、右裁剪，可用于隐藏计时文本的一部分。普通用法可以忽略这些选项。
+
+## 混合模式
+
+Date 支持 Blend Mode。把它放在 ZStack 的图片或形状上方，可以使用 `overlay`、`softLight` 等模式让时间文字透出下层颜色。模式也可以设为 `${变量}`，完整列表见[视觉效果](./visual-effects.md#blend-mode)。

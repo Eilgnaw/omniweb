@@ -29,6 +29,7 @@ sidebar_position: 4
 | 圆角 | 仅用于圆角矩形 |
 | 不透明度 | `0` 到 `1` |
 | 旋转 / 偏移 | 调整角度和位置 |
+| Blend Mode | 与下方内容混合；详见[视觉效果](./visual-effects.md#blend-mode) |
 
 ## 示例：简单进度条
 

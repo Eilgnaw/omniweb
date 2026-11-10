@@ -28,6 +28,7 @@ try {
 | `fetchJSON()` | 已解析的对象或数组 | JSON API |
 | `fetchString()` | 字符串 | HTML、纯文本、XML |
 | `fetch()` | 字节数组 | 图片和其他二进制文件 |
+| `fileManager.download(request, path)` | 文件信息对象 | 需要保存到文件的图片或大文件 |
 
 ## GET 请求
 
@@ -61,6 +62,38 @@ console.log(response)
 
 `body` 中的对象会被编码成 JSON。也可以把 `method` 改成服务器支持的其他 HTTP 方法。
 
+## 直接下载到文件
+
+下载图片或较大的二进制文件时，不要先用 `fetch()` 把全部字节传进 JavaScript。把已经配置好的请求交给目标 `FileManager`：
+
+```js
+const fm = FileManager.local()
+const path = fm.documents() + "avatar.png"
+
+const request = new Request("https://example.com/avatar.png")
+request.headers = {
+  "Authorization": `Bearer ${token}`,
+  "Referer": "https://example.com/"
+}
+
+const result = await fm.download(request, path)
+console.log(result.path, result.status, result.mimeType, result.size, result.cached)
+```
+
+`download()` 会保留 `Request` 上设置的请求方法、请求头和 body。响应直接写入临时文件，成功后再替换目标文件，不会创建 JavaScript 字节数组。
+
+返回对象包含：
+
+| 字段 | 含义 |
+| --- | --- |
+| `path` | 传入的目标路径 |
+| `status` | HTTP 状态码 |
+| `mimeType` | 响应 MIME 类型 |
+| `size` | 保存后的文件字节数 |
+| `cached` | 是否已经同步到小组件运行缓存 |
+
+非 `2xx` HTTP 响应、无效文件路径、网络失败或落盘失败都会拒绝 Promise。旧的 `fetch() + fm.saveImage()` 仍然可用，但只建议用于很小的二进制数据。
+
 ## 错误处理
 
 网络失败、URL 无效或返回内容无法按指定类型解析时，Promise 会被拒绝。给小组件设置一个可读的回退值：
@@ -90,4 +123,5 @@ request.body = { ... }           // 设置 JSON 请求体
 request.fetchJSON() → Promise<any>
 request.fetchString() → Promise<string>
 request.fetch() → Promise<number[]>
+fileManager.download(request, path) → Promise<{ path, status, mimeType, size, cached }>
 ```

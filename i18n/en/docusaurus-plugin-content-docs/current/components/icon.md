@@ -27,14 +27,57 @@ You don't need to memorize names: the editor includes a picker. You can also bro
 | Content | The SF Symbol name, such as `bolt.fill` |
 | Width / Height | Symbol size |
 | Color | Solid or gradient color |
+| Weight | A system symbol weight from `ultraLight` through `black`; placeholders are supported |
+| Rendering mode | Monochrome, hierarchical, palette, or the SF Symbol's built-in multicolor design |
+| Palette colors | Foreground, secondary, and tertiary colors used by Palette mode |
 | Opacity | From `0` to `1` |
 | Rotation / Offset | Changes the angle and position |
+| Blend Mode | Mixes the icon with content below it; see [Visual effects](./visual-effects.md#blend-mode) |
+
+## Symbol weight
+
+Weight uses the system SF Symbols weights. Supported values, from lightest to heaviest, are:
+
+```text
+ultraLight / thin / light / regular / medium
+semibold / bold / heavy / black
+```
+
+The default is `regular`. Weight supports placeholders. For example:
+
+```js
+this.symbolWeight = "bold"
+```
+
+Set Weight to `${symbolWeight}`. Unsupported values fall back to `regular`.
+
+## Multicolor system symbols
+
+Icon supports four SF Symbols rendering modes:
+
+| Mode | Color source |
+| --- | --- |
+| `monochrome` | Uses the foreground color or gradient |
+| `hierarchical` | Builds different emphasis levels from the foreground color |
+| `palette` | Uses the foreground, secondary, and tertiary colors; the SF Symbol decides how many layers it uses |
+| `multicolor` | Uses the SF Symbol's built-in system colors |
+
+The rendering mode and palette colors all support placeholders. For example:
+
+```js
+this.symbolMode = "palette"
+this.secondaryColor = "FF9500"
+this.tertiaryColor = "34C759"
+```
+
+Set Rendering Mode to `${symbolMode}`, then use `${secondaryColor}` and `${tertiaryColor}` in the manual inputs for Secondary Color and Tertiary Color.
+
+Not every SF Symbol has several color layers. If `multicolor` still looks monochrome, that symbol usually doesn't include a built-in multicolor design; use `palette` when you need custom colors.
 
 ## Example: show a weather symbol
 
 ```js
-const result = await Weather.getCurrent()
-const weather = JSON.parse(result)
+const weather = await Weather.current()
 this.icon = weather.symbolName
 ```
 

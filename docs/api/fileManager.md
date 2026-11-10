@@ -53,14 +53,19 @@ const fm = FileManager.local()
 const path = fm.documents() + "background.png"
 
 if (!fm.fileExists(path)) {
-  const bytes = await new Request("https://example.com/image.png").fetch()
-  fm.saveImage(path, bytes)
+  const request = new Request("https://example.com/image.png")
+  request.headers = {
+    "Authorization": `Bearer ${token}`
+  }
+  await fm.download(request, path)
 }
 
 this.imagePath = path
 ```
 
 把 Image 组件的类型设为“文件”，内容设为 `${imagePath}`。
+
+`download()` 会把响应直接写入文件，适合需要请求头的图片，也能避免大图片在 JavaScript 与原生之间来回复制字节数组。旧的 `fetch() + saveImage()` 仍然兼容。
 
 ## 检查与删除
 
@@ -126,6 +131,7 @@ fm.fileExists(path) → boolean
 fm.writeString(path, content) → boolean
 fm.readString(path) → string | null
 fm.saveImage(path, bytes) → void
+fm.download(request, path) → Promise<{ path, status, mimeType, size, cached }>
 fm.listContents(path) → string[]
 fm.clear(path) → boolean
 fm.remove(path) → boolean

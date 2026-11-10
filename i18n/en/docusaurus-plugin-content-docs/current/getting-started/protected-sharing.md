@@ -42,9 +42,13 @@ Author information appears above the common actions. The page includes Edit, Dup
 
 Swiping a widget in the Home list now shows Delete only and requires a second confirmation. Grid mode no longer has a long-press menu. Use the information page for editing, duplicating, exporting, renaming, and submitting.
 
-If Component Editing still requires a password or the author denied it, tapping Edit still opens the normal preview editor, but the bottom component editor stays closed and the component list, layout properties, and code entry points remain unavailable. When the author provided user settings such as a city, color, or account, the app opens those settings automatically. After saving, the settings sheet closes and the preview immediately shows the latest result. With no user settings, the full preview appears directly. After a successful unlock, entering again enables the full editor.
+Protected widgets show a blue lock badge in both the Home list and grid cards, so you can identify them without opening the information page.
+
+If Component Editing still requires a password or the author denied it, tapping Edit still opens the normal preview editor, but the bottom component editor stays closed and the component list, layout properties, and code entry points remain unavailable. When the author provided user settings such as a city, color, or account, the app opens those settings automatically. After saving, the settings sheet closes and the preview immediately shows the latest result. After closing it, use the User Settings button in the preview navigation bar to open it again at any time. With no user settings, the full preview appears directly. After a successful unlock, entering again enables the full editor.
 
 Importing an `.omni` file, receiving one through the Share Extension, or downloading a widget from Discover opens the same information page first. Review the author, description, and permissions, then tap Edit to enter the editor.
+
+A loading indicator stays visible during download, online verification, decryption, and local storage. Discover blocks repeated taps, and the same shared file starts only one import task.
 
 ## Unprotected sharing
 
@@ -63,8 +67,9 @@ New AWidget versions export `.omni` v3 with an outer cover only, but file import
 
 Every export writes the current `CFBundleVersion` to the `appBuild` field in `manifest.json`.
 
-- Import continues when the current app build is greater than or equal to the package's `appBuild`.
-- If the package's `appBuild` is higher, AWidget rejects the import and asks the user to update the app first.
+- AWidget uses the integer result of `appBuild / 100` as the compatibility generation. For example, builds 300 through 399 are all generation 3 and can import packages from one another.
+- Import continues when the current app's compatibility generation is greater than or equal to the package's generation. If the package's generation is newer, AWidget rejects the import and asks the user to update the app first.
+- When a component API upgrade requires a new compatibility generation, AWidget moves the build into the next hundred range.
 - This is the app build number, not the user-facing version number.
 
 ## Protected sharing
@@ -80,6 +85,8 @@ When Share Protection is on, you can configure these permissions separately:
 | Re-export | Creating a new share file |
 
 Each permission can be set to Allow, Password, or Deny. One password unlocks every password-protected permission in that share package. Source code isn't shown until code access is granted.
+
+An incorrect password shows a localized “Incorrect password. Try again.” message. Too many attempts in a short period asks the user to try again later.
 
 Runtime settings, local renaming, and deletion always remain available. For example, after the author locks layout and code, the recipient can still enter settings such as a city, color, or account.
 

@@ -76,7 +76,7 @@ const place = await Location.getPlacemark({
 ```js
 try {
   const place = await Location.getPlacemark()
-  const weather = JSON.parse(await Weather.getCurrent())
+  const weather = await Weather.current()
 
   this.city = place.city || place.district || place.name || "当前位置"
   this.temperature = Math.trunc(weather.temperature.value) + "°"

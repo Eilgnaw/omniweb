@@ -53,14 +53,19 @@ const fm = FileManager.local()
 const path = fm.documents() + "background.png"
 
 if (!fm.fileExists(path)) {
-  const bytes = await new Request("https://example.com/image.png").fetch()
-  fm.saveImage(path, bytes)
+  const request = new Request("https://example.com/image.png")
+  request.headers = {
+    "Authorization": `Bearer ${token}`
+  }
+  await fm.download(request, path)
 }
 
 this.imagePath = path
 ```
 
 Set the Image component's Type to File and Content to `${imagePath}`.
+
+`download()` writes the response directly to a file. It works with images that need request headers and avoids copying a large image byte array back and forth between JavaScript and native code. The old `fetch() + saveImage()` flow remains compatible.
 
 ## Check and remove a file
 
@@ -126,6 +131,7 @@ fm.fileExists(path) → boolean
 fm.writeString(path, content) → boolean
 fm.readString(path) → string | null
 fm.saveImage(path, bytes) → void
+fm.download(request, path) → Promise<{ path, status, mimeType, size, cached }>
 fm.listContents(path) → string[]
 fm.clear(path) → boolean
 fm.remove(path) → boolean

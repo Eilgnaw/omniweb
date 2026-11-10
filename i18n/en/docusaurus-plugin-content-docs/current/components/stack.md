@@ -20,6 +20,7 @@ Stack groups several children into one layout. Choose the container by direction
 | Children | Holds any components, including nested containers |
 | Spacing | Distance between children |
 | Padding | Space on four edges, such as `10,10,10,10` |
+| Width / Height | Follows the content when empty; a positive value fixes the container size |
 | Alignment | `center`, `leading`, `trailing`, and more |
 | Background / Corner radius | Styles the entire container |
 | Material | `thick`, `thin`, or `regular` blur material |
@@ -61,6 +62,17 @@ zstack
 ```
 
 Use it for backgrounds, translucent overlays, and progress bars made from two shapes.
+
+### Fix the container size and let text shrink
+
+To keep a capsule or badge at a fixed width, set a width on the outer ZStack, then make the inner Text single-line with a scale factor:
+
+```text
+zstack (width: 60; clip shape: Capsule)
+└─ text (line count: 1; scale factor: 0.5; padding: 5,8,5,8)
+```
+
+Short text keeps its original font size. Long text shrinks within 60pt instead of expanding the capsule. Set width or height to `0`, or clear it, to follow the content again.
 
 ### TStack: rich text
 

@@ -29,6 +29,7 @@ const sidebars: SidebarsConfig = {
         'components/date',
         'components/gauge',
         'components/spacer',
+        'components/divider',
         'components/stack',
         'components/grid',
         'components/visual-effects',

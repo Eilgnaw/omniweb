@@ -6,6 +6,55 @@ sidebar_position: 11
 
 Every component except Spacer supports Blur and Scale Effect. You can also apply them to a container, which affects all of its children together.
 
+Text, Date, Icon, Shape, and Image also support Blend Mode, which mixes the current component's colors with the content below it.
+
+## Blend Mode
+
+Place a supported component in a ZStack above an image or shape. Blend Mode controls how the component is composited with the colors below it:
+
+### Common modes
+
+| Mode | Best for |
+| --- | --- |
+| `normal` | Regular rendering with no blending |
+| `multiply` | Darkening colors for shadows and textures |
+| `screen` | Lightening colors for glow effects |
+| `overlay` | Keeping contrast while picking up colors underneath |
+| `darken` | Keeping the darker color from the current layer or the layer below |
+| `lighten` | Keeping the lighter color from the current layer or the layer below |
+| `colorDodge` | Strongly brightening the colors below |
+| `colorBurn` | Strongly darkening the colors below |
+| `softLight` | A gentler version of `overlay` |
+| `hardLight` | A stronger version of `overlay` |
+| `difference` | High contrast based on the difference between colors |
+| `exclusion` | A softer contrast effect than `difference` |
+| `hue` | Using the current layer's hue while keeping saturation and luminosity below |
+| `saturation` | Using the current layer's saturation while keeping hue and luminosity below |
+| `color` | Using the current layer's hue and saturation while keeping luminosity below |
+| `luminosity` | Using the current layer's luminosity while keeping hue and saturation below |
+| `plusDarker` | Adding colors with a darker result |
+| `plusLighter` | Adding colors with a lighter result |
+
+### Advanced compositing modes
+
+| Mode | What it does |
+| --- | --- |
+| `sourceAtop` | Shows the current component only where content already exists below it |
+| `destinationOver` | Places the current component behind the content below; it may disappear behind an opaque layer |
+| `destinationOut` | Uses the current component's opacity to erase the content below |
+
+:::warning Advanced modes change the alpha below them
+Use advanced compositing modes inside a ZStack. Omni creates an isolated compositing group for a ZStack that contains these modes, keeping erasure from affecting content outside that ZStack. Isolation uses some extra rendering memory, so don't apply it throughout a large Grid.
+:::
+
+Blend Mode supports placeholders. This setup lets JavaScript choose the mode:
+
+```js
+this.blend = "overlay"
+```
+
+Set the component's Blend Mode to `${blend}`. Unsupported values fall back to `normal`.
+
 ## Blur
 
 | Property | Values | What it does |

@@ -71,3 +71,7 @@ Regular widgets can't run JS every second, but iOS updates Date text itself. For
 ## Clipping
 
 Date can clip from the top, bottom, leading, or trailing edge. Use this to hide part of a timer. You can ignore these options for ordinary layouts.
+
+## Blend Mode
+
+Date supports Blend Mode. Place it above an image or shape in a ZStack, then use a mode such as `overlay` or `softLight` to bring the colors underneath into the time text. The mode can also be `${variable}`; see [Visual effects](./visual-effects.md#blend-mode) for the full list.

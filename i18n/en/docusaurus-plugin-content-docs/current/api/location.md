@@ -76,7 +76,7 @@ Address structures vary by region, so fields may be empty. Always provide a disp
 ```js
 try {
   const place = await Location.getPlacemark()
-  const weather = JSON.parse(await Weather.getCurrent())
+  const weather = await Weather.current()
 
   this.city = place.city || place.district || place.name || "Current location"
   this.temperature = Math.trunc(weather.temperature.value) + "°"

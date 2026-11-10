@@ -45,8 +45,7 @@ vstack
 
 ```js
 try {
-  const result = await Weather.getCurrent()
-  const weather = JSON.parse(result)
+  const weather = await Weather.current()
 
   this.icon = weather.symbolName
   this.condition = weather.condition

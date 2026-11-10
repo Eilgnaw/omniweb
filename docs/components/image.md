@@ -39,6 +39,26 @@ Image 不会自动下载 `https://...` 图片。请先用 JavaScript 下载并�
 
 完整规则见[文件管理](../api/fileManager.md)。
 
+## 适配深色模式
+
+Image 可以分别设置浅色图片和深色图片。系统切换外观时会自动选择对应图片；没有设置深色图片时，深色模式继续显示浅色图片。
+
+- **照片**：分别选择和裁剪浅色图片、深色图片。清除深色图片后会恢复为“跟随浅色图片”。
+- **文件**：在“内容”与“深色图片”中分别填写路径或占位符。
+
+```js
+this.lightImage = FileManager.local().documents() + "cover-light.png"
+this.darkImage = FileManager.local().documents() + "cover-dark.png"
+```
+
+Image 设置：
+
+- 类型：**文件**
+- 内容：`${lightImage}`
+- 深色图片：`${darkImage}`
+
+两张图片使用同一组宽高、缩放模式和裁剪形状，因此切换外观时不会改变组件布局。
+
 ## 示例：下载并缓存网络图片
 
 ```js
@@ -46,8 +66,11 @@ const fm = FileManager.local()
 const path = fm.documents() + "avatar.png"
 
 if (!fm.fileExists(path)) {
-  const data = await new Request("https://example.com/avatar.png").fetch()
-  fm.saveImage(path, data)
+  const request = new Request("https://example.com/avatar.png")
+  request.headers = {
+    "Authorization": `Bearer ${token}`
+  }
+  await fm.download(request, path)
 }
 
 this.imagePath = path
@@ -70,8 +93,8 @@ const day = new Date().toISOString().slice(0, 10)
 const path = fm.documents() + `cover-${day}.png`
 
 if (!fm.fileExists(path)) {
-  const data = await new Request("https://example.com/cover.png").fetch()
-  fm.saveImage(path, data)
+  const request = new Request("https://example.com/cover.png")
+  await fm.download(request, path)
 }
 
 this.imagePath = path
@@ -84,10 +107,12 @@ this.imagePath = path
 | 属性 | 作用 |
 | --- | --- |
 | 类型 | 照片或文件 |
-| 内容 | 照片 UUID 或文件路径 |
+| 内容 | 浅色或默认模式使用的照片 UUID / 文件路径 |
+| 深色图片 | 深色模式使用的照片 UUID / 文件路径；留空时跟随浅色图片 |
 | 宽 / 高 | 图片显示尺寸 |
 | 缩放模式 | `fit` 完整显示；`fill` 填满并裁剪；`stretch` 拉伸 |
 | 裁剪形状 | 矩形、圆角矩形、圆形、胶囊或椭圆 |
 | 圆角 | 仅对圆角矩形生效 |
 | 旋转 / 偏移 / 不透明度 | 调整视觉效果 |
+| Blend Mode | 与下方内容混合；详见[视觉效果](./visual-effects.md#blend-mode) |
 | Blur / Scale Effect | 模糊、缩放或镜像图片；详见[视觉效果](./visual-effects.md) |

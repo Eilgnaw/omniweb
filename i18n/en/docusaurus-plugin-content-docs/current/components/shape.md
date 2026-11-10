@@ -29,6 +29,7 @@ Use Shape for backgrounds, dividers, dots, capsules, and simple progress bars.
 | Corner radius | Rounded rectangles only |
 | Opacity | From `0` to `1` |
 | Rotation / Offset | Changes the angle and position |
+| Blend Mode | Mixes the shape with content below it; see [Visual effects](./visual-effects.md#blend-mode) |
 
 ## Example: a simple progress bar
 

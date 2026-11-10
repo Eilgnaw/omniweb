@@ -33,6 +33,7 @@ See [Placeholder syntax](../getting-started/placeholder.md) for all supported fo
 | Alignment | Leading, centered, or trailing |
 | Background and corner radius | Styles the area behind the text |
 | Rotation and offset | Changes the text's angle and position |
+| Blend Mode | Mixes the text with an image or shape below it; see [Visual effects](./visual-effects.md#blend-mode) |
 
 ## Example: show two JS values
 
@@ -48,5 +49,5 @@ this.count = 12
 | Combined | `${title}: ${count} messages` |
 
 :::tip When text doesn't fit
-Set the line count first, then tune the scale factor and truncation. Starting with a tiny font makes short content lose its visual hierarchy too.
+Set the line count first, give the parent Stack a fixed width, then tune the scale factor and truncation. Starting with a tiny font makes short content lose its visual hierarchy too.
 :::
