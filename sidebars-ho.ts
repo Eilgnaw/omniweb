@@ -13,6 +13,7 @@ const sidebars: SidebarsConfig = {
         'getting-started/placeholder',
         'getting-started/lock-screen',
         'getting-started/quickstart',
+        'getting-started/share-protection',
       ],
     },
     {
