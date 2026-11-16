@@ -86,9 +86,11 @@ When Share Protection is on, you can configure these permissions separately:
 
 Each permission can be set to Allow, Password, or Deny. One password unlocks every password-protected permission in that share package. Source code isn't shown until code access is granted.
 
-Re-exporting a protected widget inherits every permission, the installation limit, and the authorization expiry from the original package. These settings can't be changed, and Share Protection can't be turned off. This also applies when every original permission is Allow or the current installation has already unlocked permissions with a password. Submissions follow the same rules.
+Re-exporting a protected widget keeps Allow and Deny permissions and changes every Password permission to Deny in the exported copy. Recipients can't unlock those permissions in the copy with the original password. The original widget's permissions and unlock state stay unchanged. Share Protection, the installation limit, and the authorization expiry are preserved and can't be disabled or changed. Submissions follow the same rules.
 
-If the original package includes password permissions, re-exporting requires entering and confirming the original share password and verifying it online before creating the file. You can't replace it with a new password of your own. If you don't know the original password, ask the author or forward the original `.omni` file directly.
+When Re-export is Allow, you don't need a password for any other permission. You only need to unlock export access when Re-export itself is Password and hasn't been unlocked yet. The exported copy doesn't require setting a new password, and permissions unlocked on your installation don't become public permissions.
+
+Duplicate Widget inside the app preserves every permission unchanged: Allow stays Allow, Password stays Password, and Deny stays Deny. Password unlocks already granted to the same app installation also apply to the duplicate. Duplicating doesn't remove the original restrictions.
 
 An incorrect password shows a localized “Incorrect password. Try again.” message. Too many attempts in a short period asks the user to try again later.
 
