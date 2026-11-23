@@ -22,11 +22,15 @@ Stack groups several children into one layout. Choose the container by direction
 | Padding | Space on four edges, such as `10,10,10,10` |
 | Width / Height | Follows the content when empty; a positive value fixes the container size |
 | Alignment | `center`, `leading`, `trailing`, and more |
-| Background / Corner radius | Styles the entire container |
+| Background / Corner radius | Styles the entire container; use one radius or set each corner separately |
 | Material | `thick`, `thin`, or `regular` blur material |
 | Rotation / Offset / Opacity | Changes the whole container |
 | Blur / Scale Effect | Blurs, scales, or flips the container and all of its children; see [Visual effects](./visual-effects.md) |
 | Open URL | Makes the entire container tappable |
+
+After choosing Rounded Rectangle as the clip shape, tap the edit button beside Corner Radius to set the top-leading, top-trailing, bottom-leading, and bottom-trailing corners separately. The plus and minus buttons change all four corners together.
+
+Each corner can bind to a `${variable}` with the variable button. The variable must resolve to a number; invalid values and values below `0` are treated as `0`. The shared plus and minus buttons are disabled while a corner uses a variable.
 
 ## Choose a layout
 
