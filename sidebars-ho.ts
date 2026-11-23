@@ -11,6 +11,7 @@ const sidebars: SidebarsConfig = {
         'getting-started/concepts',
         'getting-started/first-widget',
         'getting-started/placeholder',
+        'getting-started/color-editor',
         'getting-started/lock-screen',
         'getting-started/quickstart',
         'getting-started/share-protection',
