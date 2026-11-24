@@ -47,6 +47,7 @@ const sidebars: SidebarsConfig = {
         'api/control',
         'api/music',
         'api/widget',
+        'api/ui',
         'api/device',
         'api/location',
         'api/weather',
