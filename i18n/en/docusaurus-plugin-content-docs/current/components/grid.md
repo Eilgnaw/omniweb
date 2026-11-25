@@ -27,7 +27,11 @@ With `columns = 3` and 7 items:
 | Columns | Number of items in each row |
 | Spacing | Distance between grid items |
 | Alignment | Placement of an incomplete final row |
-| Padding / Background / Corner radius | Styles the whole grid container |
+| Padding / Background / Corner radius | Styles the whole grid container; use one radius or set each corner separately |
+
+After choosing Rounded Rectangle as the clip shape, tap the edit button beside Corner Radius to set the top-leading, top-trailing, bottom-leading, and bottom-trailing corners separately. The plus and minus buttons change all four corners together.
+
+Each corner can bind to a `${variable}` with the variable button. The variable must resolve to a number; invalid values and values below `0` are treated as `0`. The shared plus and minus buttons are disabled while a corner uses a variable.
 
 ## Example: a two-column weather grid
 

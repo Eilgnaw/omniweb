@@ -70,6 +70,14 @@ function load() {
 
 Start with [Stack containers](../components/stack.md). For lists, continue with [Loop](../components/loop.md).
 
+### Choose fonts and colors in the editor
+
+The font picker for Text and Date has two columns: choose a family on the left and a weight on the right. Common system fonts, Rounded, and monospaced fonts appear first. You can search the other fonts, and recently used fonts stay at the top. Tapping a weight updates the widget preview immediately; tap Done to close the panel.
+
+When editing a color, switch between Recent, Presets, and My Colors at the top. The Presets tab then switches between system, background, and foreground colors. Swipe through recent colors horizontally; the color wheel on the right opens the system color picker. Background includes a transparent swatch. Long-press a swatch to save it to My Colors, or add a custom color there.
+
+A two-tone swatch previews both light and dark colors, but tapping it changes only the mode you're editing. To set both appearances, enable Dark Mode and edit the light and dark colors separately. The panel stays open after a selection while the preview and Recent update immediately. Tap Done to close it, or Cancel to restore the color from before you opened the panel.
+
 ## 4. JavaScript runtime
 
 - Standard JavaScript, `async/await`, `Promise`, `Date`, `JSON`, and `Intl` are available.

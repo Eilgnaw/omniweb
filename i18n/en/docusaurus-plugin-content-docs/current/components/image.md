@@ -112,7 +112,11 @@ This creates several cache files over time. If you need strict space control, re
 | Width / Height | Display size |
 | Scale mode | `fit` shows the whole image; `fill` fills and crops; `stretch` distorts to fit |
 | Clip shape | Rectangle, rounded rectangle, circle, capsule, or ellipse |
-| Corner radius | Applies only to a rounded rectangle |
+| Corner radius | Applies only to a rounded rectangle; use one radius or set each corner separately |
 | Rotation / Offset / Opacity | Changes the visual treatment |
 | Blend Mode | Mixes the image with content below it; see [Visual effects](./visual-effects.md#blend-mode) |
 | Blur / Scale Effect | Blurs, scales, or flips the image; see [Visual effects](./visual-effects.md) |
+
+After choosing Rounded Rectangle as the clip shape, tap the edit button beside Corner Radius to set the top-leading, top-trailing, bottom-leading, and bottom-trailing corners separately. The plus and minus buttons change all four corners together.
+
+Each corner can bind to a `${variable}` with the variable button. The variable must resolve to a number; invalid values and values below `0` are treated as `0`. The shared plus and minus buttons are disabled while a corner uses a variable.
