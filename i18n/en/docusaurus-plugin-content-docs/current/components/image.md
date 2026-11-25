@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Image
 
-Image can display a fixed photo from your library or a file downloaded by JavaScript. Choose the right Type before setting Content.
+Image can display a fixed picture chosen from Photos or taken with the camera, as well as a file downloaded by JavaScript. Choose the right Type before setting Content.
 
 ## Choose an image type first
 
@@ -17,12 +17,13 @@ Image can display a fixed photo from your library or a file downloaded by JavaSc
 Image doesn't download `https://...` on its own. Download and save the image with JavaScript first, then set Type to File.
 :::
 
-## Display a photo from the library
+## Choose or take a photo
 
 1. Add **image**.
 2. Keep Type set to Photo.
-3. Tap Add Image in the property panel, then choose and crop a photo.
-4. Save. Omni manages the UUID in Content; don't edit it.
+3. Tap Add Image in the property panel, then choose Choose from Photos or Take Photo.
+4. To adjust the framing, tap the edit button to open the cropper.
+5. Save. Omni manages the UUID in Content; don't edit it.
 
 ## Display a local file
 
@@ -43,7 +44,7 @@ See [File Manager](../api/fileManager.md) for the full rules.
 
 Image can use separate light and dark images. It switches automatically with the system appearance. If you don't set a dark image, Dark Mode continues to use the light image.
 
-- **Photo**: Pick and crop the light and dark photos separately. Clear the dark photo to return to Follow Light Image.
+- **Photo**: Choose from Photos or take a new picture, then crop the light and dark photos separately. Clear the dark photo to return to Follow Light Image.
 - **File**: Enter separate paths or placeholders in Content and Dark Image.
 
 ```js

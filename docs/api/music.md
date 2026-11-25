@@ -89,15 +89,33 @@ const progress = playback.elapsedTime
 const artwork = await AppleMusic.artwork(512)
 ```
 
-参数是正方形封面的边长，单位为点，有效范围会限制在 `32` 到 `1024`。封面会保存到当前小组件的私有缓存，返回可直接使用的 `LL:` 文件路径；当前歌曲没有封面时返回 `null`。
+参数是正方形封面的边长，单位为点，有效范围会限制在 `32` 到 `1024`。封面会按歌曲 ID 保存到当前小组件的私有缓存，并立即同步到桌面小组件使用的 App Group 运行缓存。返回值是可直接使用的 `LL:` 文件路径；切歌后路径会变化，目录中只保留当前封面文件。当前歌曲没有封面时返回 `null`。
 
 把 Image 的类型设为“文件”，内容设为 `${artwork}`。
 
 封面文件通常比文本数据大。只在布局确实需要封面时调用，并优先使用与实际显示尺寸接近的值。
 
+### 自定义封面名称或路径
+
+`saveArtwork()` 可以指定文件名或完整路径：
+
+```js
+// 只传文件名：默认保存到当前小组件的 LL: 私有目录
+const privateCover = await AppleMusic.saveArtwork(256, 'current-cover.jpg')
+
+// 传完整路径
+const fm = FileManager.local()
+const publicPath = fm.documents() + 'music/current-cover.jpg'
+const publicCover = await AppleMusic.saveArtwork(256, publicPath)
+```
+
+支持 `LD:`、`LL:`、`ID:`、`IL:` 路径，路径仍然只能位于当前小组件目录内。`saveArtwork()` 会覆盖同名文件并立即同步 App Group 运行缓存，但不会自动删除自定义文件；需要时使用 `FileManager.remove(path)` 清理。
+
 ## 控制播放
 
 所有控制方法都是异步方法，成功后返回最新的播放状态对象。
+
+`play()`、`pause()`、`togglePlayPause()`、`stop()` 会等待播放状态更新；`next()` 和 `previous()` 会等待歌曲或播放位置发生变化，最长等待约 2.5 秒。因此在 Button 代码中 `await` 命令后，可以立即重新读取歌曲信息。
 
 ```js
 await AppleMusic.play()
@@ -285,6 +303,7 @@ AppleMusic.requestAuthorization() → Promise<string>
 AppleMusic.nowPlaying() → Promise<object | null>
 AppleMusic.playbackState() → Promise<object>
 AppleMusic.artwork(size) → Promise<string | null> // LL: 文件路径
+AppleMusic.saveArtwork(size, nameOrPath) → Promise<string | null>
 
 AppleMusic.play() → Promise<object>
 AppleMusic.pause() → Promise<object>

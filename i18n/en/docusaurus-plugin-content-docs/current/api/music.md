@@ -89,15 +89,33 @@ The returned object contains `state`, `capturedAt`, `elapsedTime`, `playbackRate
 const artwork = await AppleMusic.artwork(512)
 ```
 
-The argument is the square artwork's side length in points, clamped from `32` through `1024`. The artwork is saved in the current widget's private cache, and the method returns a ready-to-use `LL:` file path, or `null` when the current song has no artwork.
+The argument is the square artwork's side length in points, clamped from `32` through `1024`. Artwork is stored in the current widget's private cache using the song ID and immediately mirrored into the App Group runtime cache used by the Home Screen widget. The path changes after a track change, and only the current artwork file is kept in the cache. The method returns a ready-to-use `LL:` file path, or `null` when the current song has no artwork.
 
 Set the Image type to **File** and its content to `${artwork}`.
 
 Artwork files are usually much larger than text data. Call this only when the layout needs artwork, and prefer a value close to the actual display size.
 
+### Custom artwork name or path
+
+Use `saveArtwork()` to provide a filename or a complete path:
+
+```js
+// Filename only: defaults to the current widget's private LL: directory
+const privateCover = await AppleMusic.saveArtwork(256, 'current-cover.jpg')
+
+// Complete path
+const fm = FileManager.local()
+const publicPath = fm.documents() + 'music/current-cover.jpg'
+const publicCover = await AppleMusic.saveArtwork(256, publicPath)
+```
+
+`LD:`, `LL:`, `ID:`, and `IL:` paths are supported, and the path must still belong to the current widget. `saveArtwork()` replaces a file with the same name and immediately mirrors it into the App Group runtime cache, but it doesn't remove custom files automatically. Use `FileManager.remove(path)` when cleanup is needed.
+
 ## Control playback
 
 Every control is asynchronous and returns the latest playback-state object when it succeeds.
+
+`play()`, `pause()`, `togglePlayPause()`, and `stop()` wait for playback state to update. `next()` and `previous()` wait until the song or playback position changes, for up to about 2.5 seconds. Button code can therefore reload song information immediately after awaiting a command.
 
 ```js
 await AppleMusic.play()
@@ -285,6 +303,7 @@ AppleMusic.requestAuthorization() → Promise<string>
 AppleMusic.nowPlaying() → Promise<object | null>
 AppleMusic.playbackState() → Promise<object>
 AppleMusic.artwork(size) → Promise<string | null> // LL: file path
+AppleMusic.saveArtwork(size, nameOrPath) → Promise<string | null>
 
 AppleMusic.play() → Promise<object>
 AppleMusic.pause() → Promise<object>
